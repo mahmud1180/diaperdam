@@ -130,7 +130,7 @@ function ProductCard({ product: p, rank }: { product: DiaperProduct; rank: numbe
         </span>
         {p.is_promotion && p.discount_pct && (
           <span className="text-xs font-bold bg-red-50 text-red-600 border border-red-200 px-2 py-1 rounded-full">
-            -{Math.round(p.discount_pct)}%
+            -{Math.round(Number(p.discount_pct))}%
           </span>
         )}
       </div>
