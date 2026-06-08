@@ -47,6 +47,25 @@ jobs:
           conn.close()
           "
 
+      - name: Clean junk brands
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python -c "
+          import os, sys
+          sys.path.insert(0, 'scrapers')
+          from brands import BRAND_SLUG_MAP
+          import psycopg2
+          valid = list(set(BRAND_SLUG_MAP.values()))
+          conn = psycopg2.connect(os.environ['DATABASE_URL'])
+          cur = conn.cursor()
+          cur.execute('UPDATE diaper_products SET is_available = FALSE WHERE brand_slug != ALL(%s) AND is_available = TRUE', (valid,))
+          print(f'Marked {cur.rowcount} junk-brand products as unavailable')
+          conn.commit()
+          cur.close()
+          conn.close()
+          "
+
       - name: Run scrapers
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
