@@ -20,11 +20,12 @@ BASE = "https://www.shwapno.com"
 HEADERS_HTML = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/147 Safari/537.36",
     "Accept": "text/html,application/xhtml+xml",
-    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Language": "bn-BD,bn;q=0.9,en-US;q=0.8,en;q=0.7",
 }
 HEADERS_JSON = {
     "User-Agent": HEADERS_HTML["User-Agent"],
     "Accept": "application/json",
+    "Accept-Language": "bn-BD,bn;q=0.9,en-US;q=0.8,en;q=0.7",
 }
 
 # Category slugs and their known Mongo ObjectIds (hardcoded fallback for CI)

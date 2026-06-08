@@ -37,17 +37,14 @@ jobs:
           cur = conn.cursor()
           with open('schema.sql') as f:
               sql = f.read()
-          for stmt in sql.split(';'):
-              stmt = stmt.strip()
-              if stmt and not stmt.startswith('--'):
-                  try:
-                      cur.execute(stmt)
-                  except Exception as e:
-                      if 'already exists' not in str(e) and 'duplicate' not in str(e).lower():
-                          print(f'Schema stmt error (ignored): {e}')
+          # Execute entire SQL file at once (PostgreSQL handles multi-statement)
+          cur.execute(sql)
+          # Verify stores exist
+          cur.execute('SELECT slug FROM stores ORDER BY slug')
+          stores = [r[0] for r in cur.fetchall()]
+          print(f'Schema applied OK — stores: {stores}')
           cur.close()
           conn.close()
-          print('Schema applied OK')
           "
 
       - name: Run scrapers

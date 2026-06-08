@@ -12,6 +12,7 @@ BASE = "https://gobaby.com.bd"
 WC_API = f"{BASE}/wp-json/wc/store/v1/products"
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
+    "Accept-Language": "bn-BD,bn;q=0.9,en-US;q=0.8,en;q=0.7",
 }
 
 BRAND_SLUG_MAP = {
