@@ -43,11 +43,19 @@ const organizationSchema = {
 };
 
 export default async function HomePage() {
-  const [cheapest, lastScraped, deals] = await Promise.all([
-    getCheapestByBrand().catch(() => []),
-    getLastScrapedAt().catch(() => null),
-    getActiveDeals().catch(() => []),
-  ]);
+  let cheapest: Awaited<ReturnType<typeof getCheapestByBrand>> = [];
+  let lastScraped: string | null = null;
+  let deals: Awaited<ReturnType<typeof getActiveDeals>> = [];
+
+  try {
+    [cheapest, lastScraped, deals] = await Promise.all([
+      getCheapestByBrand().catch(() => [] as Awaited<ReturnType<typeof getCheapestByBrand>>),
+      getLastScrapedAt().catch(() => null),
+      getActiveDeals().catch(() => [] as Awaited<ReturnType<typeof getActiveDeals>>),
+    ]);
+  } catch {
+    // If all else fails, render with empty data
+  }
 
   // Group cheapest by brand+size
   const cheapestMap = new Map(
@@ -90,7 +98,7 @@ export default async function HomePage() {
           </div>
           {lastScraped && (
             <p className="text-xs text-slate-400 mt-4">
-              Prices last updated: {new Date(lastScraped).toLocaleDateString("en-BD", { dateStyle: "medium" })}
+              Prices last updated: {new Date(lastScraped).toLocaleDateString("en-BD", { year: "numeric", month: "short", day: "numeric" })}
             </p>
           )}
         </div>
@@ -212,12 +220,12 @@ export default async function HomePage() {
                   </div>
                   {deal.discount_pct != null && deal.discount_pct > 0 && (
                     <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                      -{Math.round(deal.discount_pct)}%
+                      -{Math.round(Number(deal.discount_pct))}%
                     </span>
                   )}
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-emerald-700 font-bold">৳{deal.price_per_piece.toFixed(2)}</span>
+                  <span className="text-emerald-700 font-bold">৳{Number(deal.price_per_piece).toFixed(2)}</span>
                   <span className="text-slate-400 text-xs">/pc</span>
                   {deal.size_label && (
                     <span className="ml-auto bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded">
@@ -226,7 +234,7 @@ export default async function HomePage() {
                   )}
                 </div>
                 {deal.original_price_bdt && (
-                  <p className="text-xs text-slate-400 line-through">৳{deal.original_price_bdt.toFixed(2)}</p>
+                  <p className="text-xs text-slate-400 line-through">৳{Number(deal.original_price_bdt).toFixed(2)}</p>
                 )}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
                   <span className="text-xs text-slate-500">{deal.store_name} · {deal.pack_qty}pcs</span>

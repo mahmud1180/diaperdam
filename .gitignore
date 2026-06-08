@@ -48,3 +48,6 @@ scrapers/__pycache__/
 next-env.d.ts
 
 # .github/ — removed: workflows need to be tracked
+
+.vercel
+.env*.local

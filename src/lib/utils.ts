@@ -5,12 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatBDT(amount: number): string {
-  return `৳${amount.toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+export function formatBDT(amount: number | string): string {
+  return `৳${Number(amount).toLocaleString("en-BD", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
-export function formatPerPiece(amount: number): string {
-  return `৳${amount.toFixed(2)}/piece`;
+export function formatPerPiece(amount: number | string): string {
+  return `৳${Number(amount).toFixed(2)}/piece`;
 }
 
 export const SIZE_ORDER = ["Newborn", "S", "M", "L", "XL", "XXL"];
