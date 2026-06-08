@@ -1,10 +1,8 @@
-"""Daraz diaper scraper.
+"""Daraz diaper scraper — Playwright-based since Daraz is a heavy SPA.
 
-Daraz (Lazada family) uses a server-rendered HTML page with product data
-embedded in a window.pageData script. Strategy:
-1. Fetch search results page HTML
-2. Extract window.pageData JSON (contains listItems)
-3. Parse product data from listItems
+Daraz (Lazada family) renders product data client-side. We use Playwright
+to load the search page and extract product cards from the DOM.
+Fallback to HTTP if Playwright is unavailable (dev environments).
 """
 import asyncio
 import json
@@ -19,20 +17,14 @@ from base import BaseScraper, ScrapedDiaper
 logger = logging.getLogger(__name__)
 
 DARAZ_BASE = "https://www.daraz.com.bd"
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-}
-
-SEARCH_QUERIES = ["diaper", "baby diaper", "huggies diaper", "mamypoko diaper",
-                  "molfix diaper", "pampers diaper"]
+SEARCH_QUERIES = ["diaper", "baby diaper", "huggies diaper", "mamypoko diaper"]
 
 BRAND_SLUG_MAP = {
     "huggies": "huggies", "mamypoko": "mamypoko", "mamy poko": "mamypoko",
     "molfix": "molfix", "pampers": "pampers", "neocare": "neocare",
     "bashundhara": "bashundhara", "avonee": "avonee", "supermom": "supermom",
     "savlon": "savlon", "twinkle": "savlon", "smc smile": "smc-smile",
+    "chu chu": "chuchu", "chu-chu": "chuchu", "chuchu": "chuchu",
 }
 
 
@@ -42,7 +34,8 @@ def _extract_brand(name: str) -> tuple[str, str]:
         if keyword in n:
             display = {"mamypoko": "MamyPoko", "huggies": "Huggies", "molfix": "Molfix",
                        "pampers": "Pampers", "neocare": "Neocare", "bashundhara": "Bashundhara",
-                       "savlon": "Savlon", "avonee": "Avonee", "supermom": "Supermom"}.get(slug, keyword.title())
+                       "savlon": "Savlon", "avonee": "Avonee", "supermom": "Supermom",
+                       "chuchu": "Chu Chu", "smc-smile": "SMC Smile"}.get(slug, keyword.title())
             return display, slug
     first = name.split()[0]
     return first, first.lower().replace(" ", "-")
@@ -64,13 +57,10 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
-    m = re.search(r"(\d+)\s*pcs", name.lower())
+    m = re.search(r"(\d+)\s*(?:pcs|pieces|pc|p)\b", name.lower())
     if m:
         return int(m.group(1))
-    m = re.search(r"(\d+)\s*pieces", name.lower())
-    if m:
-        return int(m.group(1))
-    m = re.search(r"pack\s*of\s*(\d+)", name.lower())
+    m = re.search(r"pack\s*(?:of\s*)?(\d+)", name.lower())
     return int(m.group(1)) if m else None
 
 
@@ -94,78 +84,95 @@ class DarazScraper(BaseScraper):
     store_name = "Daraz"
 
     async def scrape(self) -> list[ScrapedDiaper]:
+        """Try Playwright first, fall back to HTTP."""
+        try:
+            from playwright.async_api import async_playwright
+            return await self._scrape_playwright()
+        except ImportError:
+            logger.warning("[daraz] Playwright not available, trying HTTP fallback")
+            return await self._scrape_http()
+
+    async def _scrape_playwright(self) -> list[ScrapedDiaper]:
+        from playwright.async_api import async_playwright
+
         results: list[ScrapedDiaper] = []
         seen_ids: set[str] = set()
 
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
+            page = await browser.new_page(
+                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
+            )
+
+            for query in SEARCH_QUERIES:
+                for pg_num in range(1, 3):  # 2 pages per query
+                    url = f"{DARAZ_BASE}/catalog/?q={query.replace(' ', '+')}&page={pg_num}"
+                    logger.info(f"[daraz] Loading: {url}")
+                    try:
+                        await page.goto(url, wait_until="networkidle", timeout=30000)
+                        await page.wait_for_timeout(2000)
+
+                        # Extract pageData from the page context
+                        items = await page.evaluate("""() => {
+                            if (window.pageData && window.pageData.mods && window.pageData.mods.listItems) {
+                                return window.pageData.mods.listItems;
+                            }
+                            return [];
+                        }""")
+
+                        if not items:
+                            logger.info(f"[daraz] No items from pageData on page {pg_num}")
+                            break
+
+                        for item in items:
+                            p = self._parse_item(item)
+                            if p and p.external_id not in seen_ids:
+                                results.append(p)
+                                seen_ids.add(p.external_id)
+
+                    except Exception as e:
+                        logger.warning(f"[daraz] Playwright error: {e}")
+                        break
+
+                    await asyncio.sleep(2.0)
+
+            await browser.close()
+
+        logger.info(f"[daraz] Scraped {len(results)} diaper products (Playwright)")
+        return results
+
+    async def _scrape_http(self) -> list[ScrapedDiaper]:
+        """HTTP fallback — try to get pageData from server-rendered HTML."""
+        results: list[ScrapedDiaper] = []
+        seen_ids: set[str] = set()
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml",
+        }
+
         async with httpx.AsyncClient(follow_redirects=True, timeout=30) as client:
             for query in SEARCH_QUERIES:
-                logger.info(f"[daraz] Searching: {query}")
-                for page in range(1, 4):  # Up to 3 pages per query
-                    url = f"{DARAZ_BASE}/catalog/?q={query.replace(' ', '+')}&page={page}"
-                    try:
-                        r = await client.get(url, headers=HEADERS)
-                        if r.status_code != 200:
-                            logger.warning(f"[daraz] {url} → {r.status_code}")
-                            break
-                    except Exception as e:
-                        logger.warning(f"[daraz] fetch error: {e}")
-                        break
-
-                    # Extract pageData JSON
-                    items = self._extract_items(r.text)
-                    if not items:
-                        break
-
+                url = f"{DARAZ_BASE}/catalog/?q={query.replace(' ', '+')}"
+                try:
+                    r = await client.get(url, headers=headers)
+                    if r.status_code != 200:
+                        continue
+                    m = re.search(r'window\.pageData\s*=\s*(\{.*?\});\s*</script>', r.text, re.DOTALL)
+                    if not m:
+                        continue
+                    data = json.loads(m.group(1))
+                    items = data.get("mods", {}).get("listItems", [])
                     for item in items:
                         p = self._parse_item(item)
                         if p and p.external_id not in seen_ids:
                             results.append(p)
                             seen_ids.add(p.external_id)
+                except Exception as e:
+                    logger.warning(f"[daraz] HTTP error: {e}")
+                await asyncio.sleep(1.5)
 
-                    await asyncio.sleep(1.0)  # Daraz rate limits aggressively
-
-        logger.info(f"[daraz] Scraped {len(results)} diaper products")
+        logger.info(f"[daraz] Scraped {len(results)} diaper products (HTTP)")
         return results
-
-    def _extract_items(self, html: str) -> list[dict]:
-        """Extract product items from Daraz HTML page."""
-        # Try window.pageData
-        m = re.search(r'window\.pageData\s*=\s*(\{.*?\});\s*</script>', html, re.DOTALL)
-        if m:
-            try:
-                data = json.loads(m.group(1))
-                items = data.get("mods", {}).get("listItems", [])
-                if items:
-                    return items
-            except json.JSONDecodeError:
-                pass
-
-        # Try __NEXT_DATA__
-        m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL)
-        if m:
-            try:
-                data = json.loads(m.group(1))
-                props = data.get("props", {}).get("pageProps", {})
-                items = props.get("listItems") or props.get("products") or []
-                if items:
-                    return items
-            except json.JSONDecodeError:
-                pass
-
-        # Try ld+json
-        products = []
-        for m in re.finditer(r'<script type="application/ld\+json">(.*?)</script>', html, re.DOTALL):
-            try:
-                ld = json.loads(m.group(1))
-                if ld.get("@type") == "Product":
-                    products.append(ld)
-                elif ld.get("@type") == "ItemList":
-                    for item in ld.get("itemListElement", []):
-                        if item.get("@type") == "Product":
-                            products.append(item)
-            except json.JSONDecodeError:
-                continue
-        return products
 
     def _parse_item(self, item: dict) -> ScrapedDiaper | None:
         try:
@@ -174,7 +181,6 @@ class DarazScraper(BaseScraper):
             if not name or not _is_diaper(name):
                 return None
 
-            # Price
             price_str = item.get("price") or item.get("priceShow") or ""
             if isinstance(price_str, str):
                 price_str = re.sub(r"[^\d.]", "", price_str)

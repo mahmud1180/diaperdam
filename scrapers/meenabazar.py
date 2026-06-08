@@ -26,11 +26,9 @@ HEADERS = {
 S3_PREFIX = "https://s3-ap-southeast-1.amazonaws.com/com.meenabazaronline.v1.01/"
 PAGE_SIZE = 100
 
-# Search both baby-care/household slugs that might have diapers
-SLUGS = ["grocery", "household"]
-
-# Also try search endpoint for diaper keyword
-SEARCH_API = "https://mbonlineapi.com/api/front/product/search"
+# Baby Products = SubCategoryId 145 under "household" slug
+# Also Adult Diaper = SubCategoryId 143
+BABY_SUBCATEGORY_IDS = [145, 143]
 
 BRAND_SLUG_MAP = {
     "huggies": "huggies", "mamypoko": "mamypoko", "mamy poko": "mamypoko",
@@ -69,7 +67,8 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
-    m = re.search(r"(\d+)\s*pcs", name.lower())
+    # Match "40pcs", "40p", "40Pcs", "40 pcs", etc.
+    m = re.search(r"(\d+)\s*(?:pcs|p)\b", name.lower())
     return int(m.group(1)) if m else None
 
 
@@ -91,21 +90,22 @@ def _is_diaper(name: str) -> bool:
     return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
 
 
-def _post_page(client: httpx.Client, slug: str, start: int) -> list[dict]:
+def _post_page(client: httpx.Client, subcat_id: int, start: int) -> list[dict]:
+    """Fetch products from a subcategory under 'household'."""
     body = {
         "StartSl": start,
         "NoOfItem": PAGE_SIZE,
-        "SearchSlug": slug,
+        "SearchSlug": "household",
         "CategoryId": [],
         "ThumbSize": "lg",
         "SubUnitId": 2,
         "AreaId": None,
         "BrandId": [],
         "SearchType": "C",
-        "SubCategoryId": [],
+        "SubCategoryId": [subcat_id],
     }
     try:
-        r = client.post(f"{API}/{slug}", json=body, headers=HEADERS, timeout=30)
+        r = client.post(f"{API}/household", json=body, headers=HEADERS, timeout=30)
         if r.status_code not in (200, 201):
             return []
         j = r.json()
@@ -114,34 +114,7 @@ def _post_page(client: httpx.Client, slug: str, start: int) -> list[dict]:
             return data
         return data.get("Category") or []
     except Exception as e:
-        logger.warning(f"[meenabazar] POST {slug} start={start}: {e}")
-        return []
-
-
-def _search_products(client: httpx.Client, query: str) -> list[dict]:
-    """Try searching for diaper products directly."""
-    body = {
-        "StartSl": 1,
-        "NoOfItem": PAGE_SIZE,
-        "SearchSlug": query,
-        "CategoryId": [],
-        "ThumbSize": "lg",
-        "SubUnitId": 2,
-        "AreaId": None,
-        "BrandId": [],
-        "SearchType": "S",
-        "SubCategoryId": [],
-    }
-    try:
-        r = client.post(f"{API}/{query}", json=body, headers=HEADERS, timeout=30)
-        if r.status_code not in (200, 201):
-            return []
-        j = r.json()
-        data = j.get("data") or {}
-        if isinstance(data, list):
-            return data
-        return data.get("Category") or data.get("Search") or []
-    except Exception:
+        logger.warning(f"[meenabazar] POST subcat={subcat_id} start={start}: {e}")
         return []
 
 
@@ -154,12 +127,12 @@ class MeenaBazarScraper(BaseScraper):
         seen_ids: set[str] = set()
 
         with httpx.Client(follow_redirects=True) as client:
-            # Strategy 1: Browse category slugs and filter for diapers
-            for slug in SLUGS:
+            # Browse Baby Products (145) and Adult Diaper (143) subcategories
+            for subcat_id in BABY_SUBCATEGORY_IDS:
                 start = 1
                 pages = 0
-                while pages < 50:
-                    batch = _post_page(client, slug, start)
+                while pages < 10:
+                    batch = _post_page(client, subcat_id, start)
                     if not batch:
                         break
 
@@ -175,17 +148,7 @@ class MeenaBazarScraper(BaseScraper):
                     pages += 1
                     await asyncio.sleep(0.3)
 
-                logger.info(f"[meenabazar] /{slug}: found {len(results)} diapers so far")
-
-            # Strategy 2: Direct search for diaper keywords
-            for q in ["diaper", "huggies", "mamypoko", "molfix"]:
-                batch = _search_products(client, q)
-                for raw in batch:
-                    p = self._parse_product(raw)
-                    if p and p.external_id not in seen_ids:
-                        results.append(p)
-                        seen_ids.add(p.external_id)
-                await asyncio.sleep(0.5)
+                logger.info(f"[meenabazar] subcat={subcat_id}: found {len(results)} diapers so far")
 
         logger.info(f"[meenabazar] Scraped {len(results)} diaper products")
         return results

@@ -27,7 +27,7 @@ def _brand(name):
     return name.split()[0], name.split()[0].lower()
 
 def _qty(name):
-    m = re.search(r"(\d+)\s*(?:pcs|pieces|pc)", name.lower())
+    m = re.search(r"(\d+)\s*(?:pcs|pieces|pc|p)\b", name.lower())
     return int(m.group(1)) if m else None
 
 def _size(name):

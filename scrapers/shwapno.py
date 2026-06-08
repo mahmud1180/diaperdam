@@ -27,8 +27,12 @@ HEADERS_JSON = {
     "Accept": "application/json",
 }
 
-# Try these slugs to find the diaper category
-SLUGS = ["baby-diapers", "diapers", "baby-care", "diaper", "baby-diaper"]
+# Category slugs and their known Mongo ObjectIds (hardcoded fallback for CI)
+SLUG_IDS = {
+    "baby-diapers": "65ed45e1e429af37f903adfc",
+    "diaper": "66d591dd1a7714ddf895a637",
+}
+SLUGS = list(SLUG_IDS.keys())
 
 _ID_RE = re.compile(r"[?&]id=([a-f0-9]{24})")
 _HEX_ID = re.compile(r"[a-f0-9]{24}")
@@ -70,7 +74,8 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
-    m = re.search(r"(\d+)\s*pcs", name.lower())
+    # Match "40Pcs", "40pcs", "40p", etc.
+    m = re.search(r"(\d+)\s*(?:pcs|p)\b", name.lower())
     return int(m.group(1)) if m else None
 
 
@@ -93,22 +98,26 @@ def _is_diaper(name: str) -> bool:
 
 
 def _extract_category_id(client: httpx.Client, slug: str) -> str | None:
+    """Extract category ObjectId from HTML, falling back to hardcoded IDs."""
     try:
         r = client.get(f"{BASE}/{slug}", headers=HEADERS_HTML, timeout=20)
-        if r.status_code != 200:
-            return None
-        m = _ID_RE.search(r.text)
-        if m:
-            return m.group(1)
-        slug_idx = r.text.find(slug)
-        if slug_idx > 0:
-            window = r.text[max(0, slug_idx - 3000):slug_idx + 5000]
-            for cand in _HEX_ID.findall(window):
-                if cand.startswith(("65", "66", "67", "68")):
-                    return cand
+        if r.status_code == 200:
+            m = _ID_RE.search(r.text)
+            if m:
+                return m.group(1)
+            slug_idx = r.text.find(slug)
+            if slug_idx > 0:
+                window = r.text[max(0, slug_idx - 3000):slug_idx + 5000]
+                for cand in _HEX_ID.findall(window):
+                    if cand.startswith(("65", "66", "67", "68", "69")):
+                        return cand
     except Exception as e:
         logger.warning(f"[shwapno] category id for {slug}: {e}")
-    return None
+    # Fallback to hardcoded IDs (CI runners may get different HTML)
+    fallback = SLUG_IDS.get(slug)
+    if fallback:
+        logger.info(f"[shwapno] Using hardcoded category ID for /{slug}")
+    return fallback
 
 
 class ShwapnoScraper(BaseScraper):

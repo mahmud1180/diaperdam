@@ -33,6 +33,7 @@ jobs:
           python -c "
           import os, psycopg2
           conn = psycopg2.connect(os.environ['DATABASE_URL'])
+          conn.autocommit = True
           cur = conn.cursor()
           with open('schema.sql') as f:
               sql = f.read()
@@ -44,8 +45,7 @@ jobs:
                   except Exception as e:
                       if 'already exists' not in str(e) and 'duplicate' not in str(e).lower():
                           print(f'Schema stmt error (ignored): {e}')
-                      conn.rollback()
-          conn.commit()
+          cur.close()
           conn.close()
           print('Schema applied OK')
           "
