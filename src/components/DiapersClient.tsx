@@ -15,46 +15,48 @@ const SORT_OPTIONS = [
   { value: "discount_pct" as const,    label: "বেশি ছাড়" },
 ];
 
+const SIZE_LABELS: Record<string, string> = {
+  Newborn: "নবজাতক",
+  S: "S", M: "M", L: "L", XL: "XL", XXL: "XXL",
+};
+
 const PAGE_SIZE = 50;
 
 export default function DiapersClient({ products, showHeroFilters, title }: Props) {
   const [typeFilter,  setTypeFilter]  = useState<string | null>(null);
+  const [sizeFilter,  setSizeFilter]  = useState<string | null>(null);
   const [sort, setSort] = useState<"price_per_piece" | "price_bdt" | "discount_pct">("price_per_piece");
   const [page, setPage] = useState(1);
 
-  // Client-side filters for type and sort only — brand/size dropdowns navigate to dedicated pages
+  // Client-side filters for type, size, and sort
   const filtered = useMemo(() => {
     let list = products;
     if (typeFilter) list = list.filter(p => p.type === typeFilter);
+    if (sizeFilter) list = list.filter(p => p.size_label === sizeFilter);
 
     return [...list].sort((a, b) => {
       if (sort === "discount_pct") return (Number(b.discount_pct) || 0) - (Number(a.discount_pct) || 0);
       if (sort === "price_bdt")    return Number(a.price_bdt) - Number(b.price_bdt);
       return Number(a.price_per_piece) - Number(b.price_per_piece);
     });
-  }, [products, typeFilter, sort]);
+  }, [products, typeFilter, sizeFilter, sort]);
 
   // Reset page when filters change
-  useMemo(() => setPage(1), [typeFilter, sort]);
+  useMemo(() => setPage(1), [typeFilter, sizeFilter, sort]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  // Collect available brands/sizes from data for hero navigation dropdowns
+  // Collect available brands/sizes from data
   const brandMap = new Map<string, string>();
   products.forEach(p => { if (p.brand_slug) brandMap.set(p.brand_slug, p.brand); });
   const availBrands = [...brandMap.entries()].sort((a, b) => a[1].localeCompare(b[1]));
   const availSizes = SIZE_ORDER.filter(s => products.some(p => p.size_label === s));
   const storeCount = new Set(products.map(p => p.store_slug)).size;
 
-  // Navigate to brand/size pages on dropdown change
-  function handleNav(url: string) {
-    if (url && url !== "#") window.location.href = url;
-  }
-
   return (
     <div>
-      {/* Hero with navigation dropdowns */}
+      {/* Hero */}
       {showHeroFilters && (
         <div className="bg-gradient-to-br from-teal-600 via-emerald-600 to-emerald-700 text-white py-12 px-4">
           <div className="max-w-4xl mx-auto text-center">
@@ -62,14 +64,18 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
               {title || "এখনকার সব ডায়াপার অফার"}
             </h1>
             <p className="text-emerald-100 text-lg mb-8">
-              আজ <strong className="text-white">{products.length}</strong> টি পণ্য <strong className="text-white">{storeCount}</strong> টি দোকানে
+              আজ <strong className="text-white">{filtered.length}</strong> টি পণ্য <strong className="text-white">{storeCount}</strong> টি দোকানে
+              {sizeFilter && <span className="ml-1">— সাইজ {SIZE_LABELS[sizeFilter] ?? sizeFilter}</span>}
             </p>
 
-            {/* Hero dropdowns navigate to dedicated pages */}
+            {/* Brand navigation (dedicated pages for SEO) */}
             <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">
               <select
                 defaultValue="#"
-                onChange={e => handleNav(e.target.value)}
+                onChange={e => {
+                  const v = e.target.value;
+                  if (v && v !== "#") window.location.href = v;
+                }}
                 className="text-base border-0 rounded-xl px-5 py-3 bg-white text-slate-700 cursor-pointer shadow-lg focus:ring-2 focus:ring-white outline-none w-full sm:w-auto"
               >
                 <option value="#">ব্র্যান্ড বাছুন...</option>
@@ -77,19 +83,33 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
                   <option key={slug} value={`/brand/${slug}`}>{name}</option>
                 ))}
               </select>
+            </div>
 
-              <select
-                defaultValue="#"
-                onChange={e => handleNav(e.target.value)}
-                className="text-base border-0 rounded-xl px-5 py-3 bg-white text-slate-700 cursor-pointer shadow-lg focus:ring-2 focus:ring-white outline-none w-full sm:w-auto"
+            {/* Size filter pills (client-side, instant) */}
+            <div className="flex flex-wrap gap-2 justify-center mt-6">
+              <button
+                onClick={() => setSizeFilter(null)}
+                className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer ${
+                  sizeFilter === null
+                    ? "bg-white text-emerald-700 shadow-lg"
+                    : "bg-white/20 text-white hover:bg-white/30"
+                }`}
               >
-                <option value="#">সাইজ বাছুন...</option>
-                {availSizes.map(s => (
-                  <option key={s} value={`/size/${s.toLowerCase()}`}>
-                    {s === "Newborn" ? "নবজাতক (০-৫ কেজি)" : `সাইজ ${s}`}
-                  </option>
-                ))}
-              </select>
+                সব সাইজ
+              </button>
+              {availSizes.map(s => (
+                <button
+                  key={s}
+                  onClick={() => setSizeFilter(s)}
+                  className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer ${
+                    sizeFilter === s
+                      ? "bg-white text-emerald-700 shadow-lg"
+                      : "bg-white/20 text-white hover:bg-white/30"
+                  }`}
+                >
+                  {SIZE_LABELS[s] ?? s}
+                </button>
+              ))}
             </div>
           </div>
         </div>
