@@ -1,21 +1,17 @@
 import { neon } from "@neondatabase/serverless";
 
-// Initialize once — DATABASE_URL must be set at runtime (Vercel injects it)
-function createSql() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL environment variable is not set");
-  }
-  return neon(process.env.DATABASE_URL);
-}
-
-// Lazy singleton — avoids build-time crash when env isn't set
-let _sql: ReturnType<typeof neon> | null = null;
+// Lazy singleton — avoids build-time crash when DATABASE_URL isn't set
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _sql: any = null;
 function sql(strings: TemplateStringsArray, ...values: unknown[]) {
-  if (!_sql) _sql = createSql();
+  if (!_sql) {
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL environment variable is not set");
+    }
+    _sql = neon(process.env.DATABASE_URL);
+  }
   return _sql(strings, ...values);
 }
-
-// No unsafe() needed — we use separate queries per sort order
 
 export type Store = {
   id: number;
