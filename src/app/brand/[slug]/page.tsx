@@ -17,12 +17,17 @@ const BRAND_META: Record<string, { name: string; nameBn: string; description: st
   supermom:    { name: "Supermom",    nameBn: "সুপারমম",    description: "বাংলাদেশে Supermom বেবি ডায়াপারের দাম (Square Toiletries)। চালডাল ও দারাজে তুলনা করুন।" },
 };
 
+const BN_MONTHS = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const meta = BRAND_META[slug] ?? { name: slug, nameBn: slug, description: `বাংলাদেশে ${slug} ডায়াপারের দাম` };
+  const month = BN_MONTHS[new Date().getMonth()];
+  const products = await getBrandProducts(slug).catch(() => [] as DiaperProduct[]);
+  const maxDiscount = Math.max(...products.map(p => Number(p.discount_pct) || 0), 0);
   return {
-    title: `${meta.name} ডায়াপার দাম বাংলাদেশ — প্রতি পিস সবচেয়ে সস্তা`,
-    description: meta.description,
+    title: `${meta.name} ডায়াপার দাম বাংলাদেশ ${month} ২০২৬ — প্রতি পিস সবচেয়ে সস্তা`,
+    description: `${month} ২০২৬: ${meta.name} ডায়াপার ${products.length} টি পণ্য। ${maxDiscount > 0 ? `ছাড় ${Math.round(maxDiscount)}% পর্যন্ত!` : ""} ${meta.description}`,
     alternates: { canonical: `https://diaperdam.com/brand/${slug}` },
   };
 }
@@ -138,15 +143,15 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
           </h1>
           <p className="text-slate-500 text-sm mt-1">{meta.description}</p>
 
-          {/* Size quick-nav */}
+          {/* Size quick-nav — links to brand+size pages */}
           {sizeSummary.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {sizeSummary.map(({ size, cheapest }) => (
-                <div key={size} className="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-xs">
+                <a key={size} href={`/brand/${slug}/size/${size.toLowerCase()}`} className="bg-emerald-50 border border-emerald-200 hover:border-emerald-400 rounded-xl px-3 py-2 text-xs transition-colors">
                   <span className="font-bold text-slate-700">{size}</span>
                   <span className="text-emerald-700 font-semibold ml-2">৳{Number(cheapest.price_per_piece).toFixed(2)}/পিস</span>
                   <span className="text-slate-400 ml-1">{cheapest.store_name}</span>
-                </div>
+                </a>
               ))}
             </div>
           )}

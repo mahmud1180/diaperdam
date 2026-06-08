@@ -315,7 +315,7 @@ function TableRow({ p }: { p: DiaperProduct }) {
 
       {/* Product info */}
       <td className="py-3 pr-4">
-        <h3 className="font-semibold text-slate-900 text-sm leading-tight">{fullName}</h3>
+        <h2 className="font-semibold text-slate-900 text-sm leading-tight">{fullName}</h2>
         <div className="text-xs text-slate-400 mt-0.5 flex flex-wrap items-center gap-x-2">
           {p.size_label && p.weight_min_kg && p.weight_max_kg && (
             <span>{p.size_label} ({p.weight_min_kg}-{p.weight_max_kg} কেজি)</span>
