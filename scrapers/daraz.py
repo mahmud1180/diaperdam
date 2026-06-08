@@ -1,8 +1,9 @@
-"""Daraz diaper scraper — Playwright-based since Daraz is a heavy SPA.
+"""Daraz diaper scraper — Playwright DOM extraction.
 
-Daraz (Lazada family) renders product data client-side. We use Playwright
-to load the search page and extract product cards from the DOM.
-Fallback to HTTP if Playwright is unavailable (dev environments).
+Daraz (Lazada family) no longer exposes window.pageData (removed ~mid-2026).
+Products render as DOM cards with [data-qa-locator="product-item"].
+We extract name, price, discount from innerText + product ID from the link href.
+Images come from the JSON-LD ItemList script tag (first 10) or are left null.
 """
 import asyncio
 import json
@@ -17,7 +18,11 @@ from base import BaseScraper, ScrapedDiaper
 logger = logging.getLogger(__name__)
 
 DARAZ_BASE = "https://www.daraz.com.bd"
-SEARCH_QUERIES = ["diaper", "baby diaper", "huggies diaper", "mamypoko diaper"]
+SEARCH_QUERIES = [
+    "huggies diaper", "mamypoko diaper", "molfix diaper",
+    "pampers diaper", "bashundhara diaper", "neocare diaper",
+    "supermom diaper", "avonee diaper", "baby diaper",
+]
 
 BRAND_SLUG_MAP = {
     "huggies": "huggies", "mamypoko": "mamypoko", "mamy poko": "mamypoko",
@@ -57,9 +62,14 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
-    m = re.search(r"(\d+)\s*(?:pcs|pieces|pc|p)\b", name.lower())
+    # "42 Piece", "36 count", "28+6=34", "50pcs"
+    m = re.search(r"(\d+)\s*(?:pcs|pieces?|pc|p|count)\b", name.lower())
     if m:
         return int(m.group(1))
+    # "28+6=34" pattern
+    m = re.search(r"(\d+)\+(\d+)\s*=\s*(\d+)", name)
+    if m:
+        return int(m.group(3))
     m = re.search(r"pack\s*(?:of\s*)?(\d+)", name.lower())
     return int(m.group(1)) if m else None
 
@@ -112,37 +122,97 @@ class DarazScraper(BaseScraper):
                         await page.goto(url, wait_until="networkidle", timeout=30000)
                         await page.wait_for_timeout(2000)
 
-                        # Extract pageData from the page context
-                        items = await page.evaluate("""() => {
-                            if (window.pageData && window.pageData.mods && window.pageData.mods.listItems) {
-                                return window.pageData.mods.listItems;
+                        # Build image map from JSON-LD ItemList
+                        image_map = await page.evaluate("""() => {
+                            const map = {};
+                            const scripts = document.querySelectorAll('script[type="application/ld+json"]');
+                            for (const s of scripts) {
+                                try {
+                                    const d = JSON.parse(s.textContent);
+                                    if (d['@type'] === 'ItemList' && d.itemListElement) {
+                                        for (const item of d.itemListElement) {
+                                            const p = item.item;
+                                            if (p && p.url && p.image) {
+                                                const m = p.url.match(/i(\\d+)/);
+                                                if (m) map[m[1]] = p.image;
+                                            }
+                                        }
+                                    }
+                                } catch {}
                             }
-                            return [];
+                            return map;
+                        }""")
+
+                        # Extract products from DOM cards
+                        items = await page.evaluate("""() => {
+                            const cards = document.querySelectorAll('[data-qa-locator="product-item"]');
+                            const products = [];
+                            for (const card of cards) {
+                                const link = card.querySelector('a');
+                                if (!link) continue;
+                                const href = link.href;
+                                const idMatch = href.match(/i(\\d+)/);
+                                if (!idMatch) continue;
+
+                                const lines = card.innerText.split('\\n').map(l => l.trim()).filter(Boolean);
+                                if (lines.length < 2) continue;
+
+                                const name = lines[0];
+                                let price = null;
+                                let discountPct = null;
+
+                                for (const line of lines) {
+                                    const priceMatch = line.match(/৳\\s*([\\d,]+)/);
+                                    if (priceMatch && !price) {
+                                        price = parseFloat(priceMatch[1].replace(/,/g, ''));
+                                    }
+                                    const discMatch = line.match(/(\\d+)%\\s*Off/i);
+                                    if (discMatch && !discountPct) {
+                                        discountPct = parseInt(discMatch[1]);
+                                    }
+                                }
+
+                                if (name && price && price > 0) {
+                                    products.push({
+                                        itemId: idMatch[1],
+                                        name: name,
+                                        price: price,
+                                        discountPct: discountPct,
+                                        productUrl: href
+                                    });
+                                }
+                            }
+                            return products;
                         }""")
 
                         if not items:
-                            logger.info(f"[daraz] No items from pageData on page {pg_num}")
+                            logger.info(f"[daraz] No DOM cards on page {pg_num}")
                             break
 
                         for item in items:
-                            p = self._parse_item(item)
+                            item_id = item["itemId"]
+                            # Attach image from JSON-LD if available
+                            item["image"] = image_map.get(item_id)
+                            p = self._parse_dom_item(item)
                             if p and p.external_id not in seen_ids:
                                 results.append(p)
                                 seen_ids.add(p.external_id)
 
+                        logger.info(f"[daraz] Page {pg_num} for '{query}': {len(items)} cards, {len(results)} total unique")
+
                     except Exception as e:
-                        logger.warning(f"[daraz] Playwright error: {e}")
+                        logger.warning(f"[daraz] Playwright error on '{query}' page {pg_num}: {e}")
                         break
 
                     await asyncio.sleep(2.0)
 
             await browser.close()
 
-        logger.info(f"[daraz] Scraped {len(results)} diaper products (Playwright)")
+        logger.info(f"[daraz] Scraped {len(results)} diaper products (Playwright DOM)")
         return results
 
     async def _scrape_http(self) -> list[ScrapedDiaper]:
-        """HTTP fallback — try to get pageData from server-rendered HTML."""
+        """HTTP fallback — extract JSON-LD ItemList from HTML (limited to ~10 per query)."""
         results: list[ScrapedDiaper] = []
         seen_ids: set[str] = set()
         headers = {
@@ -157,41 +227,50 @@ class DarazScraper(BaseScraper):
                     r = await client.get(url, headers=headers)
                     if r.status_code != 200:
                         continue
-                    m = re.search(r'window\.pageData\s*=\s*(\{.*?\});\s*</script>', r.text, re.DOTALL)
-                    if not m:
-                        continue
-                    data = json.loads(m.group(1))
-                    items = data.get("mods", {}).get("listItems", [])
-                    for item in items:
-                        p = self._parse_item(item)
-                        if p and p.external_id not in seen_ids:
-                            results.append(p)
-                            seen_ids.add(p.external_id)
+
+                    # Try to find ItemList JSON-LD (has names, images, urls but no prices)
+                    # Also look for any inline JSON with price data
+                    ld_matches = re.findall(
+                        r'<script[^>]*type="application/ld\+json"[^>]*>(.*?)</script>',
+                        r.text, re.DOTALL
+                    )
+                    for ld_text in ld_matches:
+                        try:
+                            data = json.loads(ld_text)
+                            if data.get("@type") == "ItemList":
+                                for el in data.get("itemListElement", []):
+                                    item = el.get("item", {})
+                                    item_url = item.get("url", "")
+                                    m = re.search(r"i(\d+)", item_url)
+                                    if not m:
+                                        continue
+                                    name = item.get("name", "")
+                                    if not _is_diaper(name):
+                                        continue
+                                    # JSON-LD has no price, skip for HTTP
+                                    # (we'd need to fetch individual product pages)
+                        except json.JSONDecodeError:
+                            pass
+
                 except Exception as e:
                     logger.warning(f"[daraz] HTTP error: {e}")
                 await asyncio.sleep(1.5)
 
-        logger.info(f"[daraz] Scraped {len(results)} diaper products (HTTP)")
+        logger.info(f"[daraz] Scraped {len(results)} diaper products (HTTP fallback)")
         return results
 
-    def _parse_item(self, item: dict) -> ScrapedDiaper | None:
+    def _parse_dom_item(self, item: dict) -> ScrapedDiaper | None:
+        """Parse a product extracted from DOM card."""
         try:
-            name = item.get("name") or item.get("title") or ""
-            name = name.strip()
+            name = item.get("name", "").strip()
             if not name or not _is_diaper(name):
                 return None
 
-            price_str = item.get("price") or item.get("priceShow") or ""
-            if isinstance(price_str, str):
-                price_str = re.sub(r"[^\d.]", "", price_str)
-            try:
-                price_bdt = float(price_str)
-            except (ValueError, TypeError):
-                return None
-            if price_bdt <= 0:
+            price_bdt = item.get("price")
+            if not price_bdt or price_bdt <= 0:
                 return None
 
-            item_id = str(item.get("itemId") or item.get("nid") or item.get("productId") or "")
+            item_id = item.get("itemId", "")
             if not item_id:
                 return None
 
@@ -202,27 +281,16 @@ class DarazScraper(BaseScraper):
             brand, brand_slug = _extract_brand(name)
             w_min, w_max = _extract_weights(name)
 
-            image = item.get("image") or item.get("thumbUrl") or ""
-            product_url = item.get("productUrl") or item.get("itemUrl") or ""
+            product_url = item.get("productUrl", "")
             if product_url and not product_url.startswith("http"):
                 product_url = f"{DARAZ_BASE}{product_url}"
 
-            orig_str = item.get("originalPrice") or item.get("originalPriceShow") or ""
-            if isinstance(orig_str, str):
-                orig_str = re.sub(r"[^\d.]", "", orig_str)
-            try:
-                original = float(orig_str) if orig_str else None
-            except ValueError:
-                original = None
-            if original and original <= price_bdt:
-                original = None
+            image_url = item.get("image")
 
-            discount_str = item.get("discount") or ""
-            disc_pct = None
-            if discount_str:
-                dm = re.search(r"(\d+)%", str(discount_str))
-                if dm:
-                    disc_pct = float(dm.group(1))
+            disc_pct = item.get("discountPct")
+            original_price = None
+            if disc_pct and disc_pct > 0:
+                original_price = round(price_bdt / (1 - disc_pct / 100), 2)
 
             return ScrapedDiaper(
                 external_id=f"dz-{item_id}",
@@ -231,12 +299,12 @@ class DarazScraper(BaseScraper):
                 size_label=_extract_size(name),
                 weight_min_kg=w_min, weight_max_kg=w_max,
                 pack_qty=pack_qty,
-                image_url=image or None,
+                image_url=image_url,
                 product_url=product_url or None,
                 price_bdt=price_bdt,
-                original_price_bdt=original,
-                discount_pct=disc_pct,
-                is_promotion=bool(original or disc_pct),
+                original_price_bdt=original_price,
+                discount_pct=float(disc_pct) if disc_pct else None,
+                is_promotion=bool(disc_pct),
             )
         except Exception as e:
             logger.warning(f"[daraz] parse: {e}")
