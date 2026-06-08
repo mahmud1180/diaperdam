@@ -4,6 +4,10 @@ import logging
 import sys
 
 from chaldal import ChaldalScraper
+from daraz import DarazScraper
+from shwapno import ShwapnoScraper
+from othoba import OthobaScraper
+from arogga import AroggaScraper
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,8 +18,10 @@ logger = logging.getLogger(__name__)
 
 SCRAPERS = [
     ChaldalScraper(),
-    # DarazScraper(),   # add when implemented
-    # OthobaScraper(),  # add when implemented
+    DarazScraper(),
+    ShwapnoScraper(),
+    OthobaScraper(),
+    AroggaScraper(),
 ]
 
 
