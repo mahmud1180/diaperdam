@@ -1,26 +1,11 @@
-"""Shwapno scraper for DiaperDam.
+"""Shwapno diaper scraper — proven API from Kombeshi.
 
-Shwapno (shwapno.com) is a Next.js e-commerce site for a major Bangladeshi
-supermarket chain. Like Chaldal, it embeds product data in __NEXT_DATA__.
-
-Primary path:
-  /category/mother-baby/diapers   → paginated product listing
-  /search?q=diaper                → search fallback
-
-__NEXT_DATA__ shape (observed; may change):
-  props.pageProps.products        → list[dict] — category pages
-  props.pageProps.searchResults   → list[dict] — search pages
-  props.pageProps.initialState.productList.products  → alternative path
-
-Product fields typically seen:
-  id / productId  → external_id
-  name / title    → product name
-  price / regularPrice / specialPrice → BDT prices
-  images[0].url / image → image URL
-  slug / url      → product URL suffix
+Strategy (from Kombeshi catalog_shwapno.py):
+1. Fetch slug page HTML to extract the Mongo ObjectId.
+2. Call /api/category/products?id=<id>&pageNumber=N to paginate.
+3. Filter for diaper products only.
 """
 import asyncio
-import json
 import logging
 import re
 import sys
@@ -31,90 +16,53 @@ from base import BaseScraper, ScrapedDiaper
 
 logger = logging.getLogger(__name__)
 
-SHWAPNO_BASE = "https://www.shwapno.com"
-
-CATEGORY_PATHS = [
-    "/category/mother-baby/diapers",
-    "/category/baby-care/diapers",
-    "/category/baby/diapers",
-]
-
-SEARCH_PATHS = [
-    "/search?q=diaper",
-    "/search?q=huggies+diaper",
-    "/search?q=mamypoko",
-    "/search?q=molfix",
-]
-
-BRAND_SLUG_MAP = {
-    "huggies":     "huggies",
-    "mamypoko":    "mamypoko",
-    "mamy poko":   "mamypoko",
-    "molfix":      "molfix",
-    "pampers":     "pampers",
-    "neocare":     "neocare",
-    "neo care":    "neocare",
-    "bashundhara": "bashundhara",
-    "diapant":     "bashundhara",
-    "avonee":      "avonee",
-    "supermom":    "supermom",
-    "smc smile":   "smc-smile",
-    "smile":       "smc-smile",
-    "aiwibi":      "aiwibi",
-    "savlon":      "savlon",
-    "twinkle":     "savlon",
-    "happy nappy": "happy-nappy",
-    "mumlove":     "mumlove",
-    "kidz":        "kidz",
+BASE = "https://www.shwapno.com"
+HEADERS_HTML = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/147 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml",
+    "Accept-Language": "en-US,en;q=0.9",
+}
+HEADERS_JSON = {
+    "User-Agent": HEADERS_HTML["User-Agent"],
+    "Accept": "application/json",
 }
 
-HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    ),
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://www.shwapno.com/",
+# Try these slugs to find the diaper category
+SLUGS = ["baby-diapers", "diapers", "baby-care", "diaper", "baby-diaper"]
+
+_ID_RE = re.compile(r"[?&]id=([a-f0-9]{24})")
+_HEX_ID = re.compile(r"[a-f0-9]{24}")
+
+BRAND_SLUG_MAP = {
+    "huggies": "huggies", "mamypoko": "mamypoko", "mamy poko": "mamypoko",
+    "molfix": "molfix", "pampers": "pampers", "neocare": "neocare",
+    "bashundhara": "bashundhara", "diapant": "bashundhara", "avonee": "avonee",
+    "supermom": "supermom", "savlon": "savlon", "twinkle": "savlon",
+    "smc smile": "smc-smile", "smile": "smc-smile",
 }
 
 
 def _extract_brand(name: str) -> tuple[str, str]:
-    name_lower = name.lower()
+    n = name.lower()
     for keyword, slug in BRAND_SLUG_MAP.items():
-        if keyword in name_lower:
-            display_map = {
-                "mamypoko": "MamyPoko",
-                "huggies": "Huggies",
-                "molfix": "Molfix",
-                "pampers": "Pampers",
-                "neocare": "Neocare",
-                "bashundhara": "Bashundhara",
-                "savlon": "Savlon",
-                "smc-smile": "SMC Smile",
-                "happy-nappy": "Happy Nappy",
-            }
-            display = display_map.get(slug, keyword.title())
+        if keyword in n:
+            display = {"mamypoko": "MamyPoko", "huggies": "Huggies", "molfix": "Molfix",
+                       "pampers": "Pampers", "neocare": "Neocare", "bashundhara": "Bashundhara",
+                       "savlon": "Savlon", "avonee": "Avonee", "supermom": "Supermom"}.get(slug, keyword.title())
             return display, slug
     first = name.split()[0]
     return first, first.lower().replace(" ", "-")
 
 
 def _extract_type(name: str) -> str:
-    n = name.lower()
-    if "pant" in n:
-        return "pants"
-    if "swim" in n:
-        return "swim"
-    return "belt"
+    return "pants" if "pant" in name.lower() else "belt"
 
 
 def _extract_size(name: str) -> str | None:
     n = name.lower()
-    if "new born" in n or "newborn" in n or "nb" in n:
+    if "new born" in n or "newborn" in n:
         return "Newborn"
-    m = re.search(r"\b(xxl|xl|large|medium|small)\b", n)
+    m = re.search(r"\b(xxl|xl|large|medium|small|[sml])\b", n)
     if m:
         s = m.group(1).upper()
         return {"LARGE": "L", "MEDIUM": "M", "SMALL": "S"}.get(s, s)
@@ -122,18 +70,8 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
-    for pattern in [
-        r"(\d+)\s*pcs",
-        r"(\d+)\s*count",
-        r"(\d+)\s*ct\b",
-        r"(\d+)\s*pieces",
-        r"pack\s+of\s+(\d+)",
-        r"(\d+)\s*diapers?\b",
-    ]:
-        m = re.search(pattern, name.lower())
-        if m:
-            return int(m.group(1))
-    return None
+    m = re.search(r"(\d+)\s*pcs", name.lower())
+    return int(m.group(1)) if m else None
 
 
 def _extract_weights(name: str) -> tuple[float | None, float | None]:
@@ -143,248 +81,142 @@ def _extract_weights(name: str) -> tuple[float | None, float | None]:
     m = re.search(r"up\s+to\s+(\d+(?:\.\d+)?)\s*kg", name.lower())
     if m:
         return None, float(m.group(1))
-    m = re.search(r"(\d+(?:\.\d+)?)\+\s*kg", name.lower())
+    m = re.search(r"(\d+)\+?\s*kg", name.lower())
     if m:
         return float(m.group(1)), None
     return None, None
 
 
-def _clean_price(raw) -> float | None:
-    if raw is None:
-        return None
-    if isinstance(raw, (int, float)):
-        v = float(raw)
-        return v if v > 0 else None
-    s = re.sub(r"[^\d.]", "", str(raw))
-    if not s:
-        return None
+def _is_diaper(name: str) -> bool:
+    n = name.lower()
+    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
+
+
+def _extract_category_id(client: httpx.Client, slug: str) -> str | None:
     try:
-        v = float(s)
-        return v if v > 0 else None
-    except ValueError:
-        return None
-
-
-def _extract_products_from_next_data(data: dict) -> list[dict]:
-    """Walk common __NEXT_DATA__ shapes to find the product list."""
-    props = data.get("props", {}).get("pageProps", {})
-
-    # Direct product list
-    for key in ("products", "items", "productList", "results", "searchResults"):
-        val = props.get(key)
-        if isinstance(val, list) and val:
-            return val
-
-    # Nested under initialState or data
-    for root_key in ("initialState", "data", "store", "initialData"):
-        subtree = props.get(root_key, {})
-        if not isinstance(subtree, dict):
-            continue
-        for sub_key in ("products", "items", "productList", "results"):
-            val = subtree.get(sub_key)
-            if isinstance(val, list) and val:
-                return val
-        # One more level deep
-        for sub_sub_key, sub_sub_val in subtree.items():
-            if isinstance(sub_sub_val, dict):
-                for leaf in ("products", "items"):
-                    val = sub_sub_val.get(leaf)
-                    if isinstance(val, list) and val:
-                        return val
-
-    return []
+        r = client.get(f"{BASE}/{slug}", headers=HEADERS_HTML, timeout=20)
+        if r.status_code != 200:
+            return None
+        m = _ID_RE.search(r.text)
+        if m:
+            return m.group(1)
+        slug_idx = r.text.find(slug)
+        if slug_idx > 0:
+            window = r.text[max(0, slug_idx - 3000):slug_idx + 5000]
+            for cand in _HEX_ID.findall(window):
+                if cand.startswith(("65", "66", "67", "68")):
+                    return cand
+    except Exception as e:
+        logger.warning(f"[shwapno] category id for {slug}: {e}")
+    return None
 
 
 class ShwapnoScraper(BaseScraper):
     store_slug = "shwapno"
     store_name = "Shwapno"
 
-    async def _fetch_page(
-        self, client: httpx.AsyncClient, path: str
-    ) -> list[dict]:
-        url = f"{SHWAPNO_BASE}{path}"
+    async def scrape(self) -> list[ScrapedDiaper]:
+        results: list[ScrapedDiaper] = []
+        seen_ids: set[str] = set()
+
+        with httpx.Client(follow_redirects=True) as client:
+            for slug in SLUGS:
+                cat_id = _extract_category_id(client, slug)
+                if not cat_id:
+                    logger.info(f"[shwapno] No category ID for /{slug}")
+                    continue
+
+                logger.info(f"[shwapno] Found category {cat_id} for /{slug}")
+                page = 1
+                while page <= 20:
+                    url = f"{BASE}/api/category/products?id={cat_id}&pageNumber={page}"
+                    try:
+                        r = client.get(url, headers=HEADERS_JSON, timeout=20)
+                        if r.status_code != 200:
+                            break
+                        data = r.json()
+                    except Exception as e:
+                        logger.warning(f"[shwapno] page {page}: {e}")
+                        break
+
+                    batch = data.get("products") or []
+                    if not batch:
+                        break
+
+                    for raw in batch:
+                        p = self._parse_product(raw)
+                        if p and p.external_id not in seen_ids:
+                            results.append(p)
+                            seen_ids.add(p.external_id)
+
+                    if not data.get("hasNextPage"):
+                        break
+                    page += 1
+                    await asyncio.sleep(0.3)
+
+                if results:
+                    break
+
+        logger.info(f"[shwapno] Scraped {len(results)} diaper products")
+        return results
+
+    def _parse_product(self, raw: dict) -> ScrapedDiaper | None:
         try:
-            r = await client.get(url, headers=HEADERS, timeout=25)
-            r.raise_for_status()
-        except Exception as e:
-            logger.warning(f"[shwapno] Failed to fetch {path}: {e}")
-            return []
-
-        html = r.text
-        m = re.search(
-            r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.DOTALL
-        )
-        if not m:
-            logger.warning(f"[shwapno] No __NEXT_DATA__ on {path}")
-            return []
-
-        try:
-            data = json.loads(m.group(1))
-        except json.JSONDecodeError:
-            logger.warning(f"[shwapno] JSON parse error on {path}")
-            return []
-
-        products = _extract_products_from_next_data(data)
-        if not products:
-            logger.warning(
-                f"[shwapno] __NEXT_DATA__ present but no products found on {path} "
-                f"— keys: {list(data.get('props', {}).get('pageProps', {}).keys())}"
-            )
-        return products
-
-    def _parse_product(self, prod: dict) -> ScrapedDiaper | None:
-        try:
-            name = (
-                prod.get("name")
-                or prod.get("title")
-                or prod.get("productName")
-                or prod.get("product_name")
-                or ""
-            ).strip()
-            if not name:
+            name = (raw.get("name") or "").strip()
+            if not name or not _is_diaper(name):
                 return None
 
-            # Filter to diaper-relevant items
-            name_lower = name.lower()
-            if not any(
-                kw in name_lower
-                for kw in ["diaper", "nappy", "nappies"] + list(BRAND_SLUG_MAP.keys())
-            ):
+            price_obj = raw.get("price") or {}
+            price_val = price_obj.get("priceValue")
+            if price_val is None:
+                return None
+            price_bdt = float(price_val)
+            if price_bdt <= 0:
                 return None
 
-            ext_id = str(
-                prod.get("id")
-                or prod.get("productId")
-                or prod.get("product_id")
-                or prod.get("sku")
-                or ""
-            )
-            if not ext_id:
+            sename = raw.get("seName") or str(raw.get("id", ""))
+            if not sename:
                 return None
-
-            # Price: specialPrice wins over price, mrp is original
-            price = _clean_price(
-                prod.get("specialPrice")
-                or prod.get("price")
-                or prod.get("salePrice")
-                or prod.get("selling_price")
-            )
-            if price is None:
-                return None
-
-            original_price = _clean_price(
-                prod.get("regularPrice")
-                or prod.get("mrp")
-                or prod.get("original_price")
-                or prod.get("listPrice")
-            )
-            if original_price and original_price <= price:
-                original_price = None
 
             pack_qty = _extract_pack_qty(name)
             if not pack_qty or pack_qty <= 0:
                 return None
 
             brand, brand_slug = _extract_brand(name)
-            diaper_type = _extract_type(name)
-            size_label = _extract_size(name)
             w_min, w_max = _extract_weights(name)
 
-            # Image
-            image_url = None
-            images = prod.get("images")
-            if isinstance(images, list) and images:
-                first_img = images[0]
-                if isinstance(first_img, dict):
-                    image_url = first_img.get("url") or first_img.get("src")
-                elif isinstance(first_img, str):
-                    image_url = first_img
-            if not image_url:
-                image_url = prod.get("image") or prod.get("thumbnail") or prod.get("imageUrl")
+            img = None
+            pic = raw.get("picture") or {}
+            large = pic.get("largeDeviceUrl") or {}
+            img = large.get("fullSizeImageUrl") or large.get("imageUrl")
 
-            # URL
-            slug = prod.get("slug") or prod.get("url_key") or prod.get("urlKey")
-            if slug:
-                product_url = f"{SHWAPNO_BASE}/{slug.lstrip('/')}"
-            else:
-                product_url = f"{SHWAPNO_BASE}/product/{ext_id}"
-
-            is_promo = bool(original_price and original_price > price)
-            discount_pct = None
-            if is_promo and original_price:
-                discount_pct = round((1 - price / original_price) * 100, 1)
+            old_price = (raw.get("productPrice") or {}).get("oldPrice")
+            original = float(old_price) if old_price and float(old_price) > price_bdt else None
 
             return ScrapedDiaper(
-                external_id=ext_id,
-                brand=brand,
-                brand_slug=brand_slug,
-                line=None,
-                type=diaper_type,
-                size_label=size_label,
-                weight_min_kg=w_min,
-                weight_max_kg=w_max,
-                pack_qty=pack_qty,
-                image_url=image_url,
-                product_url=product_url,
-                price_bdt=price,
-                original_price_bdt=original_price,
-                discount_pct=discount_pct,
-                is_promotion=is_promo,
+                external_id=f"sw-{sename}",
+                brand=brand, brand_slug=brand_slug,
+                type=_extract_type(name),
+                size_label=_extract_size(name),
+                weight_min_kg=w_min, weight_max_kg=w_max,
+                pack_qty=pack_qty, image_url=img,
+                product_url=f"{BASE}/{sename}",
+                price_bdt=price_bdt,
+                original_price_bdt=original,
+                is_promotion=bool(original),
             )
         except Exception as e:
-            logger.warning(f"[shwapno] parse error: {e} — {prod}")
+            logger.warning(f"[shwapno] parse: {e}")
             return None
-
-    async def scrape(self) -> list[ScrapedDiaper]:
-        results: list[ScrapedDiaper] = []
-        seen_ids: set[str] = set()
-
-        async with httpx.AsyncClient(follow_redirects=True) as client:
-            # Try category pages first
-            category_found = False
-            for path in CATEGORY_PATHS:
-                logger.info(f"[shwapno] Trying category {path}")
-                raw = await self._fetch_page(client, path)
-                if raw:
-                    category_found = True
-                    for prod in raw:
-                        parsed = self._parse_product(prod)
-                        if parsed and parsed.external_id not in seen_ids:
-                            results.append(parsed)
-                            seen_ids.add(parsed.external_id)
-                    await self.rate_limit(1.5)
-                    break  # One category hit is enough; search will fill gaps
-                await self.rate_limit(1.0)
-
-            if not category_found:
-                logger.warning("[shwapno] No category page worked — relying solely on search")
-
-            # Always run search queries to catch anything the category misses
-            for path in SEARCH_PATHS:
-                logger.info(f"[shwapno] Searching {path}")
-                raw = await self._fetch_page(client, path)
-                for prod in raw:
-                    parsed = self._parse_product(prod)
-                    if parsed and parsed.external_id not in seen_ids:
-                        results.append(parsed)
-                        seen_ids.add(parsed.external_id)
-                await self.rate_limit(1.5)
-
-        logger.info(f"[shwapno] Scraped {len(results)} products total")
-        return results
 
 
 async def main():
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    scraper = ShwapnoScraper()
-    products = await scraper.scrape()
-    if not products:
-        logger.error(
-            "[shwapno] No products scraped — check __NEXT_DATA__ shape or category paths"
-        )
-        sys.exit(1)
-    scraper.upsert_to_db(products)
-    print(f"Done: {len(products)} products from Shwapno")
+    s = ShwapnoScraper()
+    products = await s.scrape()
+    if products:
+        s.upsert_to_db(products)
+    print(f"Done: {len(products)} from Shwapno")
 
 
 if __name__ == "__main__":
