@@ -6,10 +6,10 @@ import type { DiaperProduct } from "@/lib/db";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Diaper Deals & Offers in Bangladesh Today — All Stores",
-  description: "Best baby diaper deals and offers in Bangladesh today. Compare discounts on Huggies, MamyPoko, Molfix and Pampers across Chaldal, Daraz, Othoba, Shwapno and Arogga. Updated daily.",
+  title: "আজকের ডায়াপার অফার ও ছাড় বাংলাদেশ — সব দোকান",
+  description: "বাংলাদেশে আজকের সেরা বেবি ডায়াপার অফার ও ছাড়। Huggies, MamyPoko, Molfix ও Pampers-এ চালডাল, দারাজ, স্বপ্ন সহ সব দোকানের ডিসকাউন্ট। প্রতিদিন আপডেট।",
   alternates: { canonical: "https://diaperdam.com/deals" },
-  keywords: ["diaper deals bangladesh", "baby diaper offer bangladesh", "diaper discount bd", "huggies offer", "mamypoko offer bangladesh", "cheap diaper bangladesh", "arogga diaper offer"],
+  keywords: ["ডায়াপার অফার বাংলাদেশ", "বেবি ডায়াপার ছাড়", "ডায়াপার ডিসকাউন্ট বাংলাদেশ", "হাগিস অফার", "ম্যামিপোকো অফার", "সস্তা ডায়াপার বাংলাদেশ", "diaper deals bangladesh", "diaper offer bd"],
 };
 
 async function getCheapestPerPiece(): Promise<DiaperProduct[]> {
@@ -17,18 +17,17 @@ async function getCheapestPerPiece(): Promise<DiaperProduct[]> {
   return all.slice(0, 40);
 }
 
-// JSON-LD schemas
 const dealsPageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "name": "Diaper Deals & Offers in Bangladesh Today",
-  "description": "Best baby diaper deals and offers in Bangladesh across all major online stores. Updated daily.",
+  "name": "আজকের ডায়াপার অফার ও ছাড় বাংলাদেশ",
+  "description": "বাংলাদেশে সব বড় অনলাইন দোকানের সেরা বেবি ডায়াপার অফার। প্রতিদিন আপডেট।",
   "url": "https://diaperdam.com/deals",
   "breadcrumb": {
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://diaperdam.com" },
-      { "@type": "ListItem", "position": 2, "name": "Diaper Deals", "item": "https://diaperdam.com/deals" },
+      { "@type": "ListItem", "position": 1, "name": "হোম", "item": "https://diaperdam.com" },
+      { "@type": "ListItem", "position": 2, "name": "ডায়াপার অফার", "item": "https://diaperdam.com/deals" },
     ],
   },
 };
@@ -39,34 +38,34 @@ const faqSchema = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Where can I find the cheapest baby diapers in Bangladesh?",
+      "name": "বাংলাদেশে সবচেয়ে সস্তা বেবি ডায়াপার কোথায় পাবো?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "DiaperDam compares diaper prices across Chaldal, Daraz, Othoba, Shwapno, Arogga, AjkerDeal, GoBaby and Paikaree daily. The cheapest price per piece changes frequently — check the deals page for today's best offers.",
+        "text": "DiaperDam প্রতিদিন চালডাল, দারাজ, স্বপ্ন, মীনা বাজার ও GoBaby থেকে ডায়াপারের দাম তুলনা করে। সবচেয়ে সস্তা প্রতি পিস দাম প্রতিদিন বদলায় — ডিলস পেজে আজকের সেরা অফার দেখুন।",
       },
     },
     {
       "@type": "Question",
-      "name": "Do Chaldal and Daraz have diaper discounts?",
+      "name": "চালডাল ও দারাজে কি ডায়াপার ডিসকাউন্ট থাকে?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, Chaldal and Daraz regularly offer discounts on Huggies, MamyPoko, Molfix and Pampers diapers. DiaperDam tracks promotions daily and shows the original vs. discounted price per piece.",
+        "text": "হ্যাঁ, চালডাল ও দারাজে নিয়মিত Huggies, MamyPoko, Molfix ও Pampers-এ ডিসকাউন্ট চলে। DiaperDam প্রতিদিন এই অফার ট্র্যাক করে এবং আসল দাম বনাম ছাড়ের দাম প্রতি পিসে দেখায়।",
       },
     },
     {
       "@type": "Question",
-      "name": "Which diaper is cheapest per piece in Bangladesh?",
+      "name": "বাংলাদেশে প্রতি পিস সবচেয়ে সস্তা ডায়াপার কোনটা?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Local brands like Neocare, Avonee, and Bashundhara are typically cheapest per piece in Bangladesh. Among international brands, Molfix often has the lowest price per piece. DiaperDam's price index shows a real-time comparison.",
+        "text": "দেশি ব্র্যান্ড Neocare, Avonee আর Bashundhara সাধারণত প্রতি পিসে সবচেয়ে সস্তা। আন্তর্জাতিক ব্র্যান্ডের মধ্যে Molfix-এ প্রায়ই সবচেয়ে কম দাম থাকে। বড় প্যাক (৫০+ পিস) কিনলে প্রতি পিস দাম আরও কমে।",
       },
     },
     {
       "@type": "Question",
-      "name": "When do diaper prices drop in Bangladesh?",
+      "name": "বাংলাদেশে ডায়াপারের দাম কখন কমে?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Diaper prices in Bangladesh often drop during Eid, national holidays, and special store sales. Larger pack sizes (50+ pcs) also offer a lower per-piece cost. DiaperDam tracks price changes daily.",
+        "text": "ঈদ, জাতীয় ছুটির দিন আর দোকানের বিশেষ সেলে ডায়াপারের দাম কমে। বড় প্যাক ও কম্বো ডিলে সবচেয়ে ভালো দাম পাওয়া যায়। DiaperDam প্রতিদিন দাম পরিবর্তন ট্র্যাক করে।",
       },
     },
   ],
@@ -96,37 +95,40 @@ export default async function DealsPage() {
       <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <nav aria-label="Breadcrumb" className="text-sm text-slate-400 mb-2">
-            <a href="/" className="hover:text-emerald-600">Home</a>
+            <a href="/" className="hover:text-emerald-600">হোম</a>
             {" / "}
-            <span>Diaper Deals</span>
+            <span>ডায়াপার অফার</span>
           </nav>
           <div className="flex items-start gap-3">
             <span className="text-3xl" aria-hidden>🏷️</span>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">
-                Diaper Deals &amp; Offers in Bangladesh Today
+                আজকের ডায়াপার অফার ও ছাড় বাংলাদেশ
               </h1>
               <p className="text-slate-500 text-sm mt-1 max-w-2xl">
                 {hasDeals
-                  ? `${deals.length} active diaper deals across Chaldal, Daraz, Othoba, Shwapno and more — sorted by biggest discount. Updated daily.`
-                  : `Today's cheapest diapers per piece across all BD stores. Prices updated daily.`}
+                  ? `${deals.length} টি ডায়াপার অফার চালডাল, দারাজ, স্বপ্ন সহ আরও দোকানে - বেশি ছাড় অনুযায়ী সাজানো। প্রতিদিন আপডেট।`
+                  : `আজকের সবচেয়ে সস্তা প্রতি পিস ডায়াপার সব দোকান থেকে। প্রতিদিন আপডেট।`}
               </p>
             </div>
           </div>
 
           {/* Store filter links */}
           <div className="flex flex-wrap gap-2 mt-4 text-xs">
-            {["chaldal","daraz","othoba","shwapno","arogga"].map(store => (
-              <a
-                key={store}
-                href={`/store/${store}`}
-                className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600 hover:border-emerald-300 hover:text-emerald-700 transition-colors capitalize"
-              >
-                {store === "ajkerdeal" ? "AjkerDeal" : store.charAt(0).toUpperCase() + store.slice(1)}
-              </a>
-            ))}
+            {["chaldal","daraz","shwapno","meenabazar","gobaby"].map(store => {
+              const names: Record<string, string> = { chaldal: "চালডাল", daraz: "দারাজ", shwapno: "স্বপ্ন", meenabazar: "মীনা বাজার", gobaby: "GoBaby" };
+              return (
+                <a
+                  key={store}
+                  href={`/store/${store}`}
+                  className="bg-white border border-slate-200 rounded-full px-3 py-1 text-slate-600 hover:border-emerald-300 hover:text-emerald-700 transition-colors"
+                >
+                  {names[store] ?? store}
+                </a>
+              );
+            })}
             <a href="/price-index" className="bg-emerald-600 text-white rounded-full px-3 py-1 hover:bg-emerald-700 transition-colors">
-              Price Index →
+              মূল্য সূচক →
             </a>
           </div>
         </div>
@@ -138,7 +140,7 @@ export default async function DealsPage() {
       ) : (
         <div className="max-w-6xl mx-auto px-4 py-16 text-center text-slate-400">
           <p className="text-4xl mb-3">🔄</p>
-          <p>Deals data loading — scrapers run daily at 08:00 BDT. Check back soon.</p>
+          <p>অফারের ডেটা লোড হচ্ছে - স্ক্র্যাপার প্রতিদিন সকাল ৮টায় চলে। শীঘ্রই দেখুন।</p>
         </div>
       )}
 
@@ -146,17 +148,17 @@ export default async function DealsPage() {
       <div className="max-w-6xl mx-auto px-4 pb-12">
         {/* Quick brand links */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
-          <h2 className="font-bold text-slate-900 mb-3">Diaper Deals by Brand</h2>
+          <h2 className="font-bold text-slate-900 mb-3">ব্র্যান্ড অনুযায়ী ডায়াপার অফার</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { slug: "huggies", name: "Huggies Deals" },
-              { slug: "mamypoko", name: "MamyPoko Deals" },
-              { slug: "molfix", name: "Molfix Deals" },
-              { slug: "pampers", name: "Pampers Deals" },
-              { slug: "neocare", name: "Neocare Deals" },
-              { slug: "avonee", name: "Avonee Deals" },
-              { slug: "bashundhara", name: "Bashundhara Deals" },
-              { slug: "supermom", name: "Supermom Deals" },
+              { slug: "huggies", name: "Huggies অফার" },
+              { slug: "mamypoko", name: "MamyPoko অফার" },
+              { slug: "molfix", name: "Molfix অফার" },
+              { slug: "pampers", name: "Pampers অফার" },
+              { slug: "neocare", name: "Neocare অফার" },
+              { slug: "avonee", name: "Avonee অফার" },
+              { slug: "bashundhara", name: "Bashundhara অফার" },
+              { slug: "supermom", name: "Supermom অফার" },
             ].map(b => (
               <a
                 key={b.slug}
@@ -171,34 +173,35 @@ export default async function DealsPage() {
 
         {/* FAQ */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
-          <h2 className="font-bold text-slate-900 mb-4">Diaper Deals Bangladesh — FAQ</h2>
+          <h2 className="font-bold text-slate-900 mb-4">ডায়াপার অফার বাংলাদেশ — প্রশ্নোত্তর</h2>
           <div className="space-y-5">
             <div>
-              <h3 className="font-semibold text-sm text-slate-800">Where can I find the cheapest baby diapers in Bangladesh?</h3>
+              <h3 className="font-semibold text-sm text-slate-800">বাংলাদেশে সবচেয়ে সস্তা বেবি ডায়াপার কোথায় পাবো?</h3>
               <p className="text-sm text-slate-600 mt-1">
-                DiaperDam compares diaper prices across Chaldal, Daraz, Othoba, Shwapno, Arogga, AjkerDeal, GoBaby and Paikaree daily.
-                The cheapest price per piece changes frequently — use the <a href="/price-index" className="text-emerald-600 hover:underline">Price Index</a> for a brand-by-brand view.
+                DiaperDam প্রতিদিন চালডাল, দারাজ, স্বপ্ন, মীনা বাজার ও GoBaby থেকে দাম তুলনা করে।
+                সবচেয়ে সস্তা প্রতি পিস দাম প্রায়ই বদলায় -{" "}
+                <a href="/price-index" className="text-emerald-600 hover:underline">মূল্য সূচকে</a> ব্র্যান্ড-ভিত্তিক তুলনা দেখুন।
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-slate-800">Do Chaldal and Daraz offer diaper discounts?</h3>
+              <h3 className="font-semibold text-sm text-slate-800">চালডাল ও দারাজে কি ডায়াপার ডিসকাউন্ট থাকে?</h3>
               <p className="text-sm text-slate-600 mt-1">
-                Yes. Chaldal and Daraz regularly run promotions on Huggies, MamyPoko, Molfix and Pampers.
-                DiaperDam tracks these daily and shows the original vs. discounted price per piece.
+                হ্যাঁ। চালডাল ও দারাজে নিয়মিত Huggies, MamyPoko, Molfix ও Pampers-এ প্রমোশন চলে।
+                DiaperDam প্রতিদিন এগুলো ট্র্যাক করে এবং আসল দাম বনাম ছাড়ের দাম প্রতি পিসে দেখায়।
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-slate-800">Which diaper is cheapest per piece in Bangladesh?</h3>
+              <h3 className="font-semibold text-sm text-slate-800">বাংলাদেশে প্রতি পিস সবচেয়ে সস্তা ডায়াপার কোনটা?</h3>
               <p className="text-sm text-slate-600 mt-1">
-                Local brands like Neocare, Avonee, and Bashundhara are typically cheapest per piece.
-                Among imported brands, Molfix often has the lowest price. Buying a larger pack (50+ pcs) also reduces the per-piece cost significantly.
+                দেশি ব্র্যান্ড Neocare, Avonee আর Bashundhara সাধারণত প্রতি পিসে সবচেয়ে সস্তা।
+                আন্তর্জাতিক ব্র্যান্ডের মধ্যে Molfix-এ প্রায়ই সবচেয়ে কম দাম। ৫০+ পিসের বড় প্যাক কিনলে প্রতি পিস দাম আরও কমে।
               </p>
             </div>
             <div>
-              <h3 className="font-semibold text-sm text-slate-800">When do diaper prices drop in Bangladesh?</h3>
+              <h3 className="font-semibold text-sm text-slate-800">বাংলাদেশে ডায়াপারের দাম কখন কমে?</h3>
               <p className="text-sm text-slate-600 mt-1">
-                Diaper prices often drop during Eid, national holidays, and special store sales.
-                Larger pack sizes and combo deals offer the best value. DiaperDam tracks price changes daily so you never miss a drop.
+                ঈদ, জাতীয় ছুটি আর দোকানের বিশেষ সেলে দাম কমে।
+                বড় প্যাক ও কম্বো ডিলে সবচেয়ে ভালো দাম পাওয়া যায়। DiaperDam প্রতিদিন দাম পরিবর্তন ট্র্যাক করে যাতে কোনো ছাড় মিস না হয়।
               </p>
             </div>
           </div>
@@ -207,16 +210,16 @@ export default async function DealsPage() {
         {/* Cross-links */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
           <a href="/price-index" className="bg-white border border-slate-100 rounded-2xl p-4 hover:border-emerald-200 transition-colors">
-            <div className="font-semibold text-slate-800 text-sm">📊 Price Index</div>
-            <div className="text-xs text-slate-500 mt-1">Compare prices across all stores side by side</div>
+            <div className="font-semibold text-slate-800 text-sm">📊 মূল্য সূচক</div>
+            <div className="text-xs text-slate-500 mt-1">সব দোকানের দাম পাশাপাশি তুলনা করুন</div>
           </a>
           <a href="/size/m" className="bg-white border border-slate-100 rounded-2xl p-4 hover:border-emerald-200 transition-colors">
-            <div className="font-semibold text-slate-800 text-sm">📦 Medium (M) Diapers</div>
-            <div className="text-xs text-slate-500 mt-1">Best selling size — compare all M-size prices</div>
+            <div className="font-semibold text-slate-800 text-sm">📦 সাইজ M ডায়াপার</div>
+            <div className="text-xs text-slate-500 mt-1">সবচেয়ে বেশি বিক্রি হওয়া সাইজ - সব M দাম তুলনা</div>
           </a>
           <a href="/diapers" className="bg-white border border-slate-100 rounded-2xl p-4 hover:border-emerald-200 transition-colors">
-            <div className="font-semibold text-slate-800 text-sm">🔍 All Diapers</div>
-            <div className="text-xs text-slate-500 mt-1">Browse every tracked diaper in Bangladesh</div>
+            <div className="font-semibold text-slate-800 text-sm">🔍 সব ডায়াপার</div>
+            <div className="text-xs text-slate-500 mt-1">বাংলাদেশে ট্র্যাক করা সব ডায়াপার ব্রাউজ করুন</div>
           </a>
         </div>
       </div>

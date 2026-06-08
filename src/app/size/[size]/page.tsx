@@ -4,35 +4,35 @@ import DiapersClient from "@/components/DiapersClient";
 
 export const revalidate = 3600;
 
-const SIZE_META: Record<string, { label: string; weight: string }> = {
-  newborn: { label: "Newborn",  weight: "up to 5 kg" },
-  s:       { label: "S",        weight: "3–7 kg" },
-  m:       { label: "M",        weight: "5–13 kg" },
-  l:       { label: "L",        weight: "10–16 kg" },
-  xl:      { label: "XL",       weight: "15 kg+" },
-  xxl:     { label: "XXL",      weight: "16 kg+" },
+const SIZE_META: Record<string, { label: string; labelBn: string; weight: string; weightBn: string }> = {
+  newborn: { label: "Newborn",  labelBn: "নবজাতক", weight: "up to 5 kg",  weightBn: "৫ কেজি পর্যন্ত" },
+  s:       { label: "S",        labelBn: "S",       weight: "3-7 kg",      weightBn: "৩-৭ কেজি" },
+  m:       { label: "M",        labelBn: "M",       weight: "5-13 kg",     weightBn: "৫-১৩ কেজি" },
+  l:       { label: "L",        labelBn: "L",       weight: "10-16 kg",    weightBn: "১০-১৬ কেজি" },
+  xl:      { label: "XL",       labelBn: "XL",      weight: "15 kg+",      weightBn: "১৫ কেজি+" },
+  xxl:     { label: "XXL",      labelBn: "XXL",     weight: "16 kg+",      weightBn: "১৬ কেজি+" },
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ size: string }> }): Promise<Metadata> {
   const { size } = await params;
-  const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), weight: "" };
+  const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), labelBn: size.toUpperCase(), weight: "", weightBn: "" };
   return {
-    title: `Size ${s.label} Diaper Price in Bangladesh ${s.weight} — Cheapest Today`,
-    description: `Find the cheapest Size ${s.label} diapers (${s.weight}) in Bangladesh today. Compare Huggies, MamyPoko, Molfix and more across Chaldal, Daraz, Othoba, Shwapno and Arogga by price per piece.`,
+    title: `সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ ${s.weightBn} — আজকের সবচেয়ে সস্তা`,
+    description: `বাংলাদেশে সাইজ ${s.label} (${s.weightBn}) ডায়াপারের সবচেয়ে কম দাম খুঁজুন। Huggies, MamyPoko, Molfix সহ সব ব্র্যান্ড চালডাল, দারাজ, স্বপ্ন থেকে প্রতি পিস দাম তুলনা।`,
     alternates: { canonical: `https://diaperdam.com/size/${size}` },
   };
 }
 
 export default async function SizePage({ params }: { params: Promise<{ size: string }> }) {
   const { size } = await params;
-  const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), weight: "" };
+  const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), labelBn: size.toUpperCase(), weight: "", weightBn: "" };
   const products = await getAllProducts({ size_label: s.label, sort: "price_per_piece" }).catch(() => []);
 
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `Cheapest Size ${s.label} Diapers in Bangladesh`,
-    "description": `Compare Size ${s.label} diaper prices (${s.weight}) across all stores in Bangladesh.`,
+    "name": `বাংলাদেশে সবচেয়ে সস্তা সাইজ ${s.label} ডায়াপার`,
+    "description": `বাংলাদেশের সব দোকানে সাইজ ${s.label} (${s.weightBn}) ডায়াপারের দাম তুলনা।`,
     "url": `https://diaperdam.com/size/${size}`,
     "numberOfItems": products.length,
     "itemListElement": products.slice(0, 10).map((p, i) => ({
@@ -58,9 +58,9 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://diaperdam.com" },
-      { "@type": "ListItem", "position": 2, "name": "Diapers", "item": "https://diaperdam.com/diapers" },
-      { "@type": "ListItem", "position": 3, "name": `Size ${s.label}`, "item": `https://diaperdam.com/size/${size}` },
+      { "@type": "ListItem", "position": 1, "name": "হোম", "item": "https://diaperdam.com" },
+      { "@type": "ListItem", "position": 2, "name": "ডায়াপার", "item": "https://diaperdam.com/diapers" },
+      { "@type": "ListItem", "position": 3, "name": `সাইজ ${s.label}`, "item": `https://diaperdam.com/size/${size}` },
     ],
   };
 
@@ -78,13 +78,13 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
         <div className="bg-white border-b border-slate-100 py-8 px-4">
           <div className="max-w-6xl mx-auto">
             <p className="text-sm text-slate-400 mb-1">
-              <a href="/diapers" className="hover:text-emerald-600">All Diapers</a> / Size {s.label}
+              <a href="/diapers" className="hover:text-emerald-600">সব ডায়াপার</a> / সাইজ {s.label}
             </p>
             <h1 className="text-2xl font-bold text-slate-900">
-              Cheapest Size {s.label} Diapers in Bangladesh
+              বাংলাদেশে সবচেয়ে সস্তা সাইজ {s.label} ডায়াপার
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              For babies {s.weight}. Sorted by price per piece across all stores.
+              {s.weightBn} ওজনের বাচ্চাদের জন্য। সব দোকান থেকে প্রতি পিস দাম অনুযায়ী সাজানো।
             </p>
           </div>
         </div>
@@ -92,13 +92,13 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
         {products.length > 0 && (
           <div className="max-w-6xl mx-auto px-4 pb-12">
             <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
-              <h2 className="font-bold text-slate-900 mb-2">Size {s.label} Diaper Prices in Bangladesh</h2>
+              <h2 className="font-bold text-slate-900 mb-2">সাইজ {s.label} ডায়াপার দাম বাংলাদেশ</h2>
               <p className="text-sm text-slate-600 leading-relaxed">
-                Size {s.label} diapers are designed for babies weighing {s.weight}.
-                DiaperDam compares Size {s.label} prices across Chaldal, Daraz, Othoba, Shwapno and Arogga.
-                All prices are shown per piece so you can compare 40-pack and 80-pack options fairly.
-                The cheapest Size {s.label} option right now is{" "}
-                <strong>৳{Number(products[0].price_per_piece).toFixed(2)}/pc</strong> ({products[0].brand} at {products[0].store_name}).
+                সাইজ {s.label} ডায়াপার {s.weightBn} ওজনের বাচ্চাদের জন্য তৈরি।
+                DiaperDam চালডাল, দারাজ, স্বপ্ন ও মীনা বাজারে সাইজ {s.label}-এর দাম তুলনা করে।
+                সব দাম প্রতি পিস অনুযায়ী দেখানো হয় যাতে ৪০ পিস আর ৮০ পিস প্যাক ন্যায়ভাবে তুলনা করা যায়।
+                এই মুহূর্তে সবচেয়ে সস্তা সাইজ {s.label} হলো{" "}
+                <strong>৳{Number(products[0].price_per_piece).toFixed(2)}/পিস</strong> ({products[0].brand}, {products[0].store_name})।
               </p>
             </div>
           </div>

@@ -1,18 +1,19 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_ORDER, STORE_COLORS } from "@/lib/utils";
 
 export const revalidate = 3600;
 
-const STORE_META: Record<string, { name: string; color: string; description: string }> = {
-  chaldal:    { name: "Chaldal",     color: "green",  description: "Chaldal diaper prices in Bangladesh. Compare Huggies, MamyPoko and Molfix prices on Chaldal with other stores." },
-  daraz:      { name: "Daraz",       color: "orange", description: "Daraz diaper prices in Bangladesh. Find cheapest baby diapers on Daraz compared to Chaldal and Othoba." },
-  othoba:     { name: "Othoba",      color: "blue",   description: "Othoba diaper prices in Bangladesh. Compare Huggies, MamyPoko and Molfix on Othoba vs other stores." },
-  shwapno:    { name: "Shwapno",     color: "red",    description: "Shwapno diaper prices in Bangladesh. Compare prices across all major BD grocery stores." },
-  arogga:     { name: "Arogga",      color: "purple", description: "Arogga diaper prices in Bangladesh. Pharmacy and grocery diaper prices compared per piece." },
-  meenabazar: { name: "Meena Bazar", color: "teal",   description: "Meena Bazar diaper prices in Bangladesh. Compare Huggies and MamyPoko prices at Meena Bazar." },
-  unimart:    { name: "Unimart",     color: "indigo", description: "Unimart diaper prices in Bangladesh. Find cheapest diapers at Unimart compared to other BD stores." },
+const STORE_META: Record<string, { name: string; nameBn: string; color: string; description: string }> = {
+  chaldal:    { name: "Chaldal",     nameBn: "চালডাল",    color: "green",  description: "চালডালে ডায়াপারের দাম। Huggies, MamyPoko ও Molfix-এর দাম অন্য দোকানের সাথে তুলনা করুন।" },
+  daraz:      { name: "Daraz",       nameBn: "দারাজ",     color: "orange", description: "দারাজে ডায়াপারের দাম। চালডাল ও অন্যান্য দোকানের তুলনায় দারাজে সবচেয়ে সস্তা বেবি ডায়াপার খুঁজুন।" },
+  othoba:     { name: "Othoba",      nameBn: "অথবা",      color: "blue",   description: "অথবায় ডায়াপারের দাম। Huggies, MamyPoko ও Molfix অন্যান্য দোকানের সাথে তুলনা করুন।" },
+  shwapno:    { name: "Shwapno",     nameBn: "স্বপ্ন",    color: "red",    description: "স্বপ্নে ডায়াপারের দাম। বাংলাদেশের সব বড় গ্রোসারি দোকান থেকে দাম তুলনা।" },
+  arogga:     { name: "Arogga",      nameBn: "আরোগ্য",    color: "purple", description: "আরোগ্যতে ডায়াপারের দাম। ফার্মেসি ও গ্রোসারি ডায়াপারের প্রতি পিস দাম তুলনা।" },
+  meenabazar: { name: "Meena Bazar", nameBn: "মীনা বাজার", color: "teal",   description: "মীনা বাজারে ডায়াপারের দাম। Huggies ও MamyPoko-র দাম মীনা বাজারে তুলনা করুন।" },
+  gobaby:     { name: "GoBaby",      nameBn: "GoBaby",    color: "sky",    description: "GoBaby-তে ডায়াপারের দাম। বেবি প্রোডাক্ট স্পেশালিস্ট দোকানে সব ব্র্যান্ডের দাম দেখুন।" },
+  unimart:    { name: "Unimart",     nameBn: "ইউনিমার্ট", color: "indigo", description: "ইউনিমার্টে ডায়াপারের দাম। অন্যান্য দোকানের তুলনায় ইউনিমার্টে সস্তা ডায়াপার খুঁজুন।" },
 };
 
 const KNOWN_BRANDS = [
@@ -28,9 +29,9 @@ const KNOWN_BRANDS = [
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const meta = STORE_META[slug] ?? { name: slug, description: `${slug} diaper prices in Bangladesh` };
+  const meta = STORE_META[slug] ?? { name: slug, nameBn: slug, description: `${slug}-এ ডায়াপারের দাম বাংলাদেশ` };
   return {
-    title: `${meta.name} Diaper Prices — Compare All Brands | DiaperDam`,
+    title: `${meta.name} ডায়াপার দাম — সব ব্র্যান্ড তুলনা | DiaperDam`,
     description: meta.description,
     alternates: { canonical: `https://diaperdam.com/store/${slug}` },
   };
@@ -41,15 +42,16 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
   const products = await getAllProducts({ store_slug: slug }).catch(() => []);
   const meta = STORE_META[slug] ?? {
     name: slug.charAt(0).toUpperCase() + slug.slice(1),
+    nameBn: slug,
     color: "slate",
-    description: `${slug} diaper prices in Bangladesh.`,
+    description: `${slug}-এ ডায়াপারের দাম।`,
   };
 
   // Brands available in this store
   const brandsInStore = Array.from(new Set(products.map(p => p.brand_slug)));
   const brandTabs = KNOWN_BRANDS.filter(b => brandsInStore.includes(b.slug));
 
-  // Size summary: cheapest per-piece per size across all brands in this store
+  // Size summary
   const sizeSummary = SIZE_ORDER
     .map(size => {
       const prods = products.filter(p => p.size_label === size);
@@ -59,11 +61,10 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     })
     .filter(Boolean) as { size: string; cheapest: (typeof products)[0] }[];
 
-  // JSON-LD ItemList schema
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `${meta.name} Diaper Prices — Compare All Brands`,
+    "name": `${meta.name} ডায়াপার দাম — সব ব্র্যান্ড তুলনা`,
     "description": meta.description,
     "url": `https://diaperdam.com/store/${slug}`,
     "numberOfItems": products.length,
@@ -97,15 +98,14 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
 
       <div className="bg-white border-b border-slate-100 py-8 px-4">
         <div className="max-w-6xl mx-auto">
-          {/* Breadcrumb */}
           <p className="text-sm text-slate-400 mb-1">
-            <a href="/" className="hover:text-emerald-600">Home</a>
+            <a href="/" className="hover:text-emerald-600">হোম</a>
             {" / "}
-            <span className="text-slate-600">{meta.name}</span>
+            <span className="text-slate-600">{meta.nameBn}</span>
           </p>
 
           <h1 className="text-2xl font-bold text-slate-900">
-            {meta.name} Diaper Prices &mdash; Compare All Brands
+            {meta.nameBn}-তে ডায়াপার দাম — সব ব্র্যান্ড তুলনা
           </h1>
           <p className="text-slate-500 text-sm mt-1">{meta.description}</p>
 
@@ -119,7 +119,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
                 >
                   <span className="font-bold text-slate-700">{size}</span>
                   <span className={`${storeColors.text} font-semibold ml-2`}>
-                    &#2547;{Number(cheapest.price_per_piece).toFixed(2)}/pc
+                    ৳{Number(cheapest.price_per_piece).toFixed(2)}/পিস
                   </span>
                   <span className="text-slate-400 ml-1">{cheapest.brand}</span>
                 </div>
@@ -130,7 +130,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
           {/* Brand filter tabs */}
           {brandTabs.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
-              <span className="text-xs text-slate-400 self-center mr-1">Filter by brand:</span>
+              <span className="text-xs text-slate-400 self-center mr-1">ব্র্যান্ড ফিল্টার:</span>
               {brandTabs.map(b => (
                 <a
                   key={b.slug}
@@ -149,8 +149,8 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
         <DiapersClient products={products} />
       ) : (
         <div className="max-w-6xl mx-auto px-4 py-16 text-center text-slate-400">
-          <p className="text-4xl mb-3">&#128269;</p>
-          <p>No products found for {meta.name} yet. Check back after the next scrape.</p>
+          <p className="text-4xl mb-3">🔍</p>
+          <p>{meta.nameBn}-তে এখনও পণ্য পাওয়া যায়নি। পরবর্তী ডেটা আপডেটের পর দেখুন।</p>
         </div>
       )}
 
@@ -158,22 +158,20 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
       <div className="max-w-6xl mx-auto px-4 pb-12">
         <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
           <h2 className="font-bold text-slate-900 mb-2">
-            Why Compare Diaper Prices on DiaperDam?
+            DiaperDam-এ কেন ডায়াপার দাম তুলনা করবেন?
           </h2>
           <p className="text-sm text-slate-600 leading-relaxed">
-            {meta.name} carries multiple diaper brands including Huggies, MamyPoko, and Molfix across
-            different sizes and pack quantities. A larger pack almost always means a lower cost per
-            piece &mdash; but comparing pack sizes manually is tedious.
+            {meta.nameBn}-তে Huggies, MamyPoko, Molfix সহ একাধিক ব্র্যান্ডের ডায়াপার বিভিন্ন সাইজ ও প্যাকে পাওয়া যায়।
+            বড় প্যাকে প্রতি পিস দাম সাধারণত কম হয়, কিন্তু হাতে হাতে তুলনা করা কষ্টকর।
           </p>
           <p className="text-sm text-slate-600 leading-relaxed mt-2">
-            DiaperDam converts every listing to a price-per-piece so you can compare fairly.
-            We track {meta.name} alongside Chaldal, Daraz, Othoba, Shwapno, and Arogga daily,
-            so you always know whether {meta.name} has the best deal or if another store is cheaper
-            right now.
+            DiaperDam প্রতিটা লিস্টিংকে প্রতি পিস দামে রূপান্তর করে যাতে ন্যায়ভাবে তুলনা করতে পারেন।
+            আমরা প্রতিদিন {meta.nameBn} সহ চালডাল, দারাজ, স্বপ্ন ও মীনা বাজারের দাম ট্র্যাক করি,
+            তাই আপনি সবসময় জানবেন {meta.nameBn}-তে সেরা দাম আছে কিনা, নাকি অন্য দোকানে সস্তা।
           </p>
           <p className="text-sm text-slate-600 leading-relaxed mt-2">
-            Prices update automatically after each scrape. Sort the table by price-per-piece,
-            filter by brand or size, and click any row to go directly to the {meta.name} product page.
+            প্রতি স্ক্র্যাপের পর দাম আপডেট হয়। প্রতি পিস দাম দিয়ে সর্ট করুন, ব্র্যান্ড বা সাইজ দিয়ে ফিল্টার করুন,
+            আর যেকোনো রো-তে ক্লিক করে সরাসরি {meta.nameBn}-র পণ্য পেজে যান।
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             {KNOWN_BRANDS.map(b => (
@@ -182,7 +180,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
                 href={`/brand/${b.slug}`}
                 className="text-xs text-emerald-700 hover:underline"
               >
-                {b.name} prices &#8594;
+                {b.name} দাম →
               </a>
             ))}
           </div>

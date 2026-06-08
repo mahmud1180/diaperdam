@@ -1,19 +1,18 @@
 import Link from "next/link";
 import { getCheapestByBrand, getLastScrapedAt, getActiveDeals } from "@/lib/db";
-// utils imported via layout
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 const BRANDS = [
-  { slug: "huggies",     name: "Huggies",     flag: "🇲🇾", origin: "Malaysia" },
-  { slug: "mamypoko",    name: "MamyPoko",    flag: "🇮🇳", origin: "India" },
-  { slug: "molfix",      name: "Molfix",      flag: "🇹🇷", origin: "Turkey" },
-  { slug: "pampers",     name: "Pampers",     flag: "🇺🇸", origin: "USA" },
-  { slug: "neocare",     name: "Neocare",     flag: "🇧🇩", origin: "Bangladesh" },
-  { slug: "bashundhara", name: "Bashundhara", flag: "🇧🇩", origin: "Bangladesh" },
-  { slug: "supermom",    name: "Supermom",    flag: "🇧🇩", origin: "Bangladesh" },
-  { slug: "avonee",      name: "Avonee",      flag: "🇧🇩", origin: "Bangladesh" },
+  { slug: "huggies",     name: "Huggies",     flag: "🇲🇾", origin: "মালয়েশিয়া" },
+  { slug: "mamypoko",    name: "MamyPoko",    flag: "🇮🇳", origin: "ভারত" },
+  { slug: "molfix",      name: "Molfix",      flag: "🇹🇷", origin: "তুরস্ক" },
+  { slug: "pampers",     name: "Pampers",     flag: "🇺🇸", origin: "আমেরিকা" },
+  { slug: "neocare",     name: "Neocare",     flag: "🇧🇩", origin: "বাংলাদেশ" },
+  { slug: "bashundhara", name: "Bashundhara", flag: "🇧🇩", origin: "বাংলাদেশ" },
+  { slug: "supermom",    name: "Supermom",    flag: "🇧🇩", origin: "বাংলাদেশ" },
+  { slug: "avonee",      name: "Avonee",      flag: "🇧🇩", origin: "বাংলাদেশ" },
 ];
 
 const websiteSchema = {
@@ -21,7 +20,8 @@ const websiteSchema = {
   "@type": "WebSite",
   "name": "DiaperDam",
   "url": "https://diaperdam.com",
-  "description": "Bangladesh's diaper price comparison — cheapest Huggies, MamyPoko, Molfix, Pampers and more across Chaldal, Daraz, Othoba, Shwapno and Arogga.",
+  "description": "বাংলাদেশের ডায়াপার দাম তুলনা সাইট। Huggies, MamyPoko, Molfix, Bashundhara সহ সব ব্র্যান্ডের দাম চালডাল, দারাজ, স্বপ্ন থেকে তুলনা করুন।",
+  "inLanguage": "bn",
   "potentialAction": {
     "@type": "SearchAction",
     "target": {
@@ -37,7 +37,7 @@ const organizationSchema = {
   "@type": "Organization",
   "name": "DiaperDam",
   "url": "https://diaperdam.com",
-  "description": "Bangladesh's first dedicated diaper price comparison platform.",
+  "description": "বাংলাদেশের প্রথম ডায়াপার দাম তুলনা প্ল্যাটফর্ম।",
   "areaServed": "BD",
   "serviceType": "Price comparison",
 };
@@ -70,20 +70,20 @@ export default async function HomePage() {
       <section className="bg-gradient-to-br from-teal-600 via-emerald-600 to-emerald-700 text-white py-16 sm:py-20 px-4">
         <div className="max-w-3xl mx-auto text-center">
           <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-3">
-            All diaper deals in Bangladesh right now
+            বাংলাদেশে এখন সব ডায়াপার অফার
           </h1>
           <p className="text-emerald-100 text-lg sm:text-xl mb-8">
-            Today <strong className="text-white">{totalProducts || 200}</strong> deals at <strong className="text-white">{storeCount}</strong> stores
+            আজ <strong className="text-white">{totalProducts || 200}</strong> টি অফার <strong className="text-white">{storeCount}</strong> টি দোকানে
           </p>
           <Link
             href="/diapers"
             className="inline-block bg-amber-500 hover:bg-amber-600 text-white font-bold text-lg px-8 py-4 rounded-xl transition-colors shadow-lg"
           >
-            Compare all diapers
+            সব ডায়াপার তুলনা করুন
           </Link>
           {lastScraped && (
             <p className="text-xs text-emerald-200 mt-6">
-              Prices last updated: {new Date(lastScraped).toLocaleDateString("en-BD", { year: "numeric", month: "short", day: "numeric" })}
+              দাম আপডেট: {new Date(lastScraped).toLocaleDateString("bn-BD", { year: "numeric", month: "long", day: "numeric" })}
             </p>
           )}
         </div>
@@ -92,7 +92,7 @@ export default async function HomePage() {
       {/* ─── BRAND LOGOS ROW ─── */}
       <section className="bg-white border-b border-slate-100 py-8 px-4">
         <p className="text-center text-sm font-semibold text-slate-400 uppercase tracking-widest mb-6">
-          Deals from these brands
+          এই ব্র্যান্ডগুলোর অফার দেখুন
         </p>
         <div className="max-w-4xl mx-auto flex flex-wrap justify-center gap-4 sm:gap-8">
           {BRANDS.map(b => (
@@ -113,42 +113,37 @@ export default async function HomePage() {
         <div className="grid md:grid-cols-2 gap-10">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              Always find the lowest price here!
+              সবসময় সবচেয়ে কম দাম এখানে পাবেন!
             </h2>
             <p className="text-slate-600 leading-relaxed mb-3">
-              It is hard to figure out which diapers are the cheapest. Almost every pack has a different
-              quantity and a different price. We always calculate the <strong>price per diaper piece</strong>.
+              কোন ডায়াপার আসলে সবচেয়ে সস্তা সেটা বের করা কঠিন। প্রায় প্রতিটা প্যাকে আলাদা সংখ্যা, আলাদা দাম। আমরা সবসময় <strong>প্রতি পিস দাম</strong> হিসাব করি।
             </p>
             <p className="text-slate-600 leading-relaxed mb-3">
-              On this website you get an overview of the lowest price per diaper. Depending on the deal,
-              you can order exactly how many diapers you need!{" "}
+              এই ওয়েবসাইটে সবচেয়ে কম প্রতি পিস দামের ডায়াপার দেখতে পাবেন। অফার অনুযায়ী আপনার দরকার মতো অর্ডার করুন!{" "}
               <Link href="/diapers" className="text-emerald-600 font-semibold hover:underline">
-                See all diapers here
-              </Link>, including{" "}
+                সব ডায়াপার দেখুন
+              </Link>, সাথে{" "}
               <Link href="/deals" className="text-emerald-600 font-semibold hover:underline">
-                today&apos;s deals
-              </Link>.
+                আজকের অফার
+              </Link>।
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Whether you prefer Huggies, MamyPoko, Molfix or a local brand like Bashundhara
-              or Supermom — we compare them all across every major online store in Bangladesh.
+              Huggies পছন্দ হোক, MamyPoko বা Molfix, অথবা দেশি ব্র্যান্ড Bashundhara বা Supermom - আমরা বাংলাদেশের সব বড় অনলাইন দোকান থেকে সবার দাম তুলনা করি।
             </p>
           </div>
           <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">
-              Save with bulk packs
+              বড় প্যাকে সাশ্রয় করুন
             </h2>
             <p className="text-slate-600 leading-relaxed mb-3">
-              You can save the most on diapers by looking for bulk packs that are on sale.
-              Bulk packs are generally already cheaper, but on sale you can save up to 30% on your diapers.
+              ডায়াপারে সবচেয়ে বেশি সাশ্রয় করা যায় অফারে থাকা বড় প্যাক কিনে। বড় প্যাক এমনিতেই সস্তা, অফারে গেলে ৩০% পর্যন্ত কম দামে পাওয়া যায়।
             </p>
             <p className="text-slate-600 leading-relaxed">
-              Is a bulk pack always cheaper? Not necessarily! That is why we always show the
-              lowest price per diaper so you can pick the best deal yourself. Use the{" "}
+              বড় প্যাক কি সবসময় সস্তা? সবসময় না! তাই আমরা সবসময় প্রতি পিস দাম দেখাই, যাতে আপনি নিজে সেরা ডিল বাছতে পারেন।{" "}
               <Link href="/price-index" className="text-emerald-600 font-semibold hover:underline">
-                Price Index
+                মূল্য সূচক
               </Link>{" "}
-              to compare stores side by side.
+              দেখে দোকান-ভিত্তিক তুলনা করুন।
             </p>
           </div>
         </div>
@@ -158,16 +153,16 @@ export default async function HomePage() {
       <section className="bg-emerald-50 border-y border-emerald-100 py-12 px-4">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">
-            Why compare diaper prices online?
+            অনলাইনে ডায়াপারের দাম তুলনা কেন করবেন?
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
             {[
-              { icon: "🏷️", text: "Find the best diaper deals instantly" },
-              { icon: "📦", text: "No carrying heavy packs from the store" },
-              { icon: "🚚", text: "Many stores offer free home delivery" },
-              { icon: "💰", text: "Price per piece makes comparison fair" },
-              { icon: "🔄", text: "Prices updated daily from all stores" },
-              { icon: "📊", text: "Compare 8+ brands across 5+ stores" },
+              { icon: "🏷️", text: "সেরা ডায়াপার অফার সাথে সাথে খুঁজে পান" },
+              { icon: "📦", text: "ভারী প্যাক দোকান থেকে বহন করা লাগবে না" },
+              { icon: "🚚", text: "অনেক দোকানে ফ্রি হোম ডেলিভারি আছে" },
+              { icon: "💰", text: "প্রতি পিস দাম দিয়ে তুলনা করা যায় সবচেয়ে ন্যায়" },
+              { icon: "🔄", text: "প্রতিদিন সব দোকান থেকে দাম আপডেট হয়" },
+              { icon: "📊", text: "৮+ ব্র্যান্ড ৫+ দোকানে তুলনা করুন" },
             ].map(item => (
               <div key={item.text} className="flex items-start gap-3 bg-white rounded-xl p-4 border border-emerald-100">
                 <span className="text-2xl shrink-0">{item.icon}</span>
@@ -180,7 +175,7 @@ export default async function HomePage() {
               href="/diapers"
               className="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition-colors"
             >
-              Compare diapers now
+              এখনই ডায়াপার তুলনা করুন
             </Link>
           </div>
         </div>
@@ -188,17 +183,17 @@ export default async function HomePage() {
 
       {/* ─── SIZE GUIDE ─── */}
       <section className="max-w-6xl mx-auto px-4 py-12 sm:py-16">
-        <h2 className="text-2xl font-bold text-slate-900 mb-2">All diapers in different sizes</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-2">বিভিন্ন সাইজে ডায়াপার</h2>
         <p className="text-slate-600 mb-6">
-          Diaper size depends on how much your baby weighs. Click a size to see all diapers and their prices for that weight range.
+          ডায়াপারের সাইজ নির্ভর করে আপনার বাচ্চার ওজনের ওপর। একটা সাইজে ক্লিক করলে সেই ওজনের সব ডায়াপার ও তাদের দাম দেখতে পাবেন।
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {[
-            { size: "Newborn", weight: "0-5 kg", age: "0-2 months" },
-            { size: "S",       weight: "4-8 kg", age: "2-6 months" },
-            { size: "M",       weight: "6-11 kg", age: "5-12 months" },
-            { size: "L",       weight: "9-14 kg", age: "9-18 months" },
-            { size: "XL",      weight: "12-17 kg", age: "12-24 months" },
+            { size: "Newborn", label: "নবজাতক", weight: "০-৫ কেজি", age: "০-২ মাস" },
+            { size: "S",       label: "S",       weight: "৪-৮ কেজি", age: "২-৬ মাস" },
+            { size: "M",       label: "M",       weight: "৬-১১ কেজি", age: "৫-১২ মাস" },
+            { size: "L",       label: "L",       weight: "৯-১৪ কেজি", age: "৯-১৮ মাস" },
+            { size: "XL",      label: "XL",      weight: "১২-১৭ কেজি", age: "১২-২৪ মাস" },
           ].map(s => (
             <Link
               key={s.size}
@@ -208,7 +203,7 @@ export default async function HomePage() {
               <div className="text-2xl font-bold text-emerald-700 group-hover:text-emerald-600">
                 {s.size === "Newborn" ? "NB" : s.size}
               </div>
-              <div className="text-xs font-semibold text-slate-700 mt-1">{s.size === "Newborn" ? "Newborn" : `Size ${s.size}`}</div>
+              <div className="text-xs font-semibold text-slate-700 mt-1">{s.size === "Newborn" ? s.label : `সাইজ ${s.label}`}</div>
               <div className="text-xs text-slate-400 mt-0.5">{s.weight}</div>
               <div className="text-[10px] text-slate-300">{s.age}</div>
             </Link>
@@ -219,16 +214,12 @@ export default async function HomePage() {
       {/* ─── HOW MANY DIAPERS PER MONTH ─── */}
       <section className="bg-slate-50 border-y border-slate-100 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">How many diapers do I need per month?</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">মাসে কতগুলো ডায়াপার লাগে?</h2>
           <p className="text-slate-600 leading-relaxed mb-4">
-            The number of diapers you go through monthly varies by baby. Age is the most important factor.
-            Newborns need 8-12 diapers per day (about 240-360/month). By the time your baby is 6 months old,
-            this drops to about 6-8 per day (180-240/month). Toddlers at 12+ months typically need 4-6 per day.
+            মাসে কতগুলো ডায়াপার লাগবে সেটা বাচ্চার বয়সের ওপর নির্ভর করে। নবজাতকের দিনে ৮-১২টা লাগে (মাসে প্রায় ২৪০-৩৬০টা)। ৬ মাস বয়সে দিনে ৬-৮টা (মাসে ১৮০-২৪০টা)। ১২+ মাসে সাধারণত দিনে ৪-৬টা যথেষ্ট।
           </p>
           <p className="text-slate-600 leading-relaxed">
-            This means diapers are one of the biggest expenses for new parents. At an average of ৳8-15 per diaper,
-            that is ৳2,000-5,000 per month. By comparing prices on DiaperDam, you can easily save ৳500-1,000
-            every month by finding the cheapest option per piece.
+            তার মানে নতুন বাবা-মায়ের জন্য ডায়াপার অন্যতম বড় খরচ। গড়ে ৳৮-১৫ টাকা প্রতি পিসে, মাসে ৳২,০০০-৫,০০০ খরচ হয়। DiaperDam-এ দাম তুলনা করে সবচেয়ে সস্তা অপশন বাছলে প্রতি মাসে ৳৫০০-১,০০০ সাশ্রয় করা সম্ভব।
           </p>
         </div>
       </section>
@@ -238,11 +229,11 @@ export default async function HomePage() {
         <section className="max-w-6xl mx-auto px-4 py-12">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-slate-900">Diaper Deals Today</h2>
-              <p className="text-sm text-slate-500 mt-0.5">Current discounts across all stores</p>
+              <h2 className="text-2xl font-bold text-slate-900">আজকের ডায়াপার অফার</h2>
+              <p className="text-sm text-slate-500 mt-0.5">সব দোকানের বর্তমান ছাড়</p>
             </div>
             <Link href="/deals" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
-              See all deals &rarr;
+              সব অফার দেখুন &rarr;
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -264,7 +255,7 @@ export default async function HomePage() {
                 </div>
                 <div className="flex items-baseline gap-1 mb-1">
                   <span className="text-emerald-700 font-bold">৳{Number(deal.price_per_piece).toFixed(2)}</span>
-                  <span className="text-slate-400 text-xs">/pc</span>
+                  <span className="text-slate-400 text-xs">/পিস</span>
                   {deal.size_label && (
                     <span className="ml-auto bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded">
                       {deal.size_label}
@@ -275,7 +266,7 @@ export default async function HomePage() {
                   <p className="text-xs text-slate-400 line-through">৳{Number(deal.original_price_bdt).toFixed(2)}</p>
                 )}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
-                  <span className="text-xs text-slate-500">{deal.store_name} &middot; {deal.pack_qty}pcs</span>
+                  <span className="text-xs text-slate-500">{deal.store_name} &middot; {deal.pack_qty} পিস</span>
                   {deal.product_url && (
                     <a
                       href={deal.product_url}
@@ -283,7 +274,7 @@ export default async function HomePage() {
                       rel="noopener noreferrer sponsored"
                       className="text-xs text-emerald-600 font-semibold hover:underline"
                     >
-                      View deal &rarr;
+                      অফার দেখুন &rarr;
                     </a>
                   )}
                 </div>
@@ -295,14 +286,14 @@ export default async function HomePage() {
 
       {/* ─── STORE BADGES ─── */}
       <section className="max-w-6xl mx-auto px-4 pb-12">
-        <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">Prices compared from</p>
+        <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-4">যেসব দোকান থেকে দাম তুলনা করা হয়</p>
         <div className="flex flex-wrap gap-3">
           {[
-            { slug: "chaldal",    name: "Chaldal",     color: "bg-green-50 text-green-700 border-green-200" },
-            { slug: "meenabazar", name: "Meena Bazar",  color: "bg-pink-50 text-pink-700 border-pink-200" },
+            { slug: "chaldal",    name: "চালডাল",     color: "bg-green-50 text-green-700 border-green-200" },
+            { slug: "meenabazar", name: "মীনা বাজার",  color: "bg-pink-50 text-pink-700 border-pink-200" },
             { slug: "gobaby",     name: "GoBaby",       color: "bg-sky-50 text-sky-700 border-sky-200" },
-            { slug: "shwapno",    name: "Shwapno",      color: "bg-red-50 text-red-700 border-red-200" },
-            { slug: "daraz",      name: "Daraz",        color: "bg-orange-50 text-orange-700 border-orange-200" },
+            { slug: "shwapno",    name: "স্বপ্ন",      color: "bg-red-50 text-red-700 border-red-200" },
+            { slug: "daraz",      name: "দারাজ",        color: "bg-orange-50 text-orange-700 border-orange-200" },
           ].map(s => (
             <Link
               key={s.slug}
@@ -315,50 +306,45 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── SEO CONTENT: LOOKING FOR DIAPER DEALS? ─── */}
+      {/* ─── SEO CONTENT ─── */}
       <section className="bg-white border-t border-slate-100 py-12 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">Looking for diaper deals in Bangladesh?</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-4">বাংলাদেশে ডায়াপারের দাম খুঁজছেন?</h2>
           <p className="text-slate-600 leading-relaxed mb-3">
-            Welcome to DiaperDam! This is the best website for finding all diaper deals in Bangladesh.
-            We compare prices from Chaldal, Meena Bazar, GoBaby, Shwapno, Daraz and more every day.
-            All prices are sorted by the lowest price per diaper piece, so you can instantly see which
-            diapers are the cheapest!
+            DiaperDam-এ স্বাগতম! বাংলাদেশে ডায়াপারের সব অফার খুঁজে পাওয়ার সেরা জায়গা এটা। আমরা প্রতিদিন চালডাল, মীনা বাজার, GoBaby, স্বপ্ন, দারাজ সহ আরও দোকান থেকে দাম তুলনা করি। সব দাম প্রতি পিস অনুযায়ী সাজানো, তাই এক নজরেই বুঝবেন কোনটা সবচেয়ে সস্তা!
           </p>
           <p className="text-slate-600 leading-relaxed mb-3">
-            On this site you will find all brands of baby diapers, from international brands
-            like <Link href="/brand/huggies" className="text-emerald-600 font-semibold hover:underline">Huggies</Link>,{" "}
+            এখানে সব ব্র্যান্ডের বেবি ডায়াপার পাবেন - আন্তর্জাতিক{" "}
+            <Link href="/brand/huggies" className="text-emerald-600 font-semibold hover:underline">Huggies</Link>,{" "}
             <Link href="/brand/mamypoko" className="text-emerald-600 font-semibold hover:underline">MamyPoko</Link>,{" "}
-            <Link href="/brand/pampers" className="text-emerald-600 font-semibold hover:underline">Pampers</Link> and{" "}
-            <Link href="/brand/molfix" className="text-emerald-600 font-semibold hover:underline">Molfix</Link> to
-            local favorites like{" "}
+            <Link href="/brand/pampers" className="text-emerald-600 font-semibold hover:underline">Pampers</Link> আর{" "}
+            <Link href="/brand/molfix" className="text-emerald-600 font-semibold hover:underline">Molfix</Link> থেকে শুরু করে
+            দেশি পছন্দের{" "}
             <Link href="/brand/bashundhara" className="text-emerald-600 font-semibold hover:underline">Bashundhara</Link>,{" "}
-            <Link href="/brand/neocare" className="text-emerald-600 font-semibold hover:underline">Neocare</Link> and{" "}
-            <Link href="/brand/supermom" className="text-emerald-600 font-semibold hover:underline">Supermom</Link>.
+            <Link href="/brand/neocare" className="text-emerald-600 font-semibold hover:underline">Neocare</Link> আর{" "}
+            <Link href="/brand/supermom" className="text-emerald-600 font-semibold hover:underline">Supermom</Link> পর্যন্ত।
           </p>
           <p className="text-slate-600 leading-relaxed">
-            Never pay too much for your diapers again! You know that diapers are a major expense for
-            new parents. By comparing prices here, you always find the cheapest option. Whether you prefer
-            belt-type diapers or pull-up pants, we compare them all. Check the{" "}
-            <Link href="/price-index" className="text-emerald-600 font-semibold hover:underline">Price Index</Link>{" "}
-            to see which store is cheapest overall right now.
+            ডায়াপারে বেশি টাকা দেওয়া আর দরকার নেই! নতুন বাবা-মায়ের জন্য এটা বড় খরচ। এখানে দাম তুলনা করলে সবসময় সবচেয়ে সস্তা অপশন পাবেন। বেল্ট টাইপ হোক বা প্যান্ট - সব তুলনা করা হয়।{" "}
+            <Link href="/price-index" className="text-emerald-600 font-semibold hover:underline">মূল্য সূচক</Link>{" "}
+            দেখলে বুঝবেন এই মুহূর্তে কোন দোকানে সবচেয়ে কম দাম।
           </p>
         </div>
       </section>
 
       {/* ─── PROS AND CONS ─── */}
       <section className="max-w-6xl mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Comparing the top diaper brands</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">সেরা ডায়াপার ব্র্যান্ড তুলনা</h2>
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white border border-slate-100 rounded-2xl p-6">
             <h3 className="font-bold text-slate-900 mb-3">
               <Link href="/brand/huggies" className="hover:text-emerald-600">Huggies</Link>
             </h3>
             <ul className="space-y-1.5 text-sm text-slate-600">
-              <li className="flex gap-2"><span className="text-green-500">+</span> Excellent leak protection</li>
-              <li className="flex gap-2"><span className="text-green-500">+</span> Soft and comfortable fit</li>
-              <li className="flex gap-2"><span className="text-green-500">+</span> Available in all stores</li>
-              <li className="flex gap-2"><span className="text-red-400">-</span> Higher price per piece</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> চমৎকার লিক প্রটেকশন</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> নরম ও আরামদায়ক ফিটিং</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> সব দোকানে পাওয়া যায়</li>
+              <li className="flex gap-2"><span className="text-red-400">-</span> প্রতি পিস দাম বেশি</li>
             </ul>
           </div>
           <div className="bg-white border border-slate-100 rounded-2xl p-6">
@@ -366,10 +352,10 @@ export default async function HomePage() {
               <Link href="/brand/mamypoko" className="hover:text-emerald-600">MamyPoko Pants</Link>
             </h3>
             <ul className="space-y-1.5 text-sm text-slate-600">
-              <li className="flex gap-2"><span className="text-green-500">+</span> Easy pull-up pants style</li>
-              <li className="flex gap-2"><span className="text-green-500">+</span> Great overnight absorption</li>
-              <li className="flex gap-2"><span className="text-green-500">+</span> Popular with Bangladeshi parents</li>
-              <li className="flex gap-2"><span className="text-red-400">-</span> Limited size range</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> সহজে পরানো যায় প্যান্ট স্টাইল</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> রাতে দারুণ শোষণ ক্ষমতা</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> বাংলাদেশি বাবা-মায়ের কাছে জনপ্রিয়</li>
+              <li className="flex gap-2"><span className="text-red-400">-</span> সাইজ রেঞ্জ কম</li>
             </ul>
           </div>
           <div className="bg-white border border-slate-100 rounded-2xl p-6">
@@ -377,10 +363,10 @@ export default async function HomePage() {
               <Link href="/brand/bashundhara" className="hover:text-emerald-600">Bashundhara</Link>
             </h3>
             <ul className="space-y-1.5 text-sm text-slate-600">
-              <li className="flex gap-2"><span className="text-green-500">+</span> Most affordable local brand</li>
-              <li className="flex gap-2"><span className="text-green-500">+</span> Widely available</li>
-              <li className="flex gap-2"><span className="text-green-500">+</span> Good value bulk packs</li>
-              <li className="flex gap-2"><span className="text-red-400">-</span> Less absorbent than premium</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> সবচেয়ে সাশ্রয়ী দেশি ব্র্যান্ড</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> সব জায়গায় কিনতে পাওয়া যায়</li>
+              <li className="flex gap-2"><span className="text-green-500">+</span> বাল্ক প্যাকে দারুণ দাম</li>
+              <li className="flex gap-2"><span className="text-red-400">-</span> প্রিমিয়ামের তুলনায় শোষণ কম</li>
             </ul>
           </div>
         </div>

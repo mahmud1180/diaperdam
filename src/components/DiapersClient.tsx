@@ -10,9 +10,9 @@ type Props = {
 };
 
 const SORT_OPTIONS = [
-  { value: "price_per_piece" as const, label: "Cheapest per piece" },
-  { value: "price_bdt" as const,       label: "Cheapest per pack" },
-  { value: "discount_pct" as const,    label: "Biggest discount" },
+  { value: "price_per_piece" as const, label: "প্রতি পিস সস্তা" },
+  { value: "price_bdt" as const,       label: "প্যাক দাম কম" },
+  { value: "discount_pct" as const,    label: "বেশি ছাড়" },
 ];
 
 const PAGE_SIZE = 50;
@@ -47,7 +47,7 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
   const availSizes = SIZE_ORDER.filter(s => products.some(p => p.size_label === s));
   const storeCount = new Set(products.map(p => p.store_slug)).size;
 
-  // Navigate to brand/size pages on dropdown change (like luieraanbiedingen.net)
+  // Navigate to brand/size pages on dropdown change
   function handleNav(url: string) {
     if (url && url !== "#") window.location.href = url;
   }
@@ -59,10 +59,10 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
         <div className="bg-gradient-to-br from-teal-600 via-emerald-600 to-emerald-700 text-white py-12 px-4">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl sm:text-4xl font-bold mb-2">
-              {title || "All diaper deals right now"}
+              {title || "এখনকার সব ডায়াপার অফার"}
             </h1>
             <p className="text-emerald-100 text-lg mb-8">
-              Today <strong className="text-white">{products.length}</strong> products at <strong className="text-white">{storeCount}</strong> stores
+              আজ <strong className="text-white">{products.length}</strong> টি পণ্য <strong className="text-white">{storeCount}</strong> টি দোকানে
             </p>
 
             {/* Hero dropdowns navigate to dedicated pages */}
@@ -72,7 +72,7 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
                 onChange={e => handleNav(e.target.value)}
                 className="text-base border-0 rounded-xl px-5 py-3 bg-white text-slate-700 cursor-pointer shadow-lg focus:ring-2 focus:ring-white outline-none w-full sm:w-auto"
               >
-                <option value="#">Choose brand...</option>
+                <option value="#">ব্র্যান্ড বাছুন...</option>
                 {availBrands.map(([slug, name]) => (
                   <option key={slug} value={`/brand/${slug}`}>{name}</option>
                 ))}
@@ -83,10 +83,10 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
                 onChange={e => handleNav(e.target.value)}
                 className="text-base border-0 rounded-xl px-5 py-3 bg-white text-slate-700 cursor-pointer shadow-lg focus:ring-2 focus:ring-white outline-none w-full sm:w-auto"
               >
-                <option value="#">Choose size...</option>
+                <option value="#">সাইজ বাছুন...</option>
                 {availSizes.map(s => (
                   <option key={s} value={`/size/${s.toLowerCase()}`}>
-                    {s === "Newborn" ? "Newborn (0-5 kg)" : `Size ${s}`}
+                    {s === "Newborn" ? "নবজাতক (০-৫ কেজি)" : `সাইজ ${s}`}
                   </option>
                 ))}
               </select>
@@ -98,7 +98,7 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
       {/* Description text */}
       <div className="bg-slate-50 border-b border-slate-200 py-4 px-4">
         <div className="max-w-6xl mx-auto text-sm text-slate-600">
-          Compare all baby diaper prices across Bangladesh&apos;s top online stores. Discounts can go up to 30%! You can see directly where they are cheapest, because we sort by the lowest price per diaper piece. Use the filters above to choose a brand or size.
+          বাংলাদেশের সব বড় অনলাইন দোকান থেকে বেবি ডায়াপারের দাম তুলনা করুন। ছাড় ৩০% পর্যন্ত হতে পারে! কোথায় সবচেয়ে সস্তা সেটা সরাসরি দেখুন, কারণ আমরা প্রতি পিস দাম অনুযায়ী সাজাই। উপরের ফিল্টার থেকে ব্র্যান্ড বা সাইজ বাছুন।
         </div>
       </div>
 
@@ -107,9 +107,9 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
         <div className="max-w-6xl mx-auto px-4 flex items-center justify-between py-2">
           <div className="flex">
             {[
-              { value: null, label: "All Diapers" },
-              { value: "belt", label: "Belt / Tape" },
-              { value: "pants", label: "Pants" },
+              { value: null, label: "সব ডায়াপার" },
+              { value: "belt", label: "বেল্ট / টেপ" },
+              { value: "pants", label: "প্যান্ট" },
             ].map(tab => (
               <button
                 key={tab.label}
@@ -142,12 +142,12 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
         {filtered.length === 0 ? (
           <div className="text-center py-16 text-slate-400">
             <p className="text-4xl mb-3">🔍</p>
-            <p>No diapers found with these filters.</p>
+            <p>এই ফিল্টারে কোনো ডায়াপার পাওয়া যায়নি।</p>
             <button
               onClick={() => setTypeFilter(null)}
               className="mt-3 text-emerald-600 underline text-sm cursor-pointer"
             >
-              Show all diapers
+              সব ডায়াপার দেখুন
             </button>
           </div>
         ) : (
@@ -157,11 +157,11 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wide border-b border-slate-200">
-                    <th className="pb-3 pl-2" colSpan={2}>Product</th>
-                    <th className="pb-3 text-center">Discount</th>
-                    <th className="pb-3 text-right">Pack price</th>
-                    <th className="pb-3 text-center">Store</th>
-                    <th className="pb-3 text-right pr-2">Per piece</th>
+                    <th className="pb-3 pl-2" colSpan={2}>পণ্য</th>
+                    <th className="pb-3 text-center">ছাড়</th>
+                    <th className="pb-3 text-right">প্যাক দাম</th>
+                    <th className="pb-3 text-center">দোকান</th>
+                    <th className="pb-3 text-right pr-2">প্রতি পিস</th>
                     <th className="pb-3 w-20"></th>
                   </tr>
                 </thead>
@@ -188,26 +188,26 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
                     onClick={() => { setPage(page - 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                     className="text-sm font-medium text-emerald-700 hover:underline cursor-pointer"
                   >
-                    &lsaquo; Previous
+                    &lsaquo; আগের পাতা
                   </button>
                 )}
                 <span className="text-sm text-slate-600">
-                  Page <strong>{page}</strong>
+                  পাতা <strong>{page}</strong>
                 </span>
                 {page < totalPages && (
                   <button
                     onClick={() => { setPage(page + 1); window.scrollTo({ top: 0, behavior: "smooth" }); }}
                     className="text-sm font-medium text-emerald-700 hover:underline cursor-pointer"
                   >
-                    Next &rsaquo;
+                    পরের পাতা &rsaquo;
                   </button>
                 )}
               </div>
             )}
 
-            {/* Bottom size cross-links — like luieraanbiedingen */}
+            {/* Bottom size cross-links */}
             <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500">
-              <p className="mb-2">You are viewing all diapers. Also available in these sizes:</p>
+              <p className="mb-2">আপনি সব ডায়াপার দেখছেন। এই সাইজগুলোতেও দেখতে পারেন:</p>
               <div className="flex flex-wrap gap-2">
                 {SIZE_ORDER.map(s => (
                   <a
@@ -215,7 +215,7 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
                     href={`/size/${s.toLowerCase()}`}
                     className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium"
                   >
-                    {s === "Newborn" ? "Newborn" : `Size ${s}`}
+                    {s === "Newborn" ? "নবজাতক" : `সাইজ ${s}`}
                   </a>
                 ))}
               </div>
@@ -232,11 +232,9 @@ function TableRow({ p }: { p: DiaperProduct }) {
   const sc = STORE_COLORS[p.store_slug] ?? { bg: "bg-slate-50", text: "text-slate-700", border: "border-slate-200" };
   const hasDiscount = p.discount_pct && Number(p.discount_pct) >= 5;
 
-  // Full product name: "Huggies Dry | Size L | 40 pcs"
-  const fullName = [p.brand, p.line, p.size_label ? `Size ${p.size_label}` : null, `${p.pack_qty} pcs`]
+  const fullName = [p.brand, p.line, p.size_label ? `সাইজ ${p.size_label}` : null, `${p.pack_qty} পিস`]
     .filter(Boolean).join(" | ");
 
-  // Discount: prefer promotion_label text, fall back to percentage
   const discountDisplay = p.promotion_label
     ? p.promotion_label
     : hasDiscount
@@ -260,13 +258,13 @@ function TableRow({ p }: { p: DiaperProduct }) {
         <h3 className="font-semibold text-slate-900 text-sm leading-tight">{fullName}</h3>
         <div className="text-xs text-slate-400 mt-0.5 flex flex-wrap items-center gap-x-2">
           {p.size_label && p.weight_min_kg && p.weight_max_kg && (
-            <span>{p.size_label} ({p.weight_min_kg}-{p.weight_max_kg} kg)</span>
+            <span>{p.size_label} ({p.weight_min_kg}-{p.weight_max_kg} কেজি)</span>
           )}
-          {p.type && <span className="capitalize">{p.type}</span>}
+          {p.type && <span className="capitalize">{p.type === "belt" ? "বেল্ট" : p.type === "pants" ? "প্যান্ট" : p.type}</span>}
         </div>
       </td>
 
-      {/* Discount — promo text or percentage */}
+      {/* Discount */}
       <td className="py-3 text-center max-w-[140px]">
         {discountDisplay ? (
           <span className={`inline-block text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -275,7 +273,7 @@ function TableRow({ p }: { p: DiaperProduct }) {
             {discountDisplay}
           </span>
         ) : (
-          <span className="text-slate-200">—</span>
+          <span className="text-slate-200">&mdash;</span>
         )}
       </td>
 
@@ -313,10 +311,10 @@ function TableRow({ p }: { p: DiaperProduct }) {
             rel="noopener noreferrer nofollow"
             className="inline-block bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-5 py-2 rounded-lg transition-colors shadow-sm"
           >
-            View
+            দেখুন
           </a>
         ) : (
-          <span className="text-slate-200 text-xs">—</span>
+          <span className="text-slate-200 text-xs">&mdash;</span>
         )}
       </td>
     </tr>
@@ -344,7 +342,7 @@ function MobileRow({ p }: { p: DiaperProduct }) {
       )}
       <div className="flex-1 min-w-0">
         <div className="font-semibold text-slate-900 text-sm truncate">
-          {p.brand} {p.line && `${p.line} `}{p.size_label && `| ${p.size_label} `}| {p.pack_qty} pcs
+          {p.brand} {p.line && `${p.line} `}{p.size_label && `| ${p.size_label} `}| {p.pack_qty} পিস
         </div>
         <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${sc.bg} ${sc.text}`}>
@@ -361,7 +359,7 @@ function MobileRow({ p }: { p: DiaperProduct }) {
       </div>
       <div className="text-right shrink-0 pr-1">
         <div className="text-lg font-bold text-emerald-700">৳{Number(p.price_per_piece).toFixed(2)}</div>
-        <div className="text-[10px] text-slate-400">per piece</div>
+        <div className="text-[10px] text-slate-400">প্রতি পিস</div>
       </div>
     </a>
   );

@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Bangladesh Diaper Price Index — Daily Cross-Store Comparison",
+  title: "বাংলাদেশ ডায়াপার মূল্য সূচক — দোকান-ভিত্তিক দৈনিক তুলনা",
   description:
-    "The Bangladesh Diaper Price Index shows today's cheapest diaper price per piece across Chaldal, Meena Bazar, GoBaby and Shwapno for Huggies, MamyPoko, Molfix and more.",
+    "বাংলাদেশ ডায়াপার মূল্য সূচক - চালডাল, মীনা বাজার, GoBaby ও স্বপ্নে Huggies, MamyPoko, Molfix সহ সব ব্র্যান্ডের আজকের সবচেয়ে সস্তা প্রতি পিস দাম দেখুন।",
   alternates: { canonical: "https://diaperdam.com/price-index" },
 };
 
@@ -22,19 +22,19 @@ export default async function PriceIndexPage() {
       {/* Header */}
       <div className="mb-8">
         <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-          📊 Updated daily
+          📊 প্রতিদিন আপডেট
         </div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">
-          Bangladesh Diaper Price Index
+          বাংলাদেশ ডায়াপার মূল্য সূচক
         </h1>
         <p className="text-slate-600 text-sm max-w-2xl">
-          The DiaperDam Price Index shows the cheapest price-per-piece for each brand and size
-          across all tracked stores — Chaldal, Meena Bazar, GoBaby, Shwapno and Daraz. Updated every day.
-          Use it to benchmark what you&apos;re paying.
+          DiaperDam মূল্য সূচকে প্রতিটি ব্র্যান্ড ও সাইজের সবচেয়ে কম প্রতি পিস দাম দেখানো হয়
+          সব ট্র্যাক করা দোকান জুড়ে - চালডাল, মীনা বাজার, GoBaby, স্বপ্ন ও দারাজ। প্রতিদিন আপডেট হয়।
+          আপনি কত দিচ্ছেন সেটার সাথে তুলনা করুন।
         </p>
         {lastScraped && (
           <p className="text-xs text-slate-400 mt-2">
-            Last updated: {new Date(lastScraped).toLocaleDateString("en-BD", { dateStyle: "long" })}
+            সর্বশেষ আপডেট: {new Date(lastScraped).toLocaleDateString("bn-BD", { dateStyle: "long" })}
           </p>
         )}
       </div>
@@ -44,15 +44,15 @@ export default async function PriceIndexPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                <th className="px-5 py-3">Brand</th>
-                <th className="px-5 py-3">Size</th>
-                <th className="px-5 py-3 text-right">Chaldal</th>
-                <th className="px-5 py-3 text-right">Meena Bazar</th>
+                <th className="px-5 py-3">ব্র্যান্ড</th>
+                <th className="px-5 py-3">সাইজ</th>
+                <th className="px-5 py-3 text-right">চালডাল</th>
+                <th className="px-5 py-3 text-right">মীনা বাজার</th>
                 <th className="px-5 py-3 text-right">GoBaby</th>
-                <th className="px-5 py-3 text-right">Shwapno</th>
-                <th className="px-5 py-3 text-right">Daraz</th>
-                <th className="px-5 py-3 text-right bg-emerald-50 text-emerald-700">Cheapest</th>
-                <th className="px-5 py-3 bg-emerald-50 text-emerald-700">Store</th>
+                <th className="px-5 py-3 text-right">স্বপ্ন</th>
+                <th className="px-5 py-3 text-right">দারাজ</th>
+                <th className="px-5 py-3 text-right bg-emerald-50 text-emerald-700">সস্তা</th>
+                <th className="px-5 py-3 bg-emerald-50 text-emerald-700">দোকান</th>
               </tr>
             </thead>
             <tbody>
@@ -90,19 +90,19 @@ export default async function PriceIndexPage() {
         </div>
       ) : (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
-          <p className="text-amber-800 font-semibold mb-1">Data coming soon</p>
-          <p className="text-amber-700 text-sm">Price index will appear after the first scrape completes.</p>
+          <p className="text-amber-800 font-semibold mb-1">ডেটা শীঘ্রই আসছে</p>
+          <p className="text-amber-700 text-sm">প্রথম স্ক্র্যাপ সম্পন্ন হলে মূল্য সূচক দেখা যাবে।</p>
         </div>
       )}
 
       {/* Methodology */}
       <div className="mt-8 bg-white rounded-2xl border border-slate-100 p-6">
-        <h2 className="font-bold text-slate-900 mb-2">About this index</h2>
+        <h2 className="font-bold text-slate-900 mb-2">এই সূচক সম্পর্কে</h2>
         <p className="text-sm text-slate-600 leading-relaxed">
-          All prices are expressed as <strong>price per piece (৳/piece)</strong> — dividing the pack price
-          by the number of diapers in the pack. This is the only fair comparison because packs come in
-          different sizes (40pcs vs 64pcs). A larger pack often has a lower per-piece cost.
-          Prices are scraped daily from each store&apos;s live product pages.
+          সব দাম <strong>প্রতি পিস (৳/পিস)</strong> হিসেবে দেখানো হয় - প্যাক দাম ভাগ প্যাকের ডায়াপার সংখ্যা।
+          এটাই একমাত্র ন্যায্য তুলনা কারণ প্যাক বিভিন্ন সাইজে আসে (৪০ পিস বনাম ৬৪ পিস)।
+          বড় প্যাকে সাধারণত প্রতি পিস দাম কম পড়ে।
+          প্রতিদিন প্রতিটা দোকানের লাইভ পণ্য পেজ থেকে দাম সংগ্রহ করা হয়।
         </p>
       </div>
     </div>

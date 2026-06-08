@@ -1,42 +1,45 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Noto_Sans_Bengali } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 
 const geist = Geist({ subsets: ["latin"] });
+const notoBengali = Noto_Sans_Bengali({ subsets: ["bengali"], weight: ["400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
   title: {
-    default: "DiaperDam — Cheapest Diaper Prices in Bangladesh",
+    default: "DiaperDam — বাংলাদেশে সবচেয়ে কম দামে ডায়াপার",
     template: "%s | DiaperDam",
   },
   description:
-    "Compare diaper prices across Chaldal, Daraz, Othoba, Shwapno, Arogga, AjkerDeal and GoBaby. Find the cheapest Huggies, MamyPoko, Molfix and Neocare diapers per piece in Bangladesh.",
+    "চালডাল, দারাজ, মীনা বাজার, স্বপ্ন ও GoBaby থেকে ডায়াপারের দাম তুলনা করুন। Huggies, MamyPoko, Molfix, Bashundhara সহ সব ব্র্যান্ডের প্রতি পিস দাম দেখুন।",
   metadataBase: new URL("https://diaperdam.com"),
   alternates: { canonical: "https://diaperdam.com" },
   openGraph: {
     type: "website",
-    locale: "en_BD",
+    locale: "bn_BD",
     siteName: "DiaperDam",
     url: "https://diaperdam.com",
   },
   robots: { index: true, follow: true },
   keywords: [
+    "ডায়াপার দাম বাংলাদেশ",
+    "সস্তা ডায়াপার বাংলাদেশ",
+    "হাগিস দাম বাংলাদেশ",
+    "ম্যামিপোকো দাম",
+    "মলফিক্স দাম",
+    "ডায়াপার তুলনা বাংলাদেশ",
+    "চালডাল ডায়াপার দাম",
+    "দারাজ ডায়াপার দাম",
     "diaper price bangladesh",
     "cheapest diaper bangladesh",
-    "huggies price bangladesh",
-    "mamypoko price bangladesh",
-    "molfix price bangladesh",
-    "diaper comparison bangladesh",
-    "chaldal diaper price",
-    "daraz diaper price",
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${geist.className} bg-slate-50 text-slate-900 antialiased`}>
+    <html lang="bn">
+      <body className={`${geist.className} ${notoBengali.className} bg-slate-50 text-slate-900 antialiased`}>
         <header className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
           <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
@@ -46,15 +49,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </span>
             </Link>
             <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-slate-600">
-              <Link href="/diapers" className="hover:text-emerald-600 transition-colors">All Diapers</Link>
-              <Link href="/deals" className="hover:text-emerald-600 transition-colors text-emerald-700 font-semibold">🏷️ Deals</Link>
+              <Link href="/diapers" className="hover:text-emerald-600 transition-colors">সব ডায়াপার</Link>
+              <Link href="/deals" className="hover:text-emerald-600 transition-colors text-emerald-700 font-semibold">🏷️ অফার</Link>
               <Link href="/brand/huggies" className="hover:text-emerald-600 transition-colors">Huggies</Link>
               <Link href="/brand/mamypoko" className="hover:text-emerald-600 transition-colors">MamyPoko</Link>
               <Link href="/brand/molfix" className="hover:text-emerald-600 transition-colors">Molfix</Link>
-              <Link href="/price-index" className="hover:text-emerald-600 transition-colors">Price Index</Link>
+              <Link href="/price-index" className="hover:text-emerald-600 transition-colors">মূল্য সূচক</Link>
             </nav>
             <Link href="/diapers" className="sm:hidden text-sm font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
-              Compare →
+              তুলনা করুন →
             </Link>
           </div>
         </header>
@@ -66,11 +69,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="col-span-2 md:col-span-1">
               <p className="font-bold text-white text-lg mb-2">🍼 diaper<span className="text-emerald-400">dam</span></p>
               <p className="text-xs leading-relaxed">
-                Bangladesh&apos;s diaper price comparison. We compare prices from all major online stores daily so you always find the cheapest diaper per piece.
+                বাংলাদেশের ডায়াপার দাম তুলনা সাইট। প্রতিদিন সব বড় অনলাইন দোকান থেকে দাম আপডেট করা হয়, যাতে আপনি সবসময় সবচেয়ে কম দামের ডায়াপার খুঁজে পান।
               </p>
             </div>
             <div>
-              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">By Brand</p>
+              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">ব্র্যান্ড</p>
               <ul className="space-y-1.5">
                 {[
                   { slug: "huggies", name: "Huggies" },
@@ -87,39 +90,39 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </ul>
             </div>
             <div>
-              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">By Size</p>
+              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">সাইজ</p>
               <ul className="space-y-1.5">
-                <li><Link href="/size/newborn" className="hover:text-emerald-400 transition-colors">Newborn (0-5 kg)</Link></li>
-                <li><Link href="/size/s" className="hover:text-emerald-400 transition-colors">Size S (4-8 kg)</Link></li>
-                <li><Link href="/size/m" className="hover:text-emerald-400 transition-colors">Size M (6-11 kg)</Link></li>
-                <li><Link href="/size/l" className="hover:text-emerald-400 transition-colors">Size L (9-14 kg)</Link></li>
-                <li><Link href="/size/xl" className="hover:text-emerald-400 transition-colors">Size XL (12-17 kg)</Link></li>
-                <li><Link href="/size/xxl" className="hover:text-emerald-400 transition-colors">Size XXL (15+ kg)</Link></li>
+                <li><Link href="/size/newborn" className="hover:text-emerald-400 transition-colors">নবজাতক (০-৫ কেজি)</Link></li>
+                <li><Link href="/size/s" className="hover:text-emerald-400 transition-colors">সাইজ S (৪-৮ কেজি)</Link></li>
+                <li><Link href="/size/m" className="hover:text-emerald-400 transition-colors">সাইজ M (৬-১১ কেজি)</Link></li>
+                <li><Link href="/size/l" className="hover:text-emerald-400 transition-colors">সাইজ L (৯-১৪ কেজি)</Link></li>
+                <li><Link href="/size/xl" className="hover:text-emerald-400 transition-colors">সাইজ XL (১২-১৭ কেজি)</Link></li>
+                <li><Link href="/size/xxl" className="hover:text-emerald-400 transition-colors">সাইজ XXL (১৫+ কেজি)</Link></li>
               </ul>
             </div>
             <div>
-              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">By Store</p>
+              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">দোকান</p>
               <ul className="space-y-1.5">
-                <li><Link href="/store/chaldal" className="hover:text-emerald-400 transition-colors">Chaldal</Link></li>
-                <li><Link href="/store/meenabazar" className="hover:text-emerald-400 transition-colors">Meena Bazar</Link></li>
+                <li><Link href="/store/chaldal" className="hover:text-emerald-400 transition-colors">চালডাল</Link></li>
+                <li><Link href="/store/meenabazar" className="hover:text-emerald-400 transition-colors">মীনা বাজার</Link></li>
                 <li><Link href="/store/gobaby" className="hover:text-emerald-400 transition-colors">GoBaby</Link></li>
-                <li><Link href="/store/shwapno" className="hover:text-emerald-400 transition-colors">Shwapno</Link></li>
-                <li><Link href="/store/daraz" className="hover:text-emerald-400 transition-colors">Daraz</Link></li>
-                <li><Link href="/store/othoba" className="hover:text-emerald-400 transition-colors">Othoba</Link></li>
+                <li><Link href="/store/shwapno" className="hover:text-emerald-400 transition-colors">স্বপ্ন</Link></li>
+                <li><Link href="/store/daraz" className="hover:text-emerald-400 transition-colors">দারাজ</Link></li>
+                <li><Link href="/store/othoba" className="hover:text-emerald-400 transition-colors">অথবা</Link></li>
               </ul>
             </div>
             <div>
-              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">Tools</p>
+              <p className="font-semibold text-slate-300 mb-3 text-xs uppercase tracking-wider">টুলস</p>
               <ul className="space-y-1.5">
-                <li><Link href="/diapers" className="hover:text-emerald-400 transition-colors">Compare All Diapers</Link></li>
-                <li><Link href="/deals" className="hover:text-emerald-400 transition-colors">Today&apos;s Deals</Link></li>
-                <li><Link href="/price-index" className="hover:text-emerald-400 transition-colors">Price Index</Link></li>
+                <li><Link href="/diapers" className="hover:text-emerald-400 transition-colors">সব ডায়াপার তুলনা</Link></li>
+                <li><Link href="/deals" className="hover:text-emerald-400 transition-colors">আজকের অফার</Link></li>
+                <li><Link href="/price-index" className="hover:text-emerald-400 transition-colors">মূল্য সূচক</Link></li>
               </ul>
             </div>
           </div>
           <div className="max-w-6xl mx-auto px-4 mt-10 pt-6 border-t border-slate-800 text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-2">
-            <p>&copy; 2026 DiaperDam. Prices updated daily from Chaldal, Meena Bazar, GoBaby, Shwapno &amp; more.</p>
-            <p>Affiliate links may earn a small commission at no cost to you.</p>
+            <p>&copy; ২০২৬ DiaperDam। চালডাল, মীনা বাজার, GoBaby, স্বপ্ন সহ আরও দোকান থেকে প্রতিদিন দাম আপডেট।</p>
+            <p>অ্যাফিলিয়েট লিংকে কমিশন পাওয়া যেতে পারে, আপনার কোনো বাড়তি খরচ নেই।</p>
           </div>
         </footer>
       </body>

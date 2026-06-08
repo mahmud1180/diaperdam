@@ -6,9 +6,9 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "All Diaper Prices in Bangladesh — Compare Stores & Brands",
+  title: "বাংলাদেশে সব ডায়াপারের দাম তুলনা — ব্র্যান্ড ও দোকান অনুযায়ী",
   description:
-    "Compare all diaper prices in Bangladesh from Chaldal, Daraz, Othoba and Shwapno. Filter by brand, size, and type. Sorted by price per piece.",
+    "চালডাল, দারাজ, স্বপ্ন ও মীনা বাজার থেকে সব ডায়াপারের দাম তুলনা করুন। ব্র্যান্ড, সাইজ ও টাইপ অনুযায়ী ফিল্টার করুন। প্রতি পিস দাম অনুযায়ী সাজানো।",
   alternates: { canonical: "https://diaperdam.com/diapers" },
 };
 
@@ -19,7 +19,7 @@ export default async function DiapersPage() {
     <DiapersClient
       products={products}
       showHeroFilters
-      title="All diaper deals right now"
+      title="এখনকার সব ডায়াপার অফার"
     />
   );
 }
