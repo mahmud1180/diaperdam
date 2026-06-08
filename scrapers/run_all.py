@@ -8,6 +8,11 @@ from daraz import DarazScraper
 from shwapno import ShwapnoScraper
 from othoba import OthobaScraper
 from arogga import AroggaScraper
+from ajkerdeal import AjkerDealScraper
+from gobaby import GoBabyScraper
+from paikaree import PaikareeScraper
+from meenabazar import MeenaBazarScraper
+from unimart import UnimartScraper
 
 logging.basicConfig(
     level=logging.INFO,
@@ -22,6 +27,11 @@ SCRAPERS = [
     ShwapnoScraper(),
     OthobaScraper(),
     AroggaScraper(),
+    AjkerDealScraper(),
+    GoBabyScraper(),
+    PaikareeScraper(),
+    MeenaBazarScraper(),
+    UnimartScraper(),
 ]
 
 

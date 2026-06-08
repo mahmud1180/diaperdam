@@ -25,9 +25,14 @@ export function sortBySizeLabel(a: string | null, b: string | null): number {
 }
 
 export const STORE_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  chaldal:  { bg: "bg-green-50",  text: "text-green-700",  border: "border-green-200"  },
-  daraz:    { bg: "bg-orange-50", text: "text-orange-700", border: "border-orange-200" },
-  othoba:   { bg: "bg-blue-50",   text: "text-blue-700",   border: "border-blue-200"   },
-  shwapno:  { bg: "bg-red-50",    text: "text-red-700",    border: "border-red-200"    },
-  arogga:   { bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
+  chaldal:    { bg: "bg-green-50",   text: "text-green-700",   border: "border-green-200"   },
+  daraz:      { bg: "bg-orange-50",  text: "text-orange-700",  border: "border-orange-200"  },
+  othoba:     { bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-200"    },
+  shwapno:    { bg: "bg-red-50",     text: "text-red-700",     border: "border-red-200"     },
+  arogga:     { bg: "bg-purple-50",  text: "text-purple-700",  border: "border-purple-200"  },
+  ajkerdeal:  { bg: "bg-teal-50",    text: "text-teal-700",    border: "border-teal-200"    },
+  gobaby:     { bg: "bg-pink-50",    text: "text-pink-700",    border: "border-pink-200"    },
+  paikaree:   { bg: "bg-indigo-50",  text: "text-indigo-700",  border: "border-indigo-200"  },
+  meenabazar: { bg: "bg-cyan-50",    text: "text-cyan-700",    border: "border-cyan-200"    },
+  unimart:    { bg: "bg-violet-50",  text: "text-violet-700",  border: "border-violet-200"  },
 };

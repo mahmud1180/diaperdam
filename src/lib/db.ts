@@ -156,10 +156,12 @@ export async function getPriceIndex(): Promise<{
   chaldal_price: number | null;
   daraz_price: number | null;
   othoba_price: number | null;
+  shwapno_price: number | null;
+  arogga_price: number | null;
   cheapest_store: string;
   cheapest_price: number;
 }[]> {
-  // Cross-store price index for M-size standard basket
+  // Cross-store price index — all sizes, all tracked stores
   const rows = await sql`
     SELECT
       d.brand,
@@ -167,15 +169,30 @@ export async function getPriceIndex(): Promise<{
       MAX(CASE WHEN s.slug = 'chaldal' THEN d.price_per_piece END) AS chaldal_price,
       MAX(CASE WHEN s.slug = 'daraz'   THEN d.price_per_piece END) AS daraz_price,
       MAX(CASE WHEN s.slug = 'othoba'  THEN d.price_per_piece END) AS othoba_price,
+      MAX(CASE WHEN s.slug = 'shwapno' THEN d.price_per_piece END) AS shwapno_price,
+      MAX(CASE WHEN s.slug = 'arogga'  THEN d.price_per_piece END) AS arogga_price,
       MIN(d.price_per_piece) AS cheapest_price,
       (ARRAY_AGG(s.name ORDER BY d.price_per_piece ASC))[1] AS cheapest_store
     FROM diaper_products d
     JOIN stores s ON s.id = d.store_id
-    WHERE d.is_available = TRUE AND d.size_label IN ('M', 'L')
+    WHERE d.is_available = TRUE AND d.size_label IS NOT NULL
     GROUP BY d.brand, d.size_label
     ORDER BY d.brand, d.size_label
   `;
   return rows as any[];
+}
+
+export async function getActiveDeals(): Promise<DiaperProduct[]> {
+  const rows = await sql`
+    SELECT d.*, s.slug as store_slug, s.name as store_name
+    FROM diaper_products d
+    JOIN stores s ON s.id = d.store_id
+    WHERE d.is_available = TRUE
+      AND (d.is_promotion = TRUE OR d.discount_pct >= 5)
+    ORDER BY d.discount_pct DESC NULLS LAST
+    LIMIT 20
+  `;
+  return rows as DiaperProduct[];
 }
 
 export async function getLastScrapedAt(): Promise<string | null> {

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     template: "%s | DiaperDam",
   },
   description:
-    "Compare diaper prices across Chaldal, Daraz, Othoba and Shwapno. Find the cheapest Huggies, MamyPoko, Molfix and Neocare diapers per piece in Bangladesh.",
+    "Compare diaper prices across Chaldal, Daraz, Othoba, Shwapno, Arogga, AjkerDeal and GoBaby. Find the cheapest Huggies, MamyPoko, Molfix and Neocare diapers per piece in Bangladesh.",
   metadataBase: new URL("https://diaperdam.com"),
   alternates: { canonical: "https://diaperdam.com" },
   openGraph: {
@@ -47,6 +47,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </Link>
             <nav className="hidden sm:flex items-center gap-6 text-sm font-medium text-slate-600">
               <Link href="/diapers" className="hover:text-emerald-600 transition-colors">All Diapers</Link>
+              <Link href="/deals" className="hover:text-emerald-600 transition-colors text-emerald-700 font-semibold">🏷️ Deals</Link>
               <Link href="/brand/huggies" className="hover:text-emerald-600 transition-colors">Huggies</Link>
               <Link href="/brand/mamypoko" className="hover:text-emerald-600 transition-colors">MamyPoko</Link>
               <Link href="/brand/molfix" className="hover:text-emerald-600 transition-colors">Molfix</Link>
@@ -87,9 +88,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div>
               <p className="font-semibold text-slate-700 mb-2">Tools</p>
               <ul className="space-y-1">
+                <li><Link href="/deals" className="hover:text-emerald-600">🏷️ Today&apos;s Deals</Link></li>
                 <li><Link href="/price-index" className="hover:text-emerald-600">Price Index</Link></li>
                 <li><Link href="/diapers" className="hover:text-emerald-600">All Diapers</Link></li>
-                <li><Link href="/compare" className="hover:text-emerald-600">Compare Brands</Link></li>
+                <li><Link href="/store/chaldal" className="hover:text-emerald-600">Chaldal</Link></li>
+                <li><Link href="/store/daraz" className="hover:text-emerald-600">Daraz</Link></li>
+                <li><Link href="/store/othoba" className="hover:text-emerald-600">Othoba</Link></li>
+                <li><Link href="/store/shwapno" className="hover:text-emerald-600">Shwapno</Link></li>
+                <li><Link href="/store/arogga" className="hover:text-emerald-600">Arogga</Link></li>
               </ul>
             </div>
           </div>

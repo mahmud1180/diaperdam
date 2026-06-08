@@ -78,9 +78,14 @@ CREATE INDEX IF NOT EXISTS idx_price_history_product ON price_history(product_id
 
 -- Seed stores
 INSERT INTO stores (slug, name, base_url) VALUES
-  ('chaldal',  'Chaldal',  'https://chaldal.com'),
-  ('daraz',    'Daraz',    'https://www.daraz.com.bd'),
-  ('othoba',   'Othoba',   'https://www.othoba.com'),
-  ('shwapno',  'Shwapno',  'https://www.shwapno.com'),
-  ('arogga',   'Arogga',   'https://www.arogga.com')
+  ('chaldal',    'Chaldal',    'https://chaldal.com'),
+  ('daraz',      'Daraz',      'https://www.daraz.com.bd'),
+  ('othoba',     'Othoba',     'https://www.othoba.com'),
+  ('shwapno',    'Shwapno',    'https://www.shwapno.com'),
+  ('arogga',     'Arogga',     'https://www.arogga.com'),
+  ('ajkerdeal',  'AjkerDeal',  'https://ajkerdeal.com'),
+  ('gobaby',     'GoBaby',     'https://gobaby.com.bd'),
+  ('paikaree',   'Paikaree',   'https://paikaree.com.bd'),
+  ('meenabazar', 'Meena Bazar', 'https://meenabazar.com.bd'),
+  ('unimart',    'Unimart',    'https://unimart.com.bd')
 ON CONFLICT (slug) DO NOTHING;
