@@ -24,25 +24,27 @@ const PAGE_SIZE = 50;
 
 export default function DiapersClient({ products, showHeroFilters, title }: Props) {
   const [typeFilter,  setTypeFilter]  = useState<string | null>(null);
+  const [brandFilter, setBrandFilter] = useState<string | null>(null);
   const [sizeFilter,  setSizeFilter]  = useState<string | null>(null);
   const [sort, setSort] = useState<"price_per_piece" | "price_bdt" | "discount_pct">("price_per_piece");
   const [page, setPage] = useState(1);
 
-  // Client-side filters for type, size, and sort
+  // Client-side filters for type, brand, size, and sort
   const filtered = useMemo(() => {
     let list = products;
-    if (typeFilter) list = list.filter(p => p.type === typeFilter);
-    if (sizeFilter) list = list.filter(p => p.size_label === sizeFilter);
+    if (typeFilter)  list = list.filter(p => p.type === typeFilter);
+    if (brandFilter) list = list.filter(p => p.brand_slug === brandFilter);
+    if (sizeFilter)  list = list.filter(p => p.size_label === sizeFilter);
 
     return [...list].sort((a, b) => {
       if (sort === "discount_pct") return (Number(b.discount_pct) || 0) - (Number(a.discount_pct) || 0);
       if (sort === "price_bdt")    return Number(a.price_bdt) - Number(b.price_bdt);
       return Number(a.price_per_piece) - Number(b.price_per_piece);
     });
-  }, [products, typeFilter, sizeFilter, sort]);
+  }, [products, typeFilter, brandFilter, sizeFilter, sort]);
 
   // Reset page when filters change
-  useMemo(() => setPage(1), [typeFilter, sizeFilter, sort]);
+  useMemo(() => setPage(1), [typeFilter, brandFilter, sizeFilter, sort]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -54,106 +56,128 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
   const availSizes = SIZE_ORDER.filter(s => products.some(p => p.size_label === s));
   const storeCount = new Set(products.map(p => p.store_slug)).size;
 
+  const activeFilterCount = [typeFilter, brandFilter, sizeFilter].filter(Boolean).length;
+
   return (
     <div>
-      {/* Hero */}
+      {/* Compact hero */}
       {showHeroFilters && (
-        <div className="bg-gradient-to-br from-teal-600 via-emerald-600 to-emerald-700 text-white py-12 px-4">
+        <div className="bg-gradient-to-br from-teal-600 via-emerald-600 to-emerald-700 text-white py-8 px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-1">
               {title || "এখনকার সব ডায়াপার অফার"}
             </h1>
-            <p className="text-emerald-100 text-lg mb-8">
-              আজ <strong className="text-white">{filtered.length}</strong> টি পণ্য <strong className="text-white">{storeCount}</strong> টি দোকানে
-              {sizeFilter && <span className="ml-1">— সাইজ {SIZE_LABELS[sizeFilter] ?? sizeFilter}</span>}
+            <p className="text-emerald-100">
+              <strong className="text-white">{storeCount}</strong> টি দোকানে <strong className="text-white">{products.length}</strong> টি পণ্যের দাম তুলনা করুন
             </p>
-
-            {/* Brand navigation (dedicated pages for SEO) */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">
-              <select
-                defaultValue="#"
-                onChange={e => {
-                  const v = e.target.value;
-                  if (v && v !== "#") window.location.href = v;
-                }}
-                className="text-base border-0 rounded-xl px-5 py-3 bg-white text-slate-700 cursor-pointer shadow-lg focus:ring-2 focus:ring-white outline-none w-full sm:w-auto"
-              >
-                <option value="#">ব্র্যান্ড বাছুন...</option>
-                {availBrands.map(([slug, name]) => (
-                  <option key={slug} value={`/brand/${slug}`}>{name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Size filter pills (client-side, instant) */}
-            <div className="flex flex-wrap gap-2 justify-center mt-6">
-              <button
-                onClick={() => setSizeFilter(null)}
-                className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer ${
-                  sizeFilter === null
-                    ? "bg-white text-emerald-700 shadow-lg"
-                    : "bg-white/20 text-white hover:bg-white/30"
-                }`}
-              >
-                সব সাইজ
-              </button>
-              {availSizes.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setSizeFilter(s)}
-                  className={`text-sm font-semibold px-4 py-2 rounded-full transition-colors cursor-pointer ${
-                    sizeFilter === s
-                      ? "bg-white text-emerald-700 shadow-lg"
-                      : "bg-white/20 text-white hover:bg-white/30"
-                  }`}
-                >
-                  {SIZE_LABELS[s] ?? s}
-                </button>
-              ))}
-            </div>
           </div>
         </div>
       )}
 
-      {/* Description text */}
-      <div className="bg-slate-50 border-b border-slate-200 py-4 px-4">
-        <div className="max-w-6xl mx-auto text-sm text-slate-600">
-          বাংলাদেশের সব বড় অনলাইন দোকান থেকে বেবি ডায়াপারের দাম তুলনা করুন। ছাড় ৩০% পর্যন্ত হতে পারে! কোথায় সবচেয়ে সস্তা সেটা সরাসরি দেখুন, কারণ আমরা প্রতি পিস দাম অনুযায়ী সাজাই। উপরের ফিল্টার থেকে ব্র্যান্ড বা সাইজ বাছুন।
+      {/* Unified filter bar — sticky */}
+      <div className="bg-white border-b border-slate-200 sticky top-14 z-40 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Row 1: Type tabs + sort */}
+          <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <div className="flex">
+              {[
+                { value: null, label: "সব" },
+                { value: "belt", label: "বেল্ট" },
+                { value: "pants", label: "প্যান্ট" },
+              ].map(tab => (
+                <button
+                  key={tab.label}
+                  onClick={() => setTypeFilter(tab.value)}
+                  className={`text-sm font-medium px-3 py-1.5 border-b-2 transition-colors cursor-pointer ${
+                    typeFilter === tab.value
+                      ? "border-emerald-600 text-emerald-700"
+                      : "border-transparent text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <select
+              value={sort}
+              onChange={e => setSort(e.target.value as typeof sort)}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-700 cursor-pointer outline-none"
+            >
+              {SORT_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Row 2: Brand + Size filters */}
+          <div className="flex items-center gap-3 py-2 overflow-x-auto scrollbar-hide">
+            {/* Brand dropdown */}
+            <select
+              value={brandFilter ?? ""}
+              onChange={e => setBrandFilter(e.target.value || null)}
+              className={`text-sm rounded-full px-3 py-1.5 cursor-pointer outline-none shrink-0 border transition-colors ${
+                brandFilter
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-800 font-semibold"
+                  : "bg-slate-50 border-slate-200 text-slate-600"
+              }`}
+            >
+              <option value="">সব ব্র্যান্ড</option>
+              {availBrands.map(([slug, name]) => (
+                <option key={slug} value={slug}>{name}</option>
+              ))}
+            </select>
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-slate-200 shrink-0" />
+
+            {/* Size pills */}
+            {availSizes.map(s => (
+              <button
+                key={s}
+                onClick={() => setSizeFilter(sizeFilter === s ? null : s)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors cursor-pointer whitespace-nowrap shrink-0 border ${
+                  sizeFilter === s
+                    ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
+                }`}
+              >
+                {SIZE_LABELS[s] ?? s}
+              </button>
+            ))}
+
+            {/* Clear all filters */}
+            {activeFilterCount > 0 && (
+              <>
+                <div className="w-px h-5 bg-slate-200 shrink-0" />
+                <button
+                  onClick={() => { setTypeFilter(null); setBrandFilter(null); setSizeFilter(null); }}
+                  className="text-xs text-red-500 hover:text-red-700 whitespace-nowrap shrink-0 cursor-pointer font-medium"
+                >
+                  ✕ ফিল্টার মুছুন
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Type tabs + sort */}
-      <div className="bg-white border-b border-slate-200 sticky top-14 z-40">
-        <div className="max-w-6xl mx-auto px-4 flex items-center justify-between py-2">
-          <div className="flex">
-            {[
-              { value: null, label: "সব ডায়াপার" },
-              { value: "belt", label: "বেল্ট / টেপ" },
-              { value: "pants", label: "প্যান্ট" },
-            ].map(tab => (
-              <button
-                key={tab.label}
-                onClick={() => setTypeFilter(tab.value)}
-                className={`text-sm font-medium px-4 py-2 border-b-2 transition-colors cursor-pointer ${
-                  typeFilter === tab.value
-                    ? "border-emerald-600 text-emerald-700"
-                    : "border-transparent text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <select
-            value={sort}
-            onChange={e => setSort(e.target.value as typeof sort)}
-            className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-700 cursor-pointer outline-none"
-          >
-            {SORT_OPTIONS.map(o => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+      {/* Active filter summary + result count */}
+      <div className="bg-slate-50 border-b border-slate-200 py-2.5 px-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <p className="text-sm text-slate-600">
+            <strong className="text-slate-900">{filtered.length}</strong> টি পণ্য
+            {brandFilter && <span className="ml-1">— {brandMap.get(brandFilter)}</span>}
+            {sizeFilter && <span className="ml-1">— {SIZE_LABELS[sizeFilter] ?? sizeFilter}</span>}
+          </p>
+          {brandFilter && (
+            <a
+              href={`/brand/${brandFilter}`}
+              className="text-xs text-emerald-700 hover:underline font-medium"
+            >
+              {brandMap.get(brandFilter)} পেজ দেখুন →
+            </a>
+          )}
         </div>
       </div>
 
@@ -164,10 +188,10 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
             <p className="text-4xl mb-3">🔍</p>
             <p>এই ফিল্টারে কোনো ডায়াপার পাওয়া যায়নি।</p>
             <button
-              onClick={() => setTypeFilter(null)}
+              onClick={() => { setTypeFilter(null); setBrandFilter(null); setSizeFilter(null); }}
               className="mt-3 text-emerald-600 underline text-sm cursor-pointer"
             >
-              সব ডায়াপার দেখুন
+              সব ফিল্টার মুছুন
             </button>
           </div>
         ) : (
@@ -225,19 +249,35 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
               </div>
             )}
 
-            {/* Bottom size cross-links */}
-            <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500">
-              <p className="mb-2">আপনি সব ডায়াপার দেখছেন। এই সাইজগুলোতেও দেখতে পারেন:</p>
-              <div className="flex flex-wrap gap-2">
-                {SIZE_ORDER.map(s => (
-                  <a
-                    key={s}
-                    href={`/size/${s.toLowerCase()}`}
-                    className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium"
-                  >
-                    {s === "Newborn" ? "নবজাতক" : `সাইজ ${s}`}
-                  </a>
-                ))}
+            {/* Bottom cross-links for SEO */}
+            <div className="mt-6 pt-4 border-t border-slate-100 text-sm text-slate-500 space-y-4">
+              <div>
+                <p className="mb-2 font-medium text-slate-600">সাইজ অনুযায়ী দেখুন:</p>
+                <div className="flex flex-wrap gap-2">
+                  {SIZE_ORDER.map(s => (
+                    <a
+                      key={s}
+                      href={`/size/${s.toLowerCase()}`}
+                      className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium"
+                    >
+                      {s === "Newborn" ? "নবজাতক" : `সাইজ ${s}`}
+                    </a>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="mb-2 font-medium text-slate-600">ব্র্যান্ড অনুযায়ী দেখুন:</p>
+                <div className="flex flex-wrap gap-2">
+                  {availBrands.map(([slug, name]) => (
+                    <a
+                      key={slug}
+                      href={`/brand/${slug}`}
+                      className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium"
+                    >
+                      {name}
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </>
