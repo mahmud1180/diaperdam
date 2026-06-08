@@ -47,4 +47,4 @@ scrapers/__pycache__/
 *.tsbuildinfo
 next-env.d.ts
 
-.github/
+# .github/ — removed: workflows need to be tracked

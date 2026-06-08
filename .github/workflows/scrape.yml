@@ -26,6 +26,30 @@ jobs:
       - name: Install Playwright browsers
         run: playwright install chromium --with-deps
 
+      - name: Apply schema (idempotent — seeds new stores)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python -c "
+          import os, psycopg2
+          conn = psycopg2.connect(os.environ['DATABASE_URL'])
+          cur = conn.cursor()
+          with open('schema.sql') as f:
+              sql = f.read()
+          for stmt in sql.split(';'):
+              stmt = stmt.strip()
+              if stmt and not stmt.startswith('--'):
+                  try:
+                      cur.execute(stmt)
+                  except Exception as e:
+                      if 'already exists' not in str(e) and 'duplicate' not in str(e).lower():
+                          print(f'Schema stmt error (ignored): {e}')
+                      conn.rollback()
+          conn.commit()
+          conn.close()
+          print('Schema applied OK')
+          "
+
       - name: Run scrapers
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
