@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAllProducts } from "@/lib/db";
+import { getActiveDeals, getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import type { DiaperProduct } from "@/lib/db";
 
@@ -7,18 +7,10 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Diaper Deals & Offers in Bangladesh Today — All Stores",
-  description: "Best baby diaper deals and offers in Bangladesh today. Compare discounts on Huggies, MamyPoko, Molfix and Pampers across Chaldal, Daraz, Othoba and Shwapno. Updated daily.",
+  description: "Best baby diaper deals and offers in Bangladesh today. Compare discounts on Huggies, MamyPoko, Molfix and Pampers across Chaldal, Daraz, Othoba, Shwapno and Arogga. Updated daily.",
   alternates: { canonical: "https://diaperdam.com/deals" },
-  keywords: ["diaper deals bangladesh", "baby diaper offer bangladesh", "diaper discount bd", "huggies offer", "mamypoko offer bangladesh", "cheap diaper bangladesh"],
+  keywords: ["diaper deals bangladesh", "baby diaper offer bangladesh", "diaper discount bd", "huggies offer", "mamypoko offer bangladesh", "cheap diaper bangladesh", "arogga diaper offer"],
 };
-
-async function getActiveDeals(): Promise<DiaperProduct[]> {
-  // Get all available products sorted by discount
-  const all = await getAllProducts({ sort: "discount_pct" }).catch(() => [] as DiaperProduct[]);
-  // Filter for products with any promotion or discount
-  const deals = all.filter(p => p.is_promotion || (p.discount_pct !== null && p.discount_pct > 0));
-  return deals.slice(0, 60);
-}
 
 async function getCheapestPerPiece(): Promise<DiaperProduct[]> {
   const all = await getAllProducts({ sort: "price_per_piece" }).catch(() => [] as DiaperProduct[]);
@@ -82,7 +74,7 @@ const faqSchema = {
 
 export default async function DealsPage() {
   const [deals, cheapest] = await Promise.all([
-    getActiveDeals(),
+    getActiveDeals().catch(() => [] as DiaperProduct[]),
     getCheapestPerPiece(),
   ]);
 

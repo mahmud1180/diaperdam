@@ -100,7 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
           <div className="max-w-6xl mx-auto px-4 mt-8 pt-6 border-t border-slate-100 text-xs text-slate-400 flex flex-col sm:flex-row justify-between gap-2">
-            <p>© 2026 DiaperDam. Prices updated daily from Chaldal, Daraz, Othoba &amp; Shwapno.</p>
+            <p>© 2026 DiaperDam. Prices updated daily from Chaldal, Daraz, Othoba, Shwapno &amp; Arogga.</p>
             <p>Affiliate links may earn a small commission at no cost to you.</p>
           </div>
         </footer>

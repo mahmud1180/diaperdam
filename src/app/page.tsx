@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getCheapestByBrand, getLastScrapedAt } from "@/lib/db";
+import { getCheapestByBrand, getLastScrapedAt, getActiveDeals } from "@/lib/db";
 import { formatBDT, formatPerPiece, SIZE_ORDER } from "@/lib/utils";
 
 export const revalidate = 3600; // ISR: revalidate hourly
@@ -15,10 +15,37 @@ const BRANDS = [
 
 const SIZES = ["Newborn", "S", "M", "L", "XL"];
 
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "DiaperDam",
+  "url": "https://diaperdam.com",
+  "description": "Bangladesh's diaper price comparison — cheapest Huggies, MamyPoko, Molfix, Pampers and more across Chaldal, Daraz, Othoba, Shwapno and Arogga.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": {
+      "@type": "EntryPoint",
+      "urlTemplate": "https://diaperdam.com/diapers?q={search_term_string}",
+    },
+    "query-input": "required name=search_term_string",
+  },
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "DiaperDam",
+  "url": "https://diaperdam.com",
+  "description": "Bangladesh's first dedicated diaper price comparison platform.",
+  "areaServed": "BD",
+  "serviceType": "Price comparison",
+};
+
 export default async function HomePage() {
-  const [cheapest, lastScraped] = await Promise.all([
+  const [cheapest, lastScraped, deals] = await Promise.all([
     getCheapestByBrand().catch(() => []),
     getLastScrapedAt().catch(() => null),
+    getActiveDeals().catch(() => []),
   ]);
 
   // Group cheapest by brand+size
@@ -28,6 +55,16 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* Structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+
       {/* Hero */}
       <section className="bg-gradient-to-br from-emerald-50 via-white to-slate-50 border-b border-slate-100 py-16 px-4">
         <div className="max-w-3xl mx-auto text-center">
@@ -149,6 +186,66 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Deals section */}
+      {deals.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 pb-12">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Diaper Deals in Bangladesh Today</h2>
+              <p className="text-sm text-slate-500 mt-0.5">Current promotions and discounts across all stores</p>
+            </div>
+            <Link href="/deals" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+              See all deals →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {deals.slice(0, 6).map((deal) => (
+              <div
+                key={deal.id}
+                className="bg-white border border-slate-100 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div>
+                    <span className="font-bold text-slate-800 text-sm capitalize">{deal.brand}</span>
+                    {deal.line && <span className="text-slate-500 text-xs ml-1">{deal.line}</span>}
+                  </div>
+                  {deal.discount_pct != null && deal.discount_pct > 0 && (
+                    <span className="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                      -{Math.round(deal.discount_pct)}%
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-emerald-700 font-bold">৳{deal.price_per_piece.toFixed(2)}</span>
+                  <span className="text-slate-400 text-xs">/pc</span>
+                  {deal.size_label && (
+                    <span className="ml-auto bg-blue-50 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded">
+                      {deal.size_label}
+                    </span>
+                  )}
+                </div>
+                {deal.original_price_bdt && (
+                  <p className="text-xs text-slate-400 line-through">৳{deal.original_price_bdt.toFixed(2)}</p>
+                )}
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-50">
+                  <span className="text-xs text-slate-500">{deal.store_name} · {deal.pack_qty}pcs</span>
+                  {deal.product_url && (
+                    <a
+                      href={deal.product_url}
+                      target="_blank"
+                      rel="noopener noreferrer sponsored"
+                      className="text-xs text-emerald-600 font-semibold hover:underline"
+                    >
+                      View deal →
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Store badges */}
       <section className="max-w-6xl mx-auto px-4 pb-16">
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Prices compared from</p>
@@ -158,6 +255,7 @@ export default async function HomePage() {
             { slug: "daraz",   name: "Daraz",   color: "bg-orange-50 text-orange-700 border-orange-200" },
             { slug: "othoba",  name: "Othoba",  color: "bg-blue-50 text-blue-700 border-blue-200" },
             { slug: "shwapno", name: "Shwapno", color: "bg-red-50 text-red-700 border-red-200" },
+            { slug: "arogga",  name: "Arogga",  color: "bg-purple-50 text-purple-700 border-purple-200" },
           ].map(s => (
             <Link
               key={s.slug}

@@ -6,7 +6,7 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: "Bangladesh Diaper Price Index — Daily Cross-Store Comparison",
   description:
-    "The Bangladesh Diaper Price Index shows today's cheapest diaper price per piece across Chaldal, Daraz, Othoba and Shwapno for Huggies, MamyPoko, Molfix and more.",
+    "The Bangladesh Diaper Price Index shows today's cheapest diaper price per piece across Chaldal, Daraz, Othoba, Shwapno and Arogga for Huggies, MamyPoko, Molfix and more.",
   alternates: { canonical: "https://diaperdam.com/price-index" },
 };
 
@@ -28,7 +28,8 @@ export default async function PriceIndexPage() {
         </h1>
         <p className="text-slate-600 text-sm max-w-2xl">
           The DiaperDam Price Index shows the cheapest price-per-piece for each brand and size
-          across all tracked stores. Updated every day. Use it to benchmark what you&apos;re paying.
+          across all tracked stores — Chaldal, Daraz, Othoba, Shwapno and Arogga. Updated every day.
+          Use it to benchmark what you&apos;re paying.
         </p>
         {lastScraped && (
           <p className="text-xs text-slate-400 mt-2">
@@ -47,6 +48,8 @@ export default async function PriceIndexPage() {
                 <th className="px-5 py-3 text-right">Chaldal</th>
                 <th className="px-5 py-3 text-right">Daraz</th>
                 <th className="px-5 py-3 text-right">Othoba</th>
+                <th className="px-5 py-3 text-right">Shwapno</th>
+                <th className="px-5 py-3 text-right">Arogga</th>
                 <th className="px-5 py-3 text-right bg-emerald-50 text-emerald-700">Cheapest</th>
                 <th className="px-5 py-3 bg-emerald-50 text-emerald-700">Store</th>
               </tr>
@@ -66,6 +69,12 @@ export default async function PriceIndexPage() {
                   </td>
                   <td className="px-5 py-3 text-right text-slate-600">
                     {row.othoba_price ? `৳${Number(row.othoba_price).toFixed(2)}` : "—"}
+                  </td>
+                  <td className="px-5 py-3 text-right text-slate-600">
+                    {row.shwapno_price ? `৳${Number(row.shwapno_price).toFixed(2)}` : "—"}
+                  </td>
+                  <td className="px-5 py-3 text-right text-slate-600">
+                    {row.arogga_price ? `৳${Number(row.arogga_price).toFixed(2)}` : "—"}
                   </td>
                   <td className="px-5 py-3 text-right bg-emerald-50 font-bold text-emerald-700">
                     ৳{Number(row.cheapest_price).toFixed(2)}
