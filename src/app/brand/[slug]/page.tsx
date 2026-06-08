@@ -37,7 +37,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     .map(size => {
       const prods = products.filter(p => p.size_label === size);
       if (!prods.length) return null;
-      const cheapest = prods.reduce((a, b) => a.price_per_piece < b.price_per_piece ? a : b);
+      const cheapest = prods.reduce((a, b) => Number(a.price_per_piece) < Number(b.price_per_piece) ? a : b);
       return { size, cheapest };
     })
     .filter(Boolean) as { size: string; cheapest: DiaperProduct }[];
@@ -58,7 +58,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
         "brand": { "@type": "Brand", "name": p.brand },
         "offers": {
           "@type": "Offer",
-          "price": p.price_bdt.toFixed(2),
+          "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/brand/${slug}`,
@@ -88,7 +88,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
         "acceptedAnswer": {
           "@type": "Answer",
           "text": products.length > 0
-            ? `The cheapest ${meta.name} diaper is currently ৳${products[0].price_per_piece.toFixed(2)} per piece (${products[0].size_label ?? ""} ${products[0].pack_qty}pcs) at ${products[0].store_name}.`
+            ? `The cheapest ${meta.name} diaper is currently ৳${Number(products[0].price_per_piece).toFixed(2)} per piece (${products[0].size_label ?? ""} ${products[0].pack_qty}pcs) at ${products[0].store_name}.`
             : `Check DiaperDam daily for the latest ${meta.name} prices in Bangladesh.`,
         },
       },
@@ -106,7 +106,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
         "acceptedAnswer": {
           "@type": "Answer",
           "text": sizeSummary.length > 0
-            ? `${meta.name} diaper costs vary by size: ${sizeSummary.map(s => `${s.size} from ৳${s.cheapest.price_per_piece.toFixed(2)}/pc`).join(", ")}.`
+            ? `${meta.name} diaper costs vary by size: ${sizeSummary.map(s => `${s.size} from ৳${Number(s.cheapest.price_per_piece).toFixed(2)}/pc`).join(", ")}.`
             : `${meta.name} diaper prices in Bangladesh are shown per piece on DiaperDam for easy comparison.`,
         },
       },
@@ -144,7 +144,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
               {sizeSummary.map(({ size, cheapest }) => (
                 <div key={size} className="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-xs">
                   <span className="font-bold text-slate-700">{size}</span>
-                  <span className="text-emerald-700 font-semibold ml-2">৳{cheapest.price_per_piece.toFixed(2)}/pc</span>
+                  <span className="text-emerald-700 font-semibold ml-2">৳{Number(cheapest.price_per_piece).toFixed(2)}/pc</span>
                   <span className="text-slate-400 ml-1">{cheapest.store_name}</span>
                 </div>
               ))}
@@ -184,7 +184,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
               </h3>
               <p className="text-sm text-slate-600 mt-1">
                 {products.length > 0
-                  ? `Currently the cheapest ${meta.name} is ৳${products[0].price_per_piece.toFixed(2)} per piece (${products[0].size_label ?? ""} ${products[0].pack_qty}pcs at ${products[0].store_name}).`
+                  ? `Currently the cheapest ${meta.name} is ৳${Number(products[0].price_per_piece).toFixed(2)} per piece (${products[0].size_label ?? ""} ${products[0].pack_qty}pcs at ${products[0].store_name}).`
                   : `DiaperDam tracks ${meta.name} prices daily. Check back after the next data refresh.`}
               </p>
             </div>
@@ -203,7 +203,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
               </h3>
               <p className="text-sm text-slate-600 mt-1">
                 {sizeSummary.length > 0
-                  ? `${meta.name} per-piece price by size: ${sizeSummary.map(s => `${s.size}: ৳${s.cheapest.price_per_piece.toFixed(2)}`).join(" · ")}.`
+                  ? `${meta.name} per-piece price by size: ${sizeSummary.map(s => `${s.size}: ৳${Number(s.cheapest.price_per_piece).toFixed(2)}`).join(" · ")}.`
                   : `All ${meta.name} prices are shown per diaper piece on this page for fair comparison across pack sizes.`}
               </p>
             </div>

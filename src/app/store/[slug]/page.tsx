@@ -54,7 +54,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     .map(size => {
       const prods = products.filter(p => p.size_label === size);
       if (!prods.length) return null;
-      const cheapest = prods.reduce((a, b) => a.price_per_piece < b.price_per_piece ? a : b);
+      const cheapest = prods.reduce((a, b) => Number(a.price_per_piece) < Number(b.price_per_piece) ? a : b);
       return { size, cheapest };
     })
     .filter(Boolean) as { size: string; cheapest: (typeof products)[0] }[];
@@ -76,7 +76,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
         "brand": { "@type": "Brand", "name": p.brand },
         "offers": {
           "@type": "Offer",
-          "price": p.price_bdt.toFixed(2),
+          "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
           "availability": "https://schema.org/InStock",
           "seller": { "@type": "Organization", "name": meta.name },
@@ -119,7 +119,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
                 >
                   <span className="font-bold text-slate-700">{size}</span>
                   <span className={`${storeColors.text} font-semibold ml-2`}>
-                    &#2547;{cheapest.price_per_piece.toFixed(2)}/pc
+                    &#2547;{Number(cheapest.price_per_piece).toFixed(2)}/pc
                   </span>
                   <span className="text-slate-400 ml-1">{cheapest.brand}</span>
                 </div>

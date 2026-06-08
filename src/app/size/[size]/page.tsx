@@ -44,7 +44,7 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
         "brand": { "@type": "Brand", "name": p.brand },
         "offers": {
           "@type": "Offer",
-          "price": p.price_bdt.toFixed(2),
+          "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/size/${size}`,
@@ -98,7 +98,7 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
                 DiaperDam compares Size {s.label} prices across Chaldal, Daraz, Othoba, Shwapno and Arogga.
                 All prices are shown per piece so you can compare 40-pack and 80-pack options fairly.
                 The cheapest Size {s.label} option right now is{" "}
-                <strong>৳{products[0].price_per_piece.toFixed(2)}/pc</strong> ({products[0].brand} at {products[0].store_name}).
+                <strong>৳{Number(products[0].price_per_piece).toFixed(2)}/pc</strong> ({products[0].brand} at {products[0].store_name}).
               </p>
             </div>
           </div>
