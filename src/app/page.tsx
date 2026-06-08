@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getCheapestByBrand, getLastScrapedAt, getActiveDeals } from "@/lib/db";
 import { formatBDT, formatPerPiece, SIZE_ORDER } from "@/lib/utils";
 
-export const revalidate = 3600; // ISR: revalidate hourly
+export const dynamic = "force-dynamic"; // Force fresh data on each request
+export const revalidate = 0;
 
 const BRANDS = [
   { slug: "huggies",     name: "Huggies",     flag: "🇲🇾", origin: "Malaysia", tier: "Premium" },
