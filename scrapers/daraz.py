@@ -14,6 +14,7 @@ import sys
 import httpx
 
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 
@@ -23,27 +24,6 @@ SEARCH_QUERIES = [
     "pampers diaper", "bashundhara diaper", "neocare diaper",
     "supermom diaper", "avonee diaper", "baby diaper",
 ]
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "mamy poko": "mamypoko",
-    "molfix": "molfix", "pampers": "pampers", "neocare": "neocare",
-    "bashundhara": "bashundhara", "avonee": "avonee", "supermom": "supermom",
-    "savlon": "savlon", "twinkle": "savlon", "smc smile": "smc-smile",
-    "chu chu": "chuchu", "chu-chu": "chuchu", "chuchu": "chuchu",
-}
-
-
-def _extract_brand(name: str) -> tuple[str, str]:
-    n = name.lower()
-    for keyword, slug in BRAND_SLUG_MAP.items():
-        if keyword in n:
-            display = {"mamypoko": "MamyPoko", "huggies": "Huggies", "molfix": "Molfix",
-                       "pampers": "Pampers", "neocare": "Neocare", "bashundhara": "Bashundhara",
-                       "savlon": "Savlon", "avonee": "Avonee", "supermom": "Supermom",
-                       "chuchu": "Chu Chu", "smc-smile": "SMC Smile"}.get(slug, keyword.title())
-            return display, slug
-    first = name.split()[0]
-    return first, first.lower().replace(" ", "-")
 
 
 def _extract_type(name: str) -> str:
@@ -278,7 +258,10 @@ class DarazScraper(BaseScraper):
             if not pack_qty or pack_qty <= 0:
                 return None
 
-            brand, brand_slug = _extract_brand(name)
+            result = extract_brand(name)
+            if not result:
+                return None
+            brand, brand_slug = result
             w_min, w_max = _extract_weights(name)
 
             product_url = item.get("productUrl", "")

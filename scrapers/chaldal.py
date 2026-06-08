@@ -10,6 +10,7 @@ import sys
 import httpx
 
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 
@@ -20,28 +21,6 @@ HEADERS = {
     "Referer": "https://chaldal.com/",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
     "Accept": "application/json",
-}
-
-BRAND_SLUG_MAP = {
-    "huggies":     "huggies",
-    "mamypoko":    "mamypoko",
-    "mamy poko":   "mamypoko",
-    "molfix":      "molfix",
-    "pampers":     "pampers",
-    "neocare":     "neocare",
-    "neo care":    "neocare",
-    "bashundhara": "bashundhara",
-    "diapant":     "bashundhara",
-    "avonee":      "avonee",
-    "supermom":    "supermom",
-    "smc smile":   "smc-smile",
-    "smile":       "smc-smile",
-    "aiwibi":      "aiwibi",
-    "savlon":      "savlon",
-    "twinkle":     "savlon",
-    "happy nappy": "happy-nappy",
-    "mumlove":     "mumlove",
-    "kidz":        "kidz",
 }
 
 DIAPER_KEYWORDS = [
@@ -55,21 +34,6 @@ DIAPER_KEYWORDS = [
     "avonee",
     "supermom diaper",
 ]
-
-
-def _extract_brand(name: str) -> tuple[str, str]:
-    name_lower = name.lower()
-    for keyword, slug in BRAND_SLUG_MAP.items():
-        if keyword in name_lower:
-            display = {
-                "mamypoko": "MamyPoko", "huggies": "Huggies", "molfix": "Molfix",
-                "pampers": "Pampers", "neocare": "Neocare", "bashundhara": "Bashundhara",
-                "savlon": "Savlon", "avonee": "Avonee", "supermom": "Supermom",
-                "smc-smile": "SMC Smile", "aiwibi": "Aiwibi",
-            }.get(slug, keyword.title())
-            return display, slug
-    first = name.split()[0]
-    return first, first.lower().replace(" ", "-")
 
 
 def _extract_type(name: str) -> str:
@@ -207,7 +171,10 @@ class ChaldalScraper(BaseScraper):
             if not pack_qty or pack_qty <= 0:
                 return None
 
-            brand, brand_slug = _extract_brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result:
+                return None
+            brand, brand_slug = brand_result
             diaper_type = _extract_type(name)
             size_label = _extract_size(name)
             w_min, w_max = _extract_weights(name)

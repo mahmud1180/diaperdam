@@ -6,6 +6,7 @@ import re
 import sys
 import httpx
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 BASE = "https://gobaby.com.bd"
@@ -14,18 +15,6 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
     "Accept-Language": "bn-BD,bn;q=0.9,en-US;q=0.8,en;q=0.7",
 }
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "molfix": "molfix",
-    "pampers": "pampers", "neocare": "neocare", "bashundhara": "bashundhara",
-    "avonee": "avonee", "supermom": "supermom", "savlon": "savlon",
-}
-
-def _brand(name):
-    n = name.lower()
-    for k, s in BRAND_SLUG_MAP.items():
-        if k in n: return k.title(), s
-    return name.split()[0], name.split()[0].lower()
 
 def _qty(name):
     m = re.search(r"(\d+)\s*(?:pcs|pieces|pc|p)\b", name.lower())
@@ -98,7 +87,9 @@ class GoBabyScraper(BaseScraper):
             if price <= 0: return None
             qty = _qty(name)
             if not qty: return None
-            b, bs = _brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            b, bs = brand_result
             eid = str(item.get("id") or name[:20])
             reg = prices.get("regular_price")
             original = float(reg)/100 if reg and len(reg)>4 else float(reg) if reg else None
@@ -123,7 +114,9 @@ class GoBabyScraper(BaseScraper):
             if price <= 0: return None
             qty = _qty(name)
             if not qty: return None
-            b, bs = _brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            b, bs = brand_result
             return ScrapedDiaper(
                 external_id=f"gb-{name[:20]}", brand=b, brand_slug=bs,
                 type="pants" if "pant" in name.lower() else "belt",

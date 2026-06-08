@@ -11,6 +11,7 @@ import sys
 import httpx
 
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 
@@ -21,21 +22,6 @@ HEADERS = {
 }
 
 SEARCH_QUERIES = ["diaper", "baby diaper", "huggies diaper", "mamypoko"]
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "molfix": "molfix",
-    "pampers": "pampers", "neocare": "neocare", "bashundhara": "bashundhara",
-    "avonee": "avonee", "supermom": "supermom", "savlon": "savlon",
-}
-
-
-def _extract_brand(name: str) -> tuple[str, str]:
-    n = name.lower()
-    for keyword, slug in BRAND_SLUG_MAP.items():
-        if keyword in n:
-            return keyword.title(), slug
-    first = name.split()[0]
-    return first, first.lower().replace(" ", "-")
 
 
 def _extract_pack_qty(name: str) -> int | None:
@@ -117,7 +103,9 @@ class OthobaScraper(BaseScraper):
                     if eid in seen:
                         continue
                     seen.add(eid)
-                    brand, brand_slug = _extract_brand(name)
+                    brand_result = extract_brand(name)
+                    if not brand_result: continue
+                    brand, brand_slug = brand_result
                     results.append(ScrapedDiaper(
                         external_id=eid, brand=brand, brand_slug=brand_slug,
                         type="pants" if "pant" in name.lower() else "belt",
@@ -149,7 +137,9 @@ class OthobaScraper(BaseScraper):
                 return None
             url = prod.get("url") or offers.get("url") or ""
             eid = f"ot-{url.split('/')[-1]}" if url else f"ot-{name[:30]}"
-            brand, brand_slug = _extract_brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            brand, brand_slug = brand_result
             return ScrapedDiaper(
                 external_id=eid, brand=brand, brand_slug=brand_slug,
                 type="pants" if "pant" in name.lower() else "belt",

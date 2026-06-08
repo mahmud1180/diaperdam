@@ -13,6 +13,7 @@ import sys
 import httpx
 
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 
@@ -37,26 +38,6 @@ SLUGS = list(SLUG_IDS.keys())
 
 _ID_RE = re.compile(r"[?&]id=([a-f0-9]{24})")
 _HEX_ID = re.compile(r"[a-f0-9]{24}")
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "mamy poko": "mamypoko",
-    "molfix": "molfix", "pampers": "pampers", "neocare": "neocare",
-    "bashundhara": "bashundhara", "diapant": "bashundhara", "avonee": "avonee",
-    "supermom": "supermom", "savlon": "savlon", "twinkle": "savlon",
-    "smc smile": "smc-smile", "smile": "smc-smile",
-}
-
-
-def _extract_brand(name: str) -> tuple[str, str]:
-    n = name.lower()
-    for keyword, slug in BRAND_SLUG_MAP.items():
-        if keyword in n:
-            display = {"mamypoko": "MamyPoko", "huggies": "Huggies", "molfix": "Molfix",
-                       "pampers": "Pampers", "neocare": "Neocare", "bashundhara": "Bashundhara",
-                       "savlon": "Savlon", "avonee": "Avonee", "supermom": "Supermom"}.get(slug, keyword.title())
-            return display, slug
-    first = name.split()[0]
-    return first, first.lower().replace(" ", "-")
 
 
 def _extract_type(name: str) -> str:
@@ -192,7 +173,10 @@ class ShwapnoScraper(BaseScraper):
             if not pack_qty or pack_qty <= 0:
                 return None
 
-            brand, brand_slug = _extract_brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result:
+                return None
+            brand, brand_slug = brand_result
             w_min, w_max = _extract_weights(name)
 
             img = None

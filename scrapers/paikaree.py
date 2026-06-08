@@ -6,23 +6,12 @@ import re
 import sys
 import httpx
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 BASE = "https://paikaree.com.bd"
 WC_API = f"{BASE}/wp-json/wc/store/v1/products"
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36"}
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "molfix": "molfix",
-    "pampers": "pampers", "neocare": "neocare", "bashundhara": "bashundhara",
-    "avonee": "avonee", "supermom": "supermom", "savlon": "savlon",
-}
-
-def _brand(name):
-    n = name.lower()
-    for k, s in BRAND_SLUG_MAP.items():
-        if k in n: return k.title(), s
-    return name.split()[0], name.split()[0].lower()
 
 def _qty(name):
     m = re.search(r"(\d+)\s*(?:pcs|pieces|pc)", name.lower())
@@ -76,7 +65,9 @@ class PaikareeScraper(BaseScraper):
             if price <= 0: return None
             qty = _qty(name)
             if not qty: return None
-            b, bs = _brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            b, bs = brand_result
             eid = str(item.get("id") or name[:20])
             return ScrapedDiaper(
                 external_id=f"pk-{eid}", brand=b, brand_slug=bs,

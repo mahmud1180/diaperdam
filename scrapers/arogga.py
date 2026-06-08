@@ -12,6 +12,7 @@ import sys
 import httpx
 
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 
@@ -20,21 +21,6 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
     "Accept": "text/html,application/json,*/*",
 }
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "molfix": "molfix",
-    "pampers": "pampers", "neocare": "neocare", "bashundhara": "bashundhara",
-    "avonee": "avonee", "supermom": "supermom", "savlon": "savlon",
-}
-
-
-def _extract_brand(name: str) -> tuple[str, str]:
-    n = name.lower()
-    for keyword, slug in BRAND_SLUG_MAP.items():
-        if keyword in n:
-            return keyword.title(), slug
-    first = name.split()[0]
-    return first, first.lower().replace(" ", "-")
 
 
 def _extract_pack_qty(name: str) -> int | None:
@@ -152,7 +138,9 @@ class AroggaScraper(BaseScraper):
             if not pack_qty:
                 return None
             eid = str(item.get("id") or item.get("product_id") or name[:30])
-            brand, brand_slug = _extract_brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            brand, brand_slug = brand_result
             mrp = item.get("mrp") or item.get("regular_price")
             original = float(mrp) if mrp and float(mrp) > price_bdt else None
             slug = item.get("slug") or item.get("url_slug") or ""
@@ -182,7 +170,9 @@ class AroggaScraper(BaseScraper):
             pack_qty = _extract_pack_qty(name)
             if not pack_qty:
                 return None
-            brand, brand_slug = _extract_brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            brand, brand_slug = brand_result
             return ScrapedDiaper(
                 external_id=f"ar-{name[:30]}", brand=brand, brand_slug=brand_slug,
                 type="pants" if "pant" in name.lower() else "belt",

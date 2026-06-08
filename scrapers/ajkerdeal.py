@@ -6,6 +6,7 @@ import re
 import sys
 import httpx
 from base import BaseScraper, ScrapedDiaper
+from brands import extract_brand
 
 logger = logging.getLogger(__name__)
 BASE = "https://ajkerdeal.com"
@@ -20,19 +21,6 @@ URLS = [
     "/en/search?q=huggies+diaper",
     "/en/search?q=mamypoko+diaper",
 ]
-
-BRAND_SLUG_MAP = {
-    "huggies": "huggies", "mamypoko": "mamypoko", "molfix": "molfix",
-    "pampers": "pampers", "neocare": "neocare", "bashundhara": "bashundhara",
-    "avonee": "avonee", "supermom": "supermom", "savlon": "savlon",
-}
-
-def _brand(name):
-    n = name.lower()
-    for k, s in BRAND_SLUG_MAP.items():
-        if k in n:
-            return k.title(), s
-    return name.split()[0], name.split()[0].lower()
 
 def _qty(name):
     m = re.search(r"(\d+)\s*(?:pcs|pieces|pc)", name.lower())
@@ -100,7 +88,9 @@ class AjkerDealScraper(BaseScraper):
             qty = _qty(name)
             if not qty: return None
             eid = str(item.get("id") or item.get("productId") or name[:20])
-            b, bs = _brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            b, bs = brand_result
             return ScrapedDiaper(external_id=f"ajd-{eid}", brand=b, brand_slug=bs,
                 type="pants" if "pant" in name.lower() else "belt",
                 size_label=_size(name), pack_qty=qty,
@@ -119,7 +109,9 @@ class AjkerDealScraper(BaseScraper):
             if price <= 0: return None
             qty = _qty(name)
             if not qty: return None
-            b, bs = _brand(name)
+            brand_result = extract_brand(name)
+            if not brand_result: return None
+            b, bs = brand_result
             return ScrapedDiaper(external_id=f"ajd-{name[:20]}", brand=b, brand_slug=bs,
                 type="pants" if "pant" in name.lower() else "belt",
                 size_label=_size(name), pack_qty=qty,
