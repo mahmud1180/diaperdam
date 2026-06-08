@@ -77,7 +77,7 @@ export default async function HomePage() {
             in Bangladesh — per piece
           </h1>
           <p className="text-lg text-slate-600 max-w-xl mx-auto mb-8">
-            We compare Huggies, MamyPoko, Molfix and more across Chaldal, Daraz, Othoba and Shwapno.
+            We compare Huggies, MamyPoko, Molfix and more across Chaldal, Meena Bazar, GoBaby and Shwapno.
             See exactly which store gives you the best value, calculated per piece.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -252,11 +252,11 @@ export default async function HomePage() {
         <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4">Prices compared from</p>
         <div className="flex flex-wrap gap-3">
           {[
-            { slug: "chaldal", name: "Chaldal", color: "bg-green-50 text-green-700 border-green-200" },
-            { slug: "daraz",   name: "Daraz",   color: "bg-orange-50 text-orange-700 border-orange-200" },
-            { slug: "othoba",  name: "Othoba",  color: "bg-blue-50 text-blue-700 border-blue-200" },
-            { slug: "shwapno", name: "Shwapno", color: "bg-red-50 text-red-700 border-red-200" },
-            { slug: "arogga",  name: "Arogga",  color: "bg-purple-50 text-purple-700 border-purple-200" },
+            { slug: "chaldal",    name: "Chaldal",     color: "bg-green-50 text-green-700 border-green-200" },
+            { slug: "meenabazar", name: "Meena Bazar",  color: "bg-pink-50 text-pink-700 border-pink-200" },
+            { slug: "gobaby",     name: "GoBaby",       color: "bg-sky-50 text-sky-700 border-sky-200" },
+            { slug: "shwapno",    name: "Shwapno",      color: "bg-red-50 text-red-700 border-red-200" },
+            { slug: "daraz",      name: "Daraz",        color: "bg-orange-50 text-orange-700 border-orange-200" },
           ].map(s => (
             <Link
               key={s.slug}

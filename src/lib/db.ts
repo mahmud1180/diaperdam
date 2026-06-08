@@ -1,30 +1,21 @@
-import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
+import { neon } from "@neondatabase/serverless";
 
-// Lazy — only instantiate when a query function is actually called at runtime.
-// This prevents build-time crash when DATABASE_URL is not set.
-let _sql: NeonQueryFunction<false, false> | null = null;
-
-function getSql(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL environment variable is not set");
-    }
-    _sql = neon(process.env.DATABASE_URL);
+// Initialize once — DATABASE_URL must be set at runtime (Vercel injects it)
+function createSql() {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL environment variable is not set");
   }
-  return _sql;
+  return neon(process.env.DATABASE_URL);
 }
 
-// Re-export as sql for compatibility
-export const sql = new Proxy({} as NeonQueryFunction<false, false>, {
-  apply(_target, _thisArg, args) {
-    return (getSql() as unknown as (...a: unknown[]) => unknown)(...args);
-  },
-  get(_target, prop) {
-    const s = getSql();
-    const val = (s as unknown as Record<string | symbol, unknown>)[prop];
-    return typeof val === "function" ? val.bind(s) : val;
-  },
-});
+// Lazy singleton — avoids build-time crash when env isn't set
+let _sql: ReturnType<typeof neon> | null = null;
+function sql(strings: TemplateStringsArray, ...values: unknown[]) {
+  if (!_sql) _sql = createSql();
+  return _sql(strings, ...values);
+}
+
+// No unsafe() needed — we use separate queries per sort order
 
 export type Store = {
   id: number;
@@ -91,23 +82,47 @@ export async function getAllProducts(filters?: {
   sort?: "price_per_piece" | "price_bdt" | "discount_pct";
   store_slug?: string;
 }): Promise<DiaperProduct[]> {
+  const brand = filters?.brand_slug ?? null;
+  const size = filters?.size_label ?? null;
+  const type = filters?.type ?? null;
+  const store = filters?.store_slug ?? null;
   const sort = filters?.sort ?? "price_per_piece";
-  const orderBy = sort === "discount_pct"
-    ? "d.discount_pct DESC NULLS LAST"
-    : `d.${sort} ASC`;
 
+  // Neon tagged templates don't support dynamic ORDER BY, so use separate queries
+  if (sort === "discount_pct") {
+    const rows = await sql`
+      SELECT d.*, s.slug as store_slug, s.name as store_name
+      FROM diaper_products d JOIN stores s ON s.id = d.store_id
+      WHERE d.is_available = TRUE
+        AND (${brand}::text IS NULL OR d.brand_slug = ${brand})
+        AND (${size}::text IS NULL OR d.size_label = ${size})
+        AND (${type}::text IS NULL OR d.type = ${type})
+        AND (${store}::text IS NULL OR s.slug = ${store})
+      ORDER BY d.discount_pct DESC NULLS LAST LIMIT 200`;
+    return rows as DiaperProduct[];
+  }
+  if (sort === "price_bdt") {
+    const rows = await sql`
+      SELECT d.*, s.slug as store_slug, s.name as store_name
+      FROM diaper_products d JOIN stores s ON s.id = d.store_id
+      WHERE d.is_available = TRUE
+        AND (${brand}::text IS NULL OR d.brand_slug = ${brand})
+        AND (${size}::text IS NULL OR d.size_label = ${size})
+        AND (${type}::text IS NULL OR d.type = ${type})
+        AND (${store}::text IS NULL OR s.slug = ${store})
+      ORDER BY d.price_bdt ASC LIMIT 200`;
+    return rows as DiaperProduct[];
+  }
+  // Default: price_per_piece
   const rows = await sql`
     SELECT d.*, s.slug as store_slug, s.name as store_name
-    FROM diaper_products d
-    JOIN stores s ON s.id = d.store_id
+    FROM diaper_products d JOIN stores s ON s.id = d.store_id
     WHERE d.is_available = TRUE
-      AND (${filters?.brand_slug ?? null}::text IS NULL OR d.brand_slug = ${filters?.brand_slug ?? null})
-      AND (${filters?.size_label ?? null}::text IS NULL OR d.size_label = ${filters?.size_label ?? null})
-      AND (${filters?.type ?? null}::text IS NULL OR d.type = ${filters?.type ?? null})
-      AND (${filters?.store_slug ?? null}::text IS NULL OR s.slug = ${filters?.store_slug ?? null})
-    ORDER BY ${sql.unsafe(orderBy)}
-    LIMIT 200
-  `;
+      AND (${brand}::text IS NULL OR d.brand_slug = ${brand})
+      AND (${size}::text IS NULL OR d.size_label = ${size})
+      AND (${type}::text IS NULL OR d.type = ${type})
+      AND (${store}::text IS NULL OR s.slug = ${store})
+    ORDER BY d.price_per_piece ASC LIMIT 200`;
   return rows as DiaperProduct[];
 }
 
@@ -154,23 +169,22 @@ export async function getBrandProducts(brand_slug: string): Promise<DiaperProduc
 export async function getPriceIndex(): Promise<{
   brand: string; size_label: string;
   chaldal_price: number | null;
-  daraz_price: number | null;
-  othoba_price: number | null;
+  meenabazar_price: number | null;
+  gobaby_price: number | null;
   shwapno_price: number | null;
-  arogga_price: number | null;
+  daraz_price: number | null;
   cheapest_store: string;
   cheapest_price: number;
 }[]> {
-  // Cross-store price index — all sizes, all tracked stores
   const rows = await sql`
     SELECT
       d.brand,
       d.size_label,
-      MAX(CASE WHEN s.slug = 'chaldal' THEN d.price_per_piece END) AS chaldal_price,
-      MAX(CASE WHEN s.slug = 'daraz'   THEN d.price_per_piece END) AS daraz_price,
-      MAX(CASE WHEN s.slug = 'othoba'  THEN d.price_per_piece END) AS othoba_price,
-      MAX(CASE WHEN s.slug = 'shwapno' THEN d.price_per_piece END) AS shwapno_price,
-      MAX(CASE WHEN s.slug = 'arogga'  THEN d.price_per_piece END) AS arogga_price,
+      MAX(CASE WHEN s.slug = 'chaldal'    THEN d.price_per_piece END) AS chaldal_price,
+      MAX(CASE WHEN s.slug = 'meenabazar'  THEN d.price_per_piece END) AS meenabazar_price,
+      MAX(CASE WHEN s.slug = 'gobaby'      THEN d.price_per_piece END) AS gobaby_price,
+      MAX(CASE WHEN s.slug = 'shwapno'     THEN d.price_per_piece END) AS shwapno_price,
+      MAX(CASE WHEN s.slug = 'daraz'       THEN d.price_per_piece END) AS daraz_price,
       MIN(d.price_per_piece) AS cheapest_price,
       (ARRAY_AGG(s.name ORDER BY d.price_per_piece ASC))[1] AS cheapest_store
     FROM diaper_products d
