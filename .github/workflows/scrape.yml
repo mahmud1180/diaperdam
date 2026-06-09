@@ -75,7 +75,7 @@ jobs:
           conn = psycopg2.connect(os.environ['DATABASE_URL'])
           cur = conn.cursor()
           cur.execute(\"\"\"
-            SELECT dp.id, dp.product_url, dp.name
+            SELECT dp.id, dp.product_url
             FROM diaper_products dp
             JOIN stores s ON s.id = dp.store_id
             WHERE s.slug = 'chaldal'
@@ -84,8 +84,10 @@ jobs:
           \"\"\")
           rows = cur.fetchall()
           fixed = 0
-          for pid, url, name in rows:
-              search_q = name.replace(' ', '+')
+          for pid, url in rows:
+              # Extract slug from existing URL, convert hyphens to spaces for search
+              slug = url.replace('https://chaldal.com/', '')
+              search_q = slug.replace('-', '+')
               new_url = f'https://chaldal.com/search/{search_q}'
               cur.execute('UPDATE diaper_products SET product_url = %s WHERE id = %s', (new_url, pid))
               fixed += 1
