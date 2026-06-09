@@ -20,15 +20,6 @@ const SIZE_LABELS: Record<string, string> = {
   S: "S", M: "M", L: "L", XL: "XL", XXL: "XXL",
 };
 
-const SIZE_WEIGHTS: Record<string, string> = {
-  Newborn: "~5 কেজি",
-  S: "4-8 কেজি",
-  M: "6-11 কেজি",
-  L: "9-14 কেজি",
-  XL: "12-17 কেজি",
-  XXL: "15+ কেজি",
-};
-
 const PAGE_SIZE = 50;
 
 export default function DiapersClient({ products, showHeroFilters, title }: Props) {
@@ -83,28 +74,26 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
         </div>
       )}
 
-      {/* Filter panel */}
+      {/* Unified filter bar — sticky */}
       <div className="bg-white border-b border-slate-200 sticky top-14 z-40 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-3 space-y-3">
-
-          {/* Row 1: Type + Sort */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Row 1: Type tabs + sort */}
+          <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <div className="flex">
               {[
-                { value: null, label: "সব", icon: "📦" },
-                { value: "belt", label: "বেল্ট", icon: "🩹" },
-                { value: "pants", label: "প্যান্ট", icon: "👶" },
+                { value: null, label: "সব" },
+                { value: "belt", label: "বেল্ট" },
+                { value: "pants", label: "প্যান্ট" },
               ].map(tab => (
                 <button
                   key={tab.label}
-                  onClick={() => setTypeFilter(typeFilter === tab.value ? null : tab.value)}
-                  className={`flex items-center gap-1.5 text-sm font-semibold px-4 py-2 rounded-xl transition-all cursor-pointer border ${
+                  onClick={() => setTypeFilter(tab.value)}
+                  className={`text-sm font-medium px-3 py-1.5 border-b-2 transition-colors cursor-pointer ${
                     typeFilter === tab.value
-                      ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-200"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"
+                      ? "border-emerald-600 text-emerald-700"
+                      : "border-transparent text-slate-500 hover:text-slate-700"
                   }`}
                 >
-                  <span>{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
@@ -113,7 +102,7 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
             <select
               value={sort}
               onChange={e => setSort(e.target.value as typeof sort)}
-              className="text-sm border border-slate-200 rounded-xl px-4 py-2 bg-white text-slate-700 cursor-pointer outline-none font-medium"
+              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-slate-700 cursor-pointer outline-none"
             >
               {SORT_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -121,89 +110,70 @@ export default function DiapersClient({ products, showHeroFilters, title }: Prop
             </select>
           </div>
 
-          {/* Row 2: Brands — scrollable chips */}
-          <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">ব্র্যান্ড</p>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-              <button
-                onClick={() => setBrandFilter(null)}
-                className={`text-sm font-semibold px-4 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap shrink-0 border ${
-                  !brandFilter
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300"
-                }`}
-              >
-                সব
-              </button>
+          {/* Row 2: Brand + Size filters */}
+          <div className="flex items-center gap-3 py-2 overflow-x-auto scrollbar-hide">
+            {/* Brand dropdown */}
+            <select
+              value={brandFilter ?? ""}
+              onChange={e => setBrandFilter(e.target.value || null)}
+              className={`text-sm rounded-full px-3 py-1.5 cursor-pointer outline-none shrink-0 border transition-colors ${
+                brandFilter
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-800 font-semibold"
+                  : "bg-slate-50 border-slate-200 text-slate-600"
+              }`}
+            >
+              <option value="">সব ব্র্যান্ড</option>
               {availBrands.map(([slug, name]) => (
-                <button
-                  key={slug}
-                  onClick={() => setBrandFilter(brandFilter === slug ? null : slug)}
-                  className={`text-sm font-semibold px-4 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap shrink-0 border ${
-                    brandFilter === slug
-                      ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-200"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"
-                  }`}
-                >
-                  {name}
-                </button>
+                <option key={slug} value={slug}>{name}</option>
               ))}
-            </div>
-          </div>
+            </select>
 
-          {/* Row 3: Sizes — pills with weight range */}
-          <div>
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">সাইজ</p>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+            {/* Divider */}
+            <div className="w-px h-5 bg-slate-200 shrink-0" />
+
+            {/* Size pills */}
+            {availSizes.map(s => (
               <button
-                onClick={() => setSizeFilter(null)}
-                className={`text-sm font-semibold px-4 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap shrink-0 border ${
-                  !sizeFilter
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300"
+                key={s}
+                onClick={() => setSizeFilter(sizeFilter === s ? null : s)}
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors cursor-pointer whitespace-nowrap shrink-0 border ${
+                  sizeFilter === s
+                    ? "bg-emerald-50 border-emerald-300 text-emerald-800"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
                 }`}
               >
-                সব
+                {SIZE_LABELS[s] ?? s}
               </button>
-              {availSizes.map(s => (
+            ))}
+
+            {/* Clear all filters */}
+            {activeFilterCount > 0 && (
+              <>
+                <div className="w-px h-5 bg-slate-200 shrink-0" />
                 <button
-                  key={s}
-                  onClick={() => setSizeFilter(sizeFilter === s ? null : s)}
-                  className={`flex flex-col items-center text-center min-w-[70px] px-3 py-1.5 rounded-xl transition-all cursor-pointer whitespace-nowrap shrink-0 border ${
-                    sizeFilter === s
-                      ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-200"
-                      : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"
-                  }`}
+                  onClick={() => { setTypeFilter(null); setBrandFilter(null); setSizeFilter(null); }}
+                  className="text-xs text-red-500 hover:text-red-700 whitespace-nowrap shrink-0 cursor-pointer font-medium"
                 >
-                  <span className="text-sm font-bold leading-tight">{SIZE_LABELS[s] ?? s}</span>
-                  <span className={`text-[10px] leading-tight ${sizeFilter === s ? "text-emerald-100" : "text-slate-400"}`}>{SIZE_WEIGHTS[s] ?? ""}</span>
+                  ✕ ফিল্টার মুছুন
                 </button>
-              ))}
-            </div>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Result count bar */}
-      <div className="bg-slate-50 border-b border-slate-200 py-2 px-4">
+      {/* Active filter summary + result count */}
+      <div className="bg-slate-50 border-b border-slate-200 py-2.5 px-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-slate-600">
-              <strong className="text-slate-900">{filtered.length}</strong> টি পণ্য
-            </p>
-            {activeFilterCount > 0 && (
-              <button
-                onClick={() => { setTypeFilter(null); setBrandFilter(null); setSizeFilter(null); }}
-                className="text-xs text-red-500 hover:text-red-700 cursor-pointer font-semibold flex items-center gap-1"
-              >
-                ✕ ফিল্টার মুছুন
-              </button>
-            )}
-          </div>
+          <p className="text-sm text-slate-600">
+            <strong className="text-slate-900">{filtered.length}</strong> টি পণ্য
+            {brandFilter && <span className="ml-1">— {brandMap.get(brandFilter)}</span>}
+            {sizeFilter && <span className="ml-1">— {SIZE_LABELS[sizeFilter] ?? sizeFilter}</span>}
+          </p>
           {brandFilter && (
             <a
               href={`/brand/${brandFilter}`}
-              className="text-xs text-emerald-700 hover:underline font-semibold"
+              className="text-xs text-emerald-700 hover:underline font-medium"
             >
               {brandMap.get(brandFilter)} পেজ দেখুন →
             </a>
