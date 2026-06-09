@@ -201,10 +201,11 @@ class ChaldalScraper(BaseScraper):
                 p = pics[0]
                 image_url = p if p.startswith("http") else f"https://chaldal.com{p}"
 
-            # Chaldal SPA uses Title-Case URLs derived from product name,
-            # NOT the lowercase slug the API returns. Lowercase URLs 404.
+            # Chaldal URLs are lowercase, hyphenated product names.
+            # Confirmed via Google index: chaldal.com/neocare-premium-baby-diaper-belt-s-3-6-kg-50-pcs
+            # The API 'slug' field may be stale; derive from product name instead.
             name_slug = re.sub(r"[^a-zA-Z0-9\s-]", "", name).strip()
-            name_slug = re.sub(r"\s+", "-", name_slug)
+            name_slug = re.sub(r"\s+", "-", name_slug).lower()
             product_url = f"https://chaldal.com/{name_slug}"
 
             # Promo

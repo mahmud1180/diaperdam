@@ -66,7 +66,7 @@ jobs:
           conn.close()
           "
 
-      - name: Fix Chaldal product URLs (Title-Case)
+      - name: Fix Chaldal product URLs (lowercase)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
@@ -80,20 +80,18 @@ jobs:
             JOIN stores s ON s.id = dp.store_id
             WHERE s.slug = 'chaldal'
               AND dp.product_url IS NOT NULL
-              AND dp.product_url ~ '^https://chaldal.com/[a-z]'
           \"\"\")
           rows = cur.fetchall()
           fixed = 0
           for pid, url in rows:
-              # Extract the slug part after chaldal.com/
               slug = url.replace('https://chaldal.com/', '')
-              # Title-case each word (split by hyphen)
-              title_slug = '-'.join(w.capitalize() for w in slug.split('-'))
-              new_url = f'https://chaldal.com/{title_slug}'
-              cur.execute('UPDATE diaper_products SET product_url = %s WHERE id = %s', (new_url, pid))
-              fixed += 1
+              lower_slug = slug.lower()
+              if slug != lower_slug:
+                  new_url = f'https://chaldal.com/{lower_slug}'
+                  cur.execute('UPDATE diaper_products SET product_url = %s WHERE id = %s', (new_url, pid))
+                  fixed += 1
           conn.commit()
-          print(f'Fixed {fixed} Chaldal product URLs to Title-Case')
+          print(f'Fixed {fixed} Chaldal product URLs to lowercase')
           cur.close()
           conn.close()
           "
