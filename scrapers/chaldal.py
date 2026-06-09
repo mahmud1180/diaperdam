@@ -122,6 +122,14 @@ class ChaldalScraper(BaseScraper):
                 total_pages = data.get("nbPages", 1)
                 logger.info(f"[chaldal] '{query}': {data.get('nbHits', 0)} hits, {total_pages} pages")
 
+                # DEBUG: dump first hit's keys and URL-relevant fields (remove after debugging)
+                if hits and query == "huggies":
+                    h = hits[0]
+                    logger.info(f"[chaldal] DEBUG keys: {sorted(h.keys())}")
+                    for k in ("slug", "id", "objectID", "name", "nameSlug", "url", "link", "path", "permalink", "productUrl"):
+                        if k in h:
+                            logger.info(f"[chaldal] DEBUG {k}: {h[k]}")
+
                 for hit in hits:
                     p = self._parse_hit(hit)
                     if p and p.external_id not in seen_ids:
