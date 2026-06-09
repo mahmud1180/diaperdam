@@ -66,32 +66,31 @@ jobs:
           conn.close()
           "
 
-      - name: Fix Chaldal product URLs (lowercase)
+      - name: Fix Chaldal product URLs (use search URLs)
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           python -c "
-          import os, re, psycopg2
+          import os, psycopg2
           conn = psycopg2.connect(os.environ['DATABASE_URL'])
           cur = conn.cursor()
           cur.execute(\"\"\"
-            SELECT dp.id, dp.product_url
+            SELECT dp.id, dp.product_url, dp.name
             FROM diaper_products dp
             JOIN stores s ON s.id = dp.store_id
             WHERE s.slug = 'chaldal'
               AND dp.product_url IS NOT NULL
+              AND dp.product_url NOT LIKE '%/search/%'
           \"\"\")
           rows = cur.fetchall()
           fixed = 0
-          for pid, url in rows:
-              slug = url.replace('https://chaldal.com/', '')
-              lower_slug = slug.lower()
-              if slug != lower_slug:
-                  new_url = f'https://chaldal.com/{lower_slug}'
-                  cur.execute('UPDATE diaper_products SET product_url = %s WHERE id = %s', (new_url, pid))
-                  fixed += 1
+          for pid, url, name in rows:
+              search_q = name.replace(' ', '+')
+              new_url = f'https://chaldal.com/search/{search_q}'
+              cur.execute('UPDATE diaper_products SET product_url = %s WHERE id = %s', (new_url, pid))
+              fixed += 1
           conn.commit()
-          print(f'Fixed {fixed} Chaldal product URLs to lowercase')
+          print(f'Converted {fixed} Chaldal URLs to search URLs')
           cur.close()
           conn.close()
           "

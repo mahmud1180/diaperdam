@@ -201,12 +201,10 @@ class ChaldalScraper(BaseScraper):
                 p = pics[0]
                 image_url = p if p.startswith("http") else f"https://chaldal.com{p}"
 
-            # Chaldal URLs are lowercase, hyphenated product names.
-            # Confirmed via Google index: chaldal.com/neocare-premium-baby-diaper-belt-s-3-6-kg-50-pcs
-            # The API 'slug' field may be stale; derive from product name instead.
-            name_slug = re.sub(r"[^a-zA-Z0-9\s-]", "", name).strip()
-            name_slug = re.sub(r"\s+", "-", name_slug).lower()
-            product_url = f"https://chaldal.com/{name_slug}"
+            # Use search URLs — guaranteed to work regardless of slug format.
+            # Direct product slugs are unverifiable (Chaldal is geo-blocked outside BD).
+            search_q = name.replace(" ", "+")
+            product_url = f"https://chaldal.com/search/{search_q}"
 
             # Promo
             mrp = hit.get("mrp")
