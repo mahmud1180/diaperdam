@@ -167,6 +167,14 @@ class ChaldalScraper(BaseScraper):
             if not name or not _is_diaper(name):
                 return None
 
+            # Check actual stock — canSeeOutOfStock flag is unreliable.
+            # Empty productAvailabilityForSelectedWarehouse = out of stock.
+            avail = hit.get("productAvailabilityForSelectedWarehouse") or []
+            in_stock = any(a.get("Quantity", 0) > 0 for a in avail)
+            if not in_stock:
+                logger.debug(f"[chaldal] Skipping OOS: {name}")
+                return None
+
             price = hit.get("price")
             if not price or float(price) <= 0:
                 return None
