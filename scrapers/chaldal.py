@@ -19,9 +19,13 @@ API_KEY = "e964fc2d51064efa97e94db7c64bf3d044279d4ed0ad4bdd9dce89fecc9156f0"
 HEADERS = {
     "Origin": "https://chaldal.com",
     "Referer": "https://chaldal.com/",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/128 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.165 Mobile Safari/537.36",
     "Accept": "application/json",
+    "Accept-Language": "en-BD,en;q=0.9,bn;q=0.8",
+    "Content-Type": "application/json",
 }
+MAX_RETRIES = 3
+RETRY_DELAY = 5  # seconds between retries
 
 DIAPER_KEYWORDS = [
     "diaper",
@@ -96,9 +100,20 @@ def _fetch_page(client: httpx.Client, query: str, page: int, page_size: int = 50
         "maxOutOfStockCount": {"case": "Some", "fields": [5]},
         "shouldShowAlternateProductsForOutOfStockItems": {"case": "Some", "fields": [True]},
     }
-    r = client.post(API_URL, json=body, headers=HEADERS, timeout=30)
-    r.raise_for_status()
-    return r.json()
+    last_err = None
+    for attempt in range(MAX_RETRIES):
+        try:
+            r = client.post(API_URL, json=body, headers=HEADERS, timeout=30)
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            last_err = e
+            if attempt < MAX_RETRIES - 1:
+                wait = RETRY_DELAY * (attempt + 1)
+                logger.warning(f"[chaldal] attempt {attempt+1} failed for '{query}' p{page}: {e} — retrying in {wait}s")
+                import time
+                time.sleep(wait)
+    raise last_err
 
 
 class ChaldalScraper(BaseScraper):
@@ -122,14 +137,6 @@ class ChaldalScraper(BaseScraper):
                 total_pages = data.get("nbPages", 1)
                 logger.info(f"[chaldal] '{query}': {data.get('nbHits', 0)} hits, {total_pages} pages")
 
-                # DEBUG: dump first hit's keys and URL-relevant fields (remove after debugging)
-                if hits and query == "huggies":
-                    h = hits[0]
-                    logger.info(f"[chaldal] DEBUG keys: {sorted(h.keys())}")
-                    for k in ("slug", "id", "objectID", "name", "nameSlug", "url", "link", "path", "permalink", "productUrl"):
-                        if k in h:
-                            logger.info(f"[chaldal] DEBUG {k}: {h[k]}")
-
                 for hit in hits:
                     p = self._parse_hit(hit)
                     if p and p.external_id not in seen_ids:
@@ -149,7 +156,7 @@ class ChaldalScraper(BaseScraper):
                         logger.warning(f"[chaldal] page {page} of '{query}' error: {e}")
                     await asyncio.sleep(0.3)
 
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(2)  # longer delay between keywords to avoid rate-limit
 
         logger.info(f"[chaldal] Scraped {len(results)} diaper products total")
         return results
@@ -194,7 +201,11 @@ class ChaldalScraper(BaseScraper):
                 p = pics[0]
                 image_url = p if p.startswith("http") else f"https://chaldal.com{p}"
 
-            product_url = f"https://chaldal.com/{slug}"
+            # Chaldal SPA uses Title-Case URLs derived from product name,
+            # NOT the lowercase slug the API returns. Lowercase URLs 404.
+            name_slug = re.sub(r"[^a-zA-Z0-9\s-]", "", name).strip()
+            name_slug = re.sub(r"\s+", "-", name_slug)
+            product_url = f"https://chaldal.com/{name_slug}"
 
             # Promo
             mrp = hit.get("mrp")
