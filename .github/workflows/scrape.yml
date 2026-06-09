@@ -104,6 +104,28 @@ jobs:
           cd scrapers
           python run_all.py
 
+      - name: Flush Chaldal OOS products (one-time data cleanup)
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python -c "
+          import os, psycopg2
+          conn = psycopg2.connect(os.environ['DATABASE_URL'])
+          cur = conn.cursor()
+          # After the fixed scraper ran, any Chaldal product with consecutive_misses > 0
+          # was NOT returned by the stock-filtered scraper = actually OOS. Mark immediately.
+          cur.execute(\"\"\"
+            UPDATE diaper_products SET is_available = FALSE
+            WHERE store_id = (SELECT id FROM stores WHERE slug = 'chaldal')
+              AND consecutive_misses > 0
+              AND is_available = TRUE
+          \"\"\")
+          print(f'Marked {cur.rowcount} Chaldal OOS products as unavailable')
+          conn.commit()
+          cur.close()
+          conn.close()
+          "
+
       - name: Trigger Vercel revalidation
         if: success()
         run: |
