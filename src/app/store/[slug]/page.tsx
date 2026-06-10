@@ -2,8 +2,16 @@ import type { Metadata } from "next";
 import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_ORDER, STORE_COLORS } from "@/lib/utils";
+import { STORE_SLUGS } from "@/lib/catalog";
 
 export const revalidate = 3600;
+
+// Prerender all known stores at build time so the route is ISR
+// (without this, dynamic-param pages degrade to per-request rendering
+// and serve Cache-Control: private, no-store).
+export function generateStaticParams() {
+  return STORE_SLUGS.map(slug => ({ slug }));
+}
 
 const STORE_META: Record<string, { name: string; nameBn: string; color: string; description: string }> = {
   chaldal:    { name: "Chaldal",     nameBn: "চালডাল",    color: "green",  description: "চালডালে ডায়াপারের দাম। Huggies, MamyPoko ও Molfix-এর দাম অন্য দোকানের সাথে তুলনা করুন।" },
@@ -61,6 +69,8 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     })
     .filter(Boolean) as { size: string; cheapest: (typeof products)[0] }[];
 
+  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -79,6 +89,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
+          "priceValidUntil": priceValidUntil,
           "availability": "https://schema.org/InStock",
           "seller": { "@type": "Organization", "name": meta.name },
           ...(p.product_url ? { "url": p.product_url } : {}),

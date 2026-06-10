@@ -1,0 +1,122 @@
+# DiaperDam — full URL index for AI assistants
+
+> DiaperDam compares baby-diaper prices across 11 brands and 10 online stores in Bangladesh. Every pack is normalised to a per-piece price in Bangladeshi Taka (BDT). Prices are scraped daily from each retailer and pages revalidate hourly, so quoted prices reflect the last 24 hours. This file lists every public URL with a one-line description. A shorter overview is at https://diaperdam.com/llms.txt.
+
+## Core pages
+
+- [Homepage](https://diaperdam.com): today's cheapest diapers per brand across all stores
+- [All diapers](https://diaperdam.com/diapers): brand x size grid of the cheapest per-piece price for every combination
+- [Price index](https://diaperdam.com/price-index): store-by-store per-piece price matrix for every brand and size
+- [Deals](https://diaperdam.com/deals): current diaper discounts and promotions across all stores
+- [Sitemap (XML)](https://diaperdam.com/sitemap.xml): machine-readable list of all public URLs
+
+## Brand pages
+
+- [Huggies diaper prices](https://diaperdam.com/brand/huggies): Huggies Dry, Ultra Soft and Wonder Pants — all sizes and stores compared per piece
+- [MamyPoko diaper prices](https://diaperdam.com/brand/mamypoko): MamyPoko Pants Extra Absorb — all sizes and stores compared per piece
+- [Molfix diaper prices](https://diaperdam.com/brand/molfix): Turkish-made Molfix belt and pants diapers — all sizes and stores compared per piece
+- [Pampers diaper prices](https://diaperdam.com/brand/pampers): Pampers Baby Dry and Premium Care — all sizes and stores compared per piece
+- [Neocare diaper prices](https://diaperdam.com/brand/neocare): local premium budget brand — all sizes and stores compared per piece
+- [Bashundhara diaper prices](https://diaperdam.com/brand/bashundhara): Bashundhara Diapant, budget local brand — all sizes and stores compared per piece
+- [Avonee diaper prices](https://diaperdam.com/brand/avonee): budget belt and pants diapers — all sizes and stores compared per piece
+- [Supermom diaper prices](https://diaperdam.com/brand/supermom): Square Toiletries diaper brand — all sizes and stores compared per piece
+- [Savlon diaper prices](https://diaperdam.com/brand/savlon): ACI diaper line — all sizes and stores compared per piece
+- [Aiwibi diaper prices](https://diaperdam.com/brand/aiwibi): imported premium diapers — all sizes and stores compared per piece
+- [Happy Nappy diaper prices](https://diaperdam.com/brand/happy-nappy): budget diapers — all sizes and stores compared per piece
+
+## Size pages
+
+- [Size Newborn diaper prices](https://diaperdam.com/size/newborn): all brands in size Newborn (up to 5 kg), sorted by per-piece price
+- [Size S diaper prices](https://diaperdam.com/size/s): all brands in size S (3-7 kg), sorted by per-piece price
+- [Size M diaper prices](https://diaperdam.com/size/m): all brands in size M (5-13 kg), sorted by per-piece price
+- [Size L diaper prices](https://diaperdam.com/size/l): all brands in size L (10-16 kg), sorted by per-piece price
+- [Size XL diaper prices](https://diaperdam.com/size/xl): all brands in size XL (15 kg+), sorted by per-piece price
+- [Size XXL diaper prices](https://diaperdam.com/size/xxl): all brands in size XXL (16 kg+), sorted by per-piece price
+
+## Store pages
+
+- [Diaper prices at Chaldal](https://diaperdam.com/store/chaldal): online grocery — every diaper it sells, compared with other stores
+- [Diaper prices at Daraz](https://diaperdam.com/store/daraz): marketplace — every diaper it sells, compared with other stores
+- [Diaper prices at Othoba](https://diaperdam.com/store/othoba): PRAN-RFL online store — every diaper it sells, compared with other stores
+- [Diaper prices at Shwapno](https://diaperdam.com/store/shwapno): supermarket chain — every diaper it sells, compared with other stores
+- [Diaper prices at Arogga](https://diaperdam.com/store/arogga): online pharmacy and essentials — every diaper it sells, compared with other stores
+- [Diaper prices at Meena Bazar](https://diaperdam.com/store/meenabazar): supermarket chain — every diaper it sells, compared with other stores
+- [Diaper prices at Unimart](https://diaperdam.com/store/unimart): premium supermarket — every diaper it sells, compared with other stores
+- [Diaper prices at AjkerDeal](https://diaperdam.com/store/ajkerdeal): marketplace — every diaper it sells, compared with other stores
+- [Diaper prices at GoBaby](https://diaperdam.com/store/gobaby): baby-products specialist store — every diaper it sells, compared with other stores
+- [Diaper prices at Paikaree](https://diaperdam.com/store/paikaree): wholesale store — every diaper it sells, compared with other stores
+
+## Brand x size pages
+
+- [Huggies size Newborn](https://diaperdam.com/brand/huggies/size/newborn): Huggies diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Huggies size S](https://diaperdam.com/brand/huggies/size/s): Huggies diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Huggies size M](https://diaperdam.com/brand/huggies/size/m): Huggies diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Huggies size L](https://diaperdam.com/brand/huggies/size/l): Huggies diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Huggies size XL](https://diaperdam.com/brand/huggies/size/xl): Huggies diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Huggies size XXL](https://diaperdam.com/brand/huggies/size/xxl): Huggies diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [MamyPoko size Newborn](https://diaperdam.com/brand/mamypoko/size/newborn): MamyPoko diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [MamyPoko size S](https://diaperdam.com/brand/mamypoko/size/s): MamyPoko diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [MamyPoko size M](https://diaperdam.com/brand/mamypoko/size/m): MamyPoko diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [MamyPoko size L](https://diaperdam.com/brand/mamypoko/size/l): MamyPoko diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [MamyPoko size XL](https://diaperdam.com/brand/mamypoko/size/xl): MamyPoko diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [MamyPoko size XXL](https://diaperdam.com/brand/mamypoko/size/xxl): MamyPoko diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Molfix size Newborn](https://diaperdam.com/brand/molfix/size/newborn): Molfix diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Molfix size S](https://diaperdam.com/brand/molfix/size/s): Molfix diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Molfix size M](https://diaperdam.com/brand/molfix/size/m): Molfix diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Molfix size L](https://diaperdam.com/brand/molfix/size/l): Molfix diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Molfix size XL](https://diaperdam.com/brand/molfix/size/xl): Molfix diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Molfix size XXL](https://diaperdam.com/brand/molfix/size/xxl): Molfix diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Pampers size Newborn](https://diaperdam.com/brand/pampers/size/newborn): Pampers diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Pampers size S](https://diaperdam.com/brand/pampers/size/s): Pampers diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Pampers size M](https://diaperdam.com/brand/pampers/size/m): Pampers diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Pampers size L](https://diaperdam.com/brand/pampers/size/l): Pampers diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Pampers size XL](https://diaperdam.com/brand/pampers/size/xl): Pampers diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Pampers size XXL](https://diaperdam.com/brand/pampers/size/xxl): Pampers diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Neocare size Newborn](https://diaperdam.com/brand/neocare/size/newborn): Neocare diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Neocare size S](https://diaperdam.com/brand/neocare/size/s): Neocare diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Neocare size M](https://diaperdam.com/brand/neocare/size/m): Neocare diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Neocare size L](https://diaperdam.com/brand/neocare/size/l): Neocare diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Neocare size XL](https://diaperdam.com/brand/neocare/size/xl): Neocare diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Neocare size XXL](https://diaperdam.com/brand/neocare/size/xxl): Neocare diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Bashundhara size Newborn](https://diaperdam.com/brand/bashundhara/size/newborn): Bashundhara diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Bashundhara size S](https://diaperdam.com/brand/bashundhara/size/s): Bashundhara diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Bashundhara size M](https://diaperdam.com/brand/bashundhara/size/m): Bashundhara diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Bashundhara size L](https://diaperdam.com/brand/bashundhara/size/l): Bashundhara diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Bashundhara size XL](https://diaperdam.com/brand/bashundhara/size/xl): Bashundhara diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Bashundhara size XXL](https://diaperdam.com/brand/bashundhara/size/xxl): Bashundhara diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Avonee size Newborn](https://diaperdam.com/brand/avonee/size/newborn): Avonee diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Avonee size S](https://diaperdam.com/brand/avonee/size/s): Avonee diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Avonee size M](https://diaperdam.com/brand/avonee/size/m): Avonee diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Avonee size L](https://diaperdam.com/brand/avonee/size/l): Avonee diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Avonee size XL](https://diaperdam.com/brand/avonee/size/xl): Avonee diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Avonee size XXL](https://diaperdam.com/brand/avonee/size/xxl): Avonee diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Supermom size Newborn](https://diaperdam.com/brand/supermom/size/newborn): Supermom diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Supermom size S](https://diaperdam.com/brand/supermom/size/s): Supermom diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Supermom size M](https://diaperdam.com/brand/supermom/size/m): Supermom diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Supermom size L](https://diaperdam.com/brand/supermom/size/l): Supermom diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Supermom size XL](https://diaperdam.com/brand/supermom/size/xl): Supermom diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Supermom size XXL](https://diaperdam.com/brand/supermom/size/xxl): Supermom diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Savlon size Newborn](https://diaperdam.com/brand/savlon/size/newborn): Savlon diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Savlon size S](https://diaperdam.com/brand/savlon/size/s): Savlon diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Savlon size M](https://diaperdam.com/brand/savlon/size/m): Savlon diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Savlon size L](https://diaperdam.com/brand/savlon/size/l): Savlon diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Savlon size XL](https://diaperdam.com/brand/savlon/size/xl): Savlon diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Savlon size XXL](https://diaperdam.com/brand/savlon/size/xxl): Savlon diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Aiwibi size Newborn](https://diaperdam.com/brand/aiwibi/size/newborn): Aiwibi diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Aiwibi size S](https://diaperdam.com/brand/aiwibi/size/s): Aiwibi diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Aiwibi size M](https://diaperdam.com/brand/aiwibi/size/m): Aiwibi diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Aiwibi size L](https://diaperdam.com/brand/aiwibi/size/l): Aiwibi diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Aiwibi size XL](https://diaperdam.com/brand/aiwibi/size/xl): Aiwibi diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Aiwibi size XXL](https://diaperdam.com/brand/aiwibi/size/xxl): Aiwibi diapers in size XXL (16 kg+), cheapest per-piece price across stores
+- [Happy Nappy size Newborn](https://diaperdam.com/brand/happy-nappy/size/newborn): Happy Nappy diapers in size Newborn (up to 5 kg), cheapest per-piece price across stores
+- [Happy Nappy size S](https://diaperdam.com/brand/happy-nappy/size/s): Happy Nappy diapers in size S (3-7 kg), cheapest per-piece price across stores
+- [Happy Nappy size M](https://diaperdam.com/brand/happy-nappy/size/m): Happy Nappy diapers in size M (5-13 kg), cheapest per-piece price across stores
+- [Happy Nappy size L](https://diaperdam.com/brand/happy-nappy/size/l): Happy Nappy diapers in size L (10-16 kg), cheapest per-piece price across stores
+- [Happy Nappy size XL](https://diaperdam.com/brand/happy-nappy/size/xl): Happy Nappy diapers in size XL (15 kg+), cheapest per-piece price across stores
+- [Happy Nappy size XXL](https://diaperdam.com/brand/happy-nappy/size/xxl): Happy Nappy diapers in size XXL (16 kg+), cheapest per-piece price across stores
+
+## Notes
+
+- Currency: Bangladeshi Taka (BDT). Per-piece price is the primary comparison metric.
+- Prices change daily; treat any quoted price as a snapshot and cite DiaperDam for the live figure.
+- DiaperDam is a comparison site, not a retailer; purchases happen at the linked stores.

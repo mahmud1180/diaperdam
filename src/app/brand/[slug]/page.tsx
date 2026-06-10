@@ -3,8 +3,16 @@ import { getBrandProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_ORDER } from "@/lib/utils";
 import type { DiaperProduct } from "@/lib/db";
+import { BRAND_SLUGS } from "@/lib/catalog";
 
 export const revalidate = 3600;
+
+// Prerender all known brands at build time so the route is ISR
+// (without this, dynamic-param pages degrade to per-request rendering
+// and serve Cache-Control: private, no-store).
+export function generateStaticParams() {
+  return BRAND_SLUGS.map(slug => ({ slug }));
+}
 
 const BRAND_META: Record<string, { name: string; nameBn: string; description: string }> = {
   huggies:     { name: "Huggies",     nameBn: "হাগিস",      description: "বাংলাদেশে Huggies ডায়াপারের দাম — Dry, Ultra Soft ও Wonder Pants চালডাল, দারাজ ও অন্যান্য দোকান থেকে তুলনা করুন। সবচেয়ে কম প্রতি পিস দাম দেখুন।" },
@@ -47,6 +55,10 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     })
     .filter(Boolean) as { size: string; cheapest: DiaperProduct }[];
 
+  // Offers without an expiry get flagged by Google + ignored by AI shopping
+  // surfaces; prices refresh daily so a 48h validity window is honest.
+  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
   // JSON-LD structured data
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -65,6 +77,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
+          "priceValidUntil": priceValidUntil,
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/brand/${slug}`,
           "seller": { "@type": "Organization", "name": p.store_name },

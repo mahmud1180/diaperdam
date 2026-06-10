@@ -1,9 +1,7 @@
 import type { MetadataRoute } from "next";
+import { BRAND_SLUGS as BRANDS, SIZE_SLUGS as SIZES, STORE_SLUGS as STORES } from "@/lib/catalog";
 
 const BASE = "https://diaperdam.com";
-const BRANDS = ["huggies","mamypoko","molfix","pampers","neocare","bashundhara","avonee","supermom","savlon","aiwibi","happy-nappy"];
-const SIZES  = ["newborn","s","m","l","xl","xxl"];
-const STORES = ["chaldal","daraz","othoba","shwapno","arogga","meenabazar","unimart","ajkerdeal","gobaby","paikaree"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

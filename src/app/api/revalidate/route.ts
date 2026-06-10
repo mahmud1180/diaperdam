@@ -11,7 +11,9 @@ export async function POST(req: NextRequest) {
   revalidatePath("/");
   revalidatePath("/diapers");
   revalidatePath("/price-index");
+  revalidatePath("/deals");
   revalidatePath("/brand/[slug]", "page");
+  revalidatePath("/brand/[slug]/size/[size]", "page");
   revalidatePath("/size/[size]", "page");
   revalidatePath("/store/[slug]", "page");
 

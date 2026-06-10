@@ -2,8 +2,16 @@ import type { Metadata } from "next";
 import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import type { DiaperProduct } from "@/lib/db";
+import { BRAND_SLUGS, SIZE_SLUGS } from "@/lib/catalog";
 
 export const revalidate = 3600;
+
+// Prerender all brand x size combos at build time so the route is ISR
+// (without this, dynamic-param pages degrade to per-request rendering
+// and serve Cache-Control: private, no-store).
+export function generateStaticParams() {
+  return BRAND_SLUGS.flatMap(slug => SIZE_SLUGS.map(size => ({ slug, size })));
+}
 
 const BRAND_NAMES: Record<string, string> = {
   huggies: "Huggies", mamypoko: "MamyPoko", molfix: "Molfix", pampers: "Pampers",
@@ -47,6 +55,8 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
   const products = await getAllProducts({ brand_slug: slug, size_label: s.label, sort: "price_per_piece" })
     .catch(() => [] as DiaperProduct[]);
 
+  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
   // JSON-LD
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -65,6 +75,7 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
+          "priceValidUntil": priceValidUntil,
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/brand/${slug}/size/${size}`,
           "seller": { "@type": "Organization", "name": p.store_name },
