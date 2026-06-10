@@ -6,6 +6,7 @@ import asyncio
 import logging
 import re
 import sys
+from urllib.parse import quote
 
 import httpx
 
@@ -211,8 +212,8 @@ class ChaldalScraper(BaseScraper):
 
             # Use search URLs — guaranteed to work regardless of slug format.
             # Direct product slugs are unverifiable (Chaldal is geo-blocked outside BD).
-            search_q = name.replace(" ", "+")
-            product_url = f"https://chaldal.com/search/{search_q}"
+            # quote() encodes spaces as %20; Chaldal treats + as a literal plus sign.
+            product_url = f"https://chaldal.com/search/{quote(name)}"
 
             # Promo
             mrp = hit.get("mrp")
