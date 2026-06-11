@@ -10,6 +10,7 @@ Prices are re-scraped from the stores daily and pages revalidate hourly, so quot
 - [All diapers — brand × size grid](https://diaperdam.com/diapers): cheapest per-piece price for every brand and size combination
 - [Price index](https://diaperdam.com/price-index): store-by-store per-piece price matrix (the "diaper price index" of Bangladesh)
 - [Deals](https://diaperdam.com/deals): current discounts and promotions across all stores
+- [Newborn diaper size guide (Bangla)](https://diaperdam.com/guide/newborn-diaper-size): which size, how many per day, how many packs to buy, with live newborn prices
 - [Sitemap (XML)](https://diaperdam.com/sitemap.xml): machine-readable list of all public URLs
 
 ## Brand pages (price comparison per brand)

@@ -111,6 +111,15 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
                 এই মুহূর্তে সবচেয়ে সস্তা সাইজ {s.label} হলো{" "}
                 <strong>৳{Number(products[0].price_per_piece).toFixed(2)}/পিস</strong> ({products[0].brand}, {products[0].store_name})।
               </p>
+              {size.toLowerCase() === "newborn" && (
+                <p className="text-sm text-slate-600 mt-2">
+                  কোন সাইজ লাগবে, দিনে কয়টা, কয় প্যাক কিনবেন:{" "}
+                  <a href="/guide/newborn-diaper-size" className="text-emerald-700 hover:underline font-medium">
+                    নবজাতকের ডায়াপার সাইজ গাইড
+                  </a>{" "}
+                  দেখুন।
+                </p>
+              )}
             </div>
           </div>
         )}
