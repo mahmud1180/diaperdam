@@ -127,6 +127,8 @@ export default async function NewbornGuidePage() {
           <p className="mb-4">
             বাচ্চা যদি ৪ কেজির বেশি ওজন নিয়ে জন্মায়? তাহলে নবজাতক সাইজ প্রায় কিনতেই হবে না।
             এক প্যাক নিন, বাকিটা সরাসরি <a href="/size/s" className="text-emerald-700 hover:underline">সাইজ S (৩-৭ কেজি)</a> দিয়ে চালান।
+            পরের সাইজগুলো কত কেজি, কোন ব্র্যান্ড লেবেলের চেয়ে ছোট-বড় চলে — সব দেখুন{" "}
+            <a href="/guide/diaper-size-chart" className="text-emerald-700 hover:underline font-medium">পুরো ডায়াপার সাইজ চার্টে</a>।
           </p>
 
           <h2 className="text-xl font-bold text-slate-900 mt-8 mb-3">দিনে কয়টা লাগে</h2>
@@ -216,6 +218,9 @@ export default async function NewbornGuidePage() {
             <div className="flex flex-wrap gap-2">
               <a href="/size/newborn" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সব নবজাতক ডায়াপারের দাম
+              </a>
+              <a href="/guide/diaper-size-chart" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                পুরো সাইজ চার্ট
               </a>
               <a href="/size/s" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সাইজ S ডায়াপার
