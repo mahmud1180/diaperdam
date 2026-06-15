@@ -222,6 +222,9 @@ export default async function NewbornGuidePage() {
               <a href="/guide/diaper-size-chart" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 পুরো সাইজ চার্ট
               </a>
+              <a href="/guide/diaper-rash-prevention" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                র‍্যাশ থেকে বাঁচার উপায়
+              </a>
               <a href="/size/s" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সাইজ S ডায়াপার
               </a>
