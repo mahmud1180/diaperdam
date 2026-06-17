@@ -220,6 +220,9 @@ export default async function RashPreventionGuidePage() {
           {/* Cross-links */}
           <div className="pt-4 border-t border-slate-100 text-sm">
             <div className="flex flex-wrap gap-2">
+              <a href="/guide/belt-vs-pant-diaper" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                বেল্ট বনাম প্যান্ট গাইড
+              </a>
               <a href="/guide/newborn-diaper-size" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 নবজাতকের সাইজ গাইড
               </a>

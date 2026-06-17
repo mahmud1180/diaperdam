@@ -18,7 +18,7 @@ const ALL_URLS = [
   `https://${HOST}/price-index`,
   `https://${HOST}/deals`,
   // Guides
-  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention"]
+  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention","belt-vs-pant-diaper"]
     .map(g => `https://${HOST}/guide/${g}`),
   // Brands
   ...["huggies","mamypoko","molfix","pampers","neocare","bashundhara","avonee","supermom","savlon"]
