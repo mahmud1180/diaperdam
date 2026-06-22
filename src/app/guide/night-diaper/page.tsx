@@ -251,6 +251,9 @@ export default async function NightDiaperGuidePage() {
               <a href="/guide/newborn-diaper-size" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 নবজাতকের সাইজ গাইড
               </a>
+              <a href="/guide/diaper-size-by-weight" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                সাইজ চার্ট গাইড
+              </a>
               <a href="/size/xl" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 XL সাইজ তুলনা
               </a>
