@@ -220,6 +220,9 @@ export default async function RashPreventionGuidePage() {
           {/* Cross-links */}
           <div className="pt-4 border-t border-slate-100 text-sm">
             <div className="flex flex-wrap gap-2">
+              <a href="/guide/diaper-rash-treatment" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                র‍্যাশ হলে কী করবেন
+              </a>
               <a href="/guide/night-diaper" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 রাতের ডায়াপার গাইড
               </a>

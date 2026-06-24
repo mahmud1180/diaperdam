@@ -23,6 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/guide/night-diaper`,           lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/diaper-size-by-weight`,  lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/best-diaper-brands-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/guide/diaper-rash-treatment`,        lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     ...BRANDS.map(b => ({ url: `${BASE}/brand/${b}`,  lastModified: now, changeFrequency: "daily" as const, priority: 0.8 })),
     ...brandSizePages,
     ...SIZES.map(s  => ({ url: `${BASE}/size/${s}`,   lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),
