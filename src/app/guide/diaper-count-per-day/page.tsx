@@ -284,6 +284,11 @@ export default async function DiaperCountPerDayPage() {
               </Link>
             </li>
             <li>
+              <Link href="/guide/cloth-vs-disposable-bangladesh" className="text-blue-700 hover:underline">
+                কাপড় না ডিসপোজেবল — বাংলাদেশে আসল হিসাব
+              </Link>
+            </li>
+            <li>
               <Link href="/guide/diaper-rash-prevention" className="text-blue-700 hover:underline">
                 ডায়াপার র‍্যাশ প্রতিরোধের উপায়
               </Link>
