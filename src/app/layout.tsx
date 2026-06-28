@@ -20,6 +20,29 @@ export const metadata: Metadata = {
     locale: "bn_BD",
     siteName: "DiaperDam",
     url: "https://diaperdam.com",
+    title: "DiaperDam — বাংলাদেশে সবচেয়ে কম দামে ডায়াপার",
+    description:
+      "চালডাল, দারাজ, মীনা বাজার, স্বপ্ন ও GoBaby থেকে ডায়াপারের দাম তুলনা করুন। Huggies, MamyPoko, Molfix, Bashundhara সহ সব ব্র্যান্ডের প্রতি পিস দাম দেখুন।",
+    images: [
+      {
+        url: "https://diaperdam.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "DiaperDam — বাংলাদেশে ডায়াপারের দাম তুলনা",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DiaperDam — বাংলাদেশে সবচেয়ে কম দামে ডায়াপার",
+    description:
+      "চালডাল, দারাজ, মীনা বাজার, স্বপ্ন ও GoBaby থেকে ডায়াপারের দাম তুলনা করুন। Huggies, MamyPoko, Molfix, Bashundhara সহ সব ব্র্যান্ডের প্রতি পিস দাম দেখুন।",
+    images: ["https://diaperdam.com/og-image.png"],
+  },
+  verification: {
+    other: {
+      "msvalidate.01": "9D9B84548AFA0C6EFC9E57116E4DEFCA",
+    },
   },
   robots: {
     index: true,
@@ -43,9 +66,39 @@ export const metadata: Metadata = {
   ],
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "DiaperDam",
+  url: "https://diaperdam.com",
+  description:
+    "চালডাল, দারাজ, মীনা বাজার, স্বপ্ন ও GoBaby থেকে ডায়াপারের দাম তুলনা করুন। Huggies, MamyPoko, Molfix, Bashundhara সহ সব ব্র্যান্ডের প্রতি পিস দাম দেখুন।",
+  inLanguage: "bn",
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "DiaperDam",
+  url: "https://diaperdam.com",
+  logo: "https://diaperdam.com/og-image.png",
+  description:
+    "বাংলাদেশের ডায়াপার দাম তুলনা সাইট। প্রতিদিন সব বড় অনলাইন দোকান থেকে দাম আপডেট করা হয়।",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="bn">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+        />
+      </head>
       <body className={`${geist.className} ${notoBengali.className} bg-slate-50 text-slate-900 antialiased`}>
         <header className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm">
           <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -130,6 +183,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="max-w-6xl mx-auto px-4 mt-10 pt-6 border-t border-slate-800 text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-2">
             <p>&copy; ২০২৬ DiaperDam। চালডাল, মীনা বাজার, GoBaby, স্বপ্ন সহ আরও দোকান থেকে প্রতিদিন দাম আপডেট।</p>
             <p>অ্যাফিলিয়েট লিংকে কমিশন পাওয়া যেতে পারে, আপনার কোনো বাড়তি খরচ নেই।</p>
+          </div>
+          <div className="max-w-6xl mx-auto px-4 mt-6 pt-4 border-t border-slate-800 text-center">
+            <p className="text-[11px] text-slate-600 mb-2">আমাদের অন্যান্য সাইট</p>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-[11px] text-slate-600">
+              <a href="https://kombeshi.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">kombeshi.com — বাংলাদেশের বাজার দর তুলনা</a>
+              <a href="https://beshii.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">beshii.com — রেমিট্যান্স রেট তুলনা</a>
+              <a href="https://karubari.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">karubari.com — হস্তশিল্প মার্কেটপ্লেস</a>
+              <a href="https://phulpakhi.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">phulpakhi.com — ছোটদের বাংলা গল্প</a>
+            </div>
           </div>
         </footer>
       </body>
