@@ -191,6 +191,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <a href="https://beshii.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">beshii.com — রেমিট্যান্স রেট তুলনা</a>
               <a href="https://karubari.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">karubari.com — হস্তশিল্প মার্কেটপ্লেস</a>
               <a href="https://phulpakhi.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">phulpakhi.com — ছোটদের বাংলা গল্প</a>
+              <a href="https://bideshii.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">bideshii — ভিসা গাইড ও আবেদন তথ্য</a>
             </div>
           </div>
         </footer>
