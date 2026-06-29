@@ -17,6 +17,22 @@ export default async function PriceIndexPage() {
     getLastScrapedAt().catch(() => null),
   ]);
 
+  // Citeable headline stats from today's index. A raw table is not quotable;
+  // journalists and LLMs cite a single number, so surface one in plain prose +
+  // stat cards. (True month-over-month % change needs a price-history table —
+  // future work; today this is the live snapshot headline.)
+  const priced = index.filter(r => Number(r.cheapest_price) > 0);
+  const avgCheapest = priced.length
+    ? priced.reduce((sum, r) => sum + Number(r.cheapest_price), 0) / priced.length
+    : 0;
+  const cheapestRow = priced.length
+    ? priced.reduce((a, b) => (Number(a.cheapest_price) < Number(b.cheapest_price) ? a : b))
+    : null;
+  const brandsTracked = new Set(index.map(r => r.brand)).size;
+  const storesTracked = ["chaldal", "meenabazar", "gobaby", "shwapno", "daraz"].filter(s =>
+    index.some(r => Number((r as Record<string, unknown>)[`${s}_price`]) > 0)
+  ).length;
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
       {/* Header */}
@@ -38,6 +54,36 @@ export default async function PriceIndexPage() {
           </p>
         )}
       </div>
+
+      {/* Citeable headline — the quotable hook for PR pitches + LLM answers */}
+      {priced.length > 0 && cheapestRow && (
+        <>
+          <p className="text-base text-slate-700 leading-relaxed mb-5 max-w-3xl">
+            আজকের হিসেবে বাংলাদেশে ট্র্যাক করা ডায়াপারের <strong>গড় সর্বনিম্ন দাম প্রতি পিস ৳{avgCheapest.toFixed(2)}</strong>।
+            এই মুহূর্তে সবচেয়ে সস্তা <strong className="capitalize">{cheapestRow.brand} {cheapestRow.size_label}</strong> —
+            মাত্র <strong>৳{Number(cheapestRow.cheapest_price).toFixed(2)}/পিস</strong> ({cheapestRow.cheapest_store})।
+            সূচকে {brandsTracked}টি ব্র্যান্ড {storesTracked}টি দোকান জুড়ে তুলনা করা হয়।
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+              <div className="text-2xl font-bold text-emerald-700">৳{avgCheapest.toFixed(2)}</div>
+              <div className="text-xs text-slate-500 mt-0.5">গড় সর্বনিম্ন দাম / পিস</div>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3">
+              <div className="text-2xl font-bold text-emerald-700">৳{Number(cheapestRow.cheapest_price).toFixed(2)}</div>
+              <div className="text-xs text-slate-500 mt-0.5 capitalize">সবচেয়ে সস্তা — {cheapestRow.brand} {cheapestRow.size_label}</div>
+            </div>
+            <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
+              <div className="text-2xl font-bold text-slate-800">{brandsTracked}</div>
+              <div className="text-xs text-slate-500 mt-0.5">ব্র্যান্ড ট্র্যাক করা</div>
+            </div>
+            <div className="bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
+              <div className="text-2xl font-bold text-slate-800">{storesTracked}</div>
+              <div className="text-xs text-slate-500 mt-0.5">দোকান তুলনা</div>
+            </div>
+          </div>
+        </>
+      )}
 
       {index.length > 0 ? (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
