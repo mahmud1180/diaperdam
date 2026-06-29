@@ -4,6 +4,7 @@ import DiapersClient from "@/components/DiapersClient";
 import { SIZE_ORDER } from "@/lib/utils";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS } from "@/lib/catalog";
+import { brandInfo, brandLabel } from "@/lib/brands";
 
 export const revalidate = 3600;
 
@@ -14,28 +15,19 @@ export function generateStaticParams() {
   return BRAND_SLUGS.map(slug => ({ slug }));
 }
 
-const BRAND_META: Record<string, { name: string; nameBn: string; description: string }> = {
-  huggies:     { name: "Huggies",     nameBn: "হাগিস",      description: "বাংলাদেশে Huggies ডায়াপারের দাম — Dry, Ultra Soft ও Wonder Pants চালডাল, দারাজ ও অন্যান্য দোকান থেকে তুলনা করুন। সবচেয়ে কম প্রতি পিস দাম দেখুন।" },
-  mamypoko:    { name: "MamyPoko",    nameBn: "ম্যামিপোকো", description: "বাংলাদেশে MamyPoko Pants Extra Absorb দাম। S থেকে XL সাইজ সব দোকান থেকে তুলনা। আজকের সবচেয়ে সস্তা MamyPoko প্রতি পিস।" },
-  molfix:      { name: "Molfix",      nameBn: "মলফিক্স",    description: "বাংলাদেশে Molfix বেবি ডায়াপারের দাম। তুর্কি-তৈরি Molfix Pants ও Belt চালডাল ও দারাজে তুলনা করুন।" },
-  pampers:     { name: "Pampers",     nameBn: "প্যাম্পারস", description: "বাংলাদেশে Pampers Baby Dry ও Premium Care দাম। আজ সবচেয়ে কম দামে Pampers ডায়াপার প্রতি পিস খুঁজুন।" },
-  neocare:     { name: "Neocare",     nameBn: "নিওকেয়ার",   description: "বাংলাদেশে Neocare প্রিমিয়াম বেবি ডায়াপারের দাম। দেশি ব্র্যান্ড, বাজেট-ফ্রেন্ডলি। সব দোকানে তুলনা করুন।" },
-  bashundhara: { name: "Bashundhara", nameBn: "বসুন্ধরা",   description: "বাংলাদেশে Bashundhara Diapant দাম। সাশ্রয়ী দেশি ব্র্যান্ড চালডাল ও অন্যান্য দোকানে তুলনা।" },
-  avonee:      { name: "Avonee",      nameBn: "অ্যাভোনি",   description: "বাংলাদেশে Avonee ডায়াপারের দাম। বাজেট বেল্ট ও প্যান্ট ডায়াপার সব দোকানে তুলনা করুন।" },
-  supermom:    { name: "Supermom",    nameBn: "সুপারমম",    description: "বাংলাদেশে Supermom বেবি ডায়াপারের দাম (Square Toiletries)। চালডাল ও দারাজে তুলনা করুন।" },
-};
-
 const BN_MONTHS = ["জানুয়ারি","ফেব্রুয়ারি","মার্চ","এপ্রিল","মে","জুন","জুলাই","আগস্ট","সেপ্টেম্বর","অক্টোবর","নভেম্বর","ডিসেম্বর"];
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const meta = BRAND_META[slug] ?? { name: slug, nameBn: slug, description: `বাংলাদেশে ${slug} ডায়াপারের দাম` };
+  const meta = brandInfo(slug);
   const month = BN_MONTHS[new Date().getMonth()];
   const products = await getBrandProducts(slug).catch(() => [] as DiaperProduct[]);
   const maxDiscount = Math.max(...products.map(p => Number(p.discount_pct) || 0), 0);
   return {
-    title: `${meta.name} ডায়াপার দাম বাংলাদেশ ${month} ২০২৬ — প্রতি পিস সবচেয়ে সস্তা`,
-    description: `${month} ২০২৬: ${meta.name} ডায়াপার ${products.length} টি পণ্য। ${maxDiscount > 0 ? `ছাড় ${Math.round(maxDiscount)}% পর্যন্ত!` : ""} ${meta.description}`,
+    // Lead with the Bengali name (matches হাগিস ডায়াপার দাম queries) and keep
+    // the Latin form via brandLabel's "(Huggies)" for transliterated searchers.
+    title: `${brandLabel(slug)} ডায়াপার দাম বাংলাদেশ — ${month} ২০২৬`,
+    description: `${month} ২০২৬: ${meta.nameBn} ডায়াপার ${products.length} টি পণ্য। ${maxDiscount > 0 ? `ছাড় ${Math.round(maxDiscount)}% পর্যন্ত!` : ""} ${meta.description}`,
     alternates: { canonical: `https://diaperdam.com/brand/${slug}` },
   };
 }
@@ -43,7 +35,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function BrandPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const products = await getBrandProducts(slug).catch(() => [] as DiaperProduct[]);
-  const meta = BRAND_META[slug] ?? { name: slug.charAt(0).toUpperCase() + slug.slice(1), nameBn: slug, description: "" };
+  const meta = brandInfo(slug);
+  const label = brandLabel(slug);
 
   // Size summary: cheapest per-piece per size
   const sizeSummary = SIZE_ORDER
@@ -63,7 +56,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `${meta.name} ডায়াপার দাম বাংলাদেশ`,
+    "name": `${meta.nameBn} ডায়াপার দাম বাংলাদেশ`,
     "description": meta.description,
     "numberOfItems": products.length,
     "itemListElement": products.slice(0, 20).map((p, i) => ({
@@ -92,7 +85,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "হোম", "item": "https://diaperdam.com" },
       { "@type": "ListItem", "position": 2, "name": "ডায়াপার", "item": "https://diaperdam.com/diapers" },
-      { "@type": "ListItem", "position": 3, "name": meta.name, "item": `https://diaperdam.com/brand/${slug}` },
+      { "@type": "ListItem", "position": 3, "name": meta.nameBn, "item": `https://diaperdam.com/brand/${slug}` },
     ],
   };
 
@@ -102,30 +95,30 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     "mainEntity": [
       {
         "@type": "Question",
-        "name": `বাংলাদেশে সবচেয়ে সস্তা ${meta.name} ডায়াপার কোনটা?`,
+        "name": `বাংলাদেশে সবচেয়ে সস্তা ${meta.nameBn} ডায়াপার কোনটা?`,
         "acceptedAnswer": {
           "@type": "Answer",
           "text": products.length > 0
-            ? `এই মুহূর্তে সবচেয়ে সস্তা ${meta.name} ডায়াপার প্রতি পিস ৳${Number(products[0].price_per_piece).toFixed(2)} (${products[0].size_label ?? ""} ${products[0].pack_qty} পিস) ${products[0].store_name}-এ।`
-            : `${meta.name}-এর সর্বশেষ দাম জানতে প্রতিদিন DiaperDam দেখুন।`,
+            ? `এই মুহূর্তে সবচেয়ে সস্তা ${meta.nameBn} ডায়াপার প্রতি পিস ৳${Number(products[0].price_per_piece).toFixed(2)} (${products[0].size_label ?? ""} ${products[0].pack_qty} পিস) ${products[0].store_name}-এ।`
+            : `${meta.nameBn}-এর সর্বশেষ দাম জানতে প্রতিদিন DiaperDam দেখুন।`,
         },
       },
       {
         "@type": "Question",
-        "name": `বাংলাদেশে ${meta.name} ডায়াপার সবচেয়ে সস্তায় কোথায় কিনবেন?`,
+        "name": `বাংলাদেশে ${meta.nameBn} ডায়াপার সবচেয়ে সস্তায় কোথায় কিনবেন?`,
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": `DiaperDam চালডাল, দারাজ, স্বপ্ন, মীনা বাজার সহ সব দোকান থেকে ${meta.name}-এর দাম তুলনা করে। সবচেয়ে সস্তা দোকান প্রতিদিন বদলায় — মূল্য সূচকে লাইভ তুলনা দেখুন।`,
+          "text": `DiaperDam চালডাল, দারাজ, স্বপ্ন, মীনা বাজার সহ সব দোকান থেকে ${meta.nameBn}-এর দাম তুলনা করে। সবচেয়ে সস্তা দোকান প্রতিদিন বদলায় — মূল্য সূচকে লাইভ তুলনা দেখুন।`,
         },
       },
       {
         "@type": "Question",
-        "name": `বাংলাদেশে ${meta.name} ডায়াপার প্রতি পিস কত টাকা?`,
+        "name": `বাংলাদেশে ${meta.nameBn} ডায়াপার প্রতি পিস কত টাকা?`,
         "acceptedAnswer": {
           "@type": "Answer",
           "text": sizeSummary.length > 0
-            ? `${meta.name} ডায়াপারের প্রতি পিস দাম সাইজ অনুযায়ী: ${sizeSummary.map(s => `${s.size} ৳${Number(s.cheapest.price_per_piece).toFixed(2)} থেকে`).join(", ")}।`
-            : `${meta.name} ডায়াপারের সব দাম DiaperDam-এ প্রতি পিস অনুযায়ী দেখানো হয়।`,
+            ? `${meta.nameBn} ডায়াপারের প্রতি পিস দাম সাইজ অনুযায়ী: ${sizeSummary.map(s => `${s.size} ৳${Number(s.cheapest.price_per_piece).toFixed(2)} থেকে`).join(", ")}।`
+            : `${meta.nameBn} ডায়াপারের সব দাম DiaperDam-এ প্রতি পিস অনুযায়ী দেখানো হয়।`,
         },
       },
     ],
@@ -149,10 +142,10 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
       <div className="bg-white border-b border-slate-100 py-8 px-4">
         <div className="max-w-6xl mx-auto">
           <p className="text-sm text-slate-400 mb-1">
-            <a href="/diapers" className="hover:text-emerald-600">সব ডায়াপার</a> / {meta.name}
+            <a href="/diapers" className="hover:text-emerald-600">সব ডায়াপার</a> / {meta.nameBn}
           </p>
           <h1 className="text-2xl font-bold text-slate-900">
-            {meta.name} ডায়াপার দাম বাংলাদেশ
+            {label} ডায়াপার দাম বাংলাদেশ
           </h1>
           <p className="text-slate-500 text-sm mt-1">{meta.description}</p>
 
@@ -176,17 +169,17 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
       ) : (
         <div className="max-w-6xl mx-auto px-4 py-16 text-center text-slate-400">
           <p className="text-4xl mb-3">🔍</p>
-          <p>এখনও {meta.name} পণ্য পাওয়া যায়নি। পরবর্তী ডেটা আপডেটের পর দেখুন।</p>
+          <p>এখনও {meta.nameBn} পণ্য পাওয়া যায়নি। পরবর্তী ডেটা আপডেটের পর দেখুন।</p>
         </div>
       )}
 
       {/* SEO content */}
       <div className="max-w-6xl mx-auto px-4 pb-12">
         <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
-          <h2 className="font-bold text-slate-900 mb-2">{meta.name} ডায়াপার দাম বাংলাদেশ (২০২৬)</h2>
+          <h2 className="font-bold text-slate-900 mb-2">{label} ডায়াপার দাম বাংলাদেশ (২০২৬)</h2>
           <p className="text-sm text-slate-600 leading-relaxed">{meta.description}</p>
           <p className="text-sm text-slate-600 leading-relaxed mt-2">
-            DiaperDam প্রতিদিন চালডাল, দারাজ, স্বপ্ন, মীনা বাজার সহ সব দোকান থেকে {meta.name}-এর দাম তুলনা করে।
+            DiaperDam প্রতিদিন চালডাল, দারাজ, স্বপ্ন, মীনা বাজার সহ সব দোকান থেকে {meta.nameBn}-এর দাম তুলনা করে।
             দাম প্রতি পিস অনুযায়ী দেখানো হয় যাতে বিভিন্ন প্যাক সাইজ ন্যায়ভাবে তুলনা করতে পারেন।
             বড় প্যাকে সাধারণত প্রতি পিস দাম কম হয় - সর্ট ব্যবহার করে সেরা দাম খুঁজুন।
           </p>
@@ -194,35 +187,35 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
 
         {/* FAQ section */}
         <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
-          <h2 className="font-bold text-slate-900 mb-4">{meta.name} ডায়াপার বাংলাদেশ — প্রশ্নোত্তর</h2>
+          <h2 className="font-bold text-slate-900 mb-4">{meta.nameBn} ডায়াপার বাংলাদেশ — প্রশ্নোত্তর</h2>
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-sm text-slate-800">
-                বাংলাদেশে সবচেয়ে সস্তা {meta.name} ডায়াপার কোনটা?
+                বাংলাদেশে সবচেয়ে সস্তা {meta.nameBn} ডায়াপার কোনটা?
               </h3>
               <p className="text-sm text-slate-600 mt-1">
                 {products.length > 0
-                  ? `এই মুহূর্তে সবচেয়ে সস্তা ${meta.name} প্রতি পিস ৳${Number(products[0].price_per_piece).toFixed(2)} (${products[0].size_label ?? ""} ${products[0].pack_qty} পিস, ${products[0].store_name})।`
-                  : `DiaperDam প্রতিদিন ${meta.name}-এর দাম ট্র্যাক করে। পরবর্তী ডেটা রিফ্রেশের পর দেখুন।`}
+                  ? `এই মুহূর্তে সবচেয়ে সস্তা ${meta.nameBn} প্রতি পিস ৳${Number(products[0].price_per_piece).toFixed(2)} (${products[0].size_label ?? ""} ${products[0].pack_qty} পিস, ${products[0].store_name})।`
+                  : `DiaperDam প্রতিদিন ${meta.nameBn}-এর দাম ট্র্যাক করে। পরবর্তী ডেটা রিফ্রেশের পর দেখুন।`}
               </p>
             </div>
             <div>
               <h3 className="font-semibold text-sm text-slate-800">
-                বাংলাদেশে {meta.name} ডায়াপার সবচেয়ে সস্তায় কোথায় কিনবেন?
+                বাংলাদেশে {meta.nameBn} ডায়াপার সবচেয়ে সস্তায় কোথায় কিনবেন?
               </h3>
               <p className="text-sm text-slate-600 mt-1">
-                DiaperDam চালডাল, দারাজ, স্বপ্ন ও মীনা বাজারে {meta.name}-এর দাম তুলনা করে।{" "}
+                DiaperDam চালডাল, দারাজ, স্বপ্ন ও মীনা বাজারে {meta.nameBn}-এর দাম তুলনা করে।{" "}
                 <a href="/price-index" className="text-emerald-600 hover:underline">মূল্য সূচক</a> দেখলে দোকান-ভিত্তিক তুলনা পাবেন।
               </p>
             </div>
             <div>
               <h3 className="font-semibold text-sm text-slate-800">
-                বাংলাদেশে {meta.name} প্রতি পিস কত টাকা?
+                বাংলাদেশে {meta.nameBn} প্রতি পিস কত টাকা?
               </h3>
               <p className="text-sm text-slate-600 mt-1">
                 {sizeSummary.length > 0
-                  ? `${meta.name} প্রতি পিস দাম সাইজ অনুযায়ী: ${sizeSummary.map(s => `${s.size}: ৳${Number(s.cheapest.price_per_piece).toFixed(2)}`).join(" · ")}।`
-                  : `${meta.name}-এর সব দাম এই পেজে প্রতি পিস অনুযায়ী দেখানো হয়।`}
+                  ? `${meta.nameBn} প্রতি পিস দাম সাইজ অনুযায়ী: ${sizeSummary.map(s => `${s.size}: ৳${Number(s.cheapest.price_per_piece).toFixed(2)}`).join(" · ")}।`
+                  : `${meta.nameBn}-এর সব দাম এই পেজে প্রতি পিস অনুযায়ী দেখানো হয়।`}
               </p>
             </div>
           </div>

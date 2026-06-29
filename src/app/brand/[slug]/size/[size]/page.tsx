@@ -3,6 +3,7 @@ import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS, SIZE_SLUGS } from "@/lib/catalog";
+import { brandInfo, brandLabel } from "@/lib/brands";
 
 export const revalidate = 3600;
 
@@ -12,13 +13,6 @@ export const revalidate = 3600;
 export function generateStaticParams() {
   return BRAND_SLUGS.flatMap(slug => SIZE_SLUGS.map(size => ({ slug, size })));
 }
-
-const BRAND_NAMES: Record<string, string> = {
-  huggies: "Huggies", mamypoko: "MamyPoko", molfix: "Molfix", pampers: "Pampers",
-  neocare: "Neocare", bashundhara: "Bashundhara", avonee: "Avonee", supermom: "Supermom",
-  "smc-smile": "SMC Smile", savlon: "Savlon", "happy-nappy": "Happy Nappy",
-  aiwibi: "Aiwibi", chuchu: "Chu Chu", kidstar: "Kidstar", goon: "Goon", merries: "Merries",
-};
 
 const SIZE_META: Record<string, { label: string; labelBn: string; weightBn: string }> = {
   newborn: { label: "Newborn", labelBn: "নবজাতক", weightBn: "৫ কেজি পর্যন্ত" },
@@ -35,21 +29,23 @@ type PageParams = { slug: string; size: string };
 
 export async function generateMetadata({ params }: { params: Promise<PageParams> }): Promise<Metadata> {
   const { slug, size } = await params;
-  const brandName = BRAND_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
+  const b = brandInfo(slug);
   const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), labelBn: size.toUpperCase(), weightBn: "" };
   const month = BN_MONTHS[new Date().getMonth()];
   const products = await getAllProducts({ brand_slug: slug, size_label: s.label }).catch(() => []);
 
   return {
-    title: `${brandName} সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ — ${month} ২০২৬`,
-    description: `${month} ২০২৬: বাংলাদেশে ${brandName} সাইজ ${s.label} (${s.weightBn}) ডায়াপারের দাম তুলনা। ${products.length} টি পণ্য সব দোকান থেকে প্রতি পিস দামে সাজানো।`,
+    // Bengali-led brand name (matches হাগিস ... queries) + Latin in parens.
+    title: `${brandLabel(slug)} সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ — ${month} ২০২৬`,
+    description: `${month} ২০২৬: বাংলাদেশে ${b.nameBn} সাইজ ${s.label} (${s.weightBn}) ডায়াপারের দাম তুলনা। ${products.length} টি পণ্য সব দোকান থেকে প্রতি পিস দামে সাজানো।`,
     alternates: { canonical: `https://diaperdam.com/brand/${slug}/size/${size}` },
   };
 }
 
 export default async function BrandSizePage({ params }: { params: Promise<PageParams> }) {
   const { slug, size } = await params;
-  const brandName = BRAND_NAMES[slug] ?? slug.charAt(0).toUpperCase() + slug.slice(1);
+  const b = brandInfo(slug);
+  const label = brandLabel(slug);
   const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), labelBn: size.toUpperCase(), weightBn: "" };
 
   const products = await getAllProducts({ brand_slug: slug, size_label: s.label, sort: "price_per_piece" })
@@ -61,7 +57,7 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `${brandName} সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ`,
+    "name": `${b.nameBn} সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ`,
     "url": `https://diaperdam.com/brand/${slug}/size/${size}`,
     "numberOfItems": products.length,
     "itemListElement": products.slice(0, 20).map((p, i) => ({
@@ -90,7 +86,7 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "হোম", "item": "https://diaperdam.com" },
       { "@type": "ListItem", "position": 2, "name": "ডায়াপার", "item": "https://diaperdam.com/diapers" },
-      { "@type": "ListItem", "position": 3, "name": brandName, "item": `https://diaperdam.com/brand/${slug}` },
+      { "@type": "ListItem", "position": 3, "name": b.nameBn, "item": `https://diaperdam.com/brand/${slug}` },
       { "@type": "ListItem", "position": 4, "name": `সাইজ ${s.label}`, "item": `https://diaperdam.com/brand/${slug}/size/${size}` },
     ],
   };
@@ -111,15 +107,15 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
             <p className="text-sm text-slate-400 mb-1">
               <a href="/diapers" className="hover:text-emerald-600">সব ডায়াপার</a>
               {" / "}
-              <a href={`/brand/${slug}`} className="hover:text-emerald-600">{brandName}</a>
+              <a href={`/brand/${slug}`} className="hover:text-emerald-600">{b.nameBn}</a>
               {" / "}
               সাইজ {s.label}
             </p>
             <h1 className="text-2xl font-bold text-slate-900">
-              {brandName} সাইজ {s.label} ডায়াপার দাম বাংলাদেশ
+              {label} সাইজ {s.label} ডায়াপার দাম বাংলাদেশ
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              {s.weightBn} ওজনের বাচ্চাদের জন্য {brandName} সাইজ {s.label}। {products.length} টি পণ্য সব দোকান থেকে প্রতি পিস দামে সাজানো।
+              {s.weightBn} ওজনের বাচ্চাদের জন্য {b.nameBn} সাইজ {s.label}। {products.length} টি পণ্য সব দোকান থেকে প্রতি পিস দামে সাজানো।
             </p>
 
             {/* Other sizes for this brand */}
@@ -145,9 +141,9 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
         ) : (
           <div className="max-w-6xl mx-auto px-4 py-16 text-center text-slate-400">
             <p className="text-4xl mb-3">🔍</p>
-            <p>{brandName} সাইজ {s.label}-এ এখনও পণ্য পাওয়া যায়নি।</p>
+            <p>{b.nameBn} সাইজ {s.label}-এ এখনও পণ্য পাওয়া যায়নি।</p>
             <a href={`/brand/${slug}`} className="mt-3 inline-block text-emerald-600 hover:underline text-sm">
-              সব {brandName} ডায়াপার দেখুন
+              সব {b.nameBn} ডায়াপার দেখুন
             </a>
           </div>
         )}
@@ -157,11 +153,11 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
           <div className="max-w-6xl mx-auto px-4 pb-12">
             <div className="bg-white rounded-2xl border border-slate-100 p-6 mt-4">
               <h2 className="font-bold text-slate-900 mb-2">
-                {brandName} সাইজ {s.label} ডায়াপার — প্রতি পিস দাম তুলনা
+                {label} সাইজ {s.label} ডায়াপার — প্রতি পিস দাম তুলনা
               </h2>
               <p className="text-sm text-slate-600 leading-relaxed">
-                {brandName} সাইজ {s.label} ডায়াপার {s.weightBn} ওজনের বাচ্চাদের জন্য।
-                DiaperDam চালডাল, দারাজ, স্বপ্ন, মীনা বাজার সহ সব দোকান থেকে {brandName} সাইজ {s.label}-এর দাম তুলনা করে।
+                {b.nameBn} সাইজ {s.label} ডায়াপার {s.weightBn} ওজনের বাচ্চাদের জন্য।
+                DiaperDam চালডাল, দারাজ, স্বপ্ন, মীনা বাজার সহ সব দোকান থেকে {b.nameBn} সাইজ {s.label}-এর দাম তুলনা করে।
                 এই মুহূর্তে সবচেয়ে সস্তা{" "}
                 <strong>৳{Number(products[0].price_per_piece).toFixed(2)}/পিস</strong>{" "}
                 ({products[0].pack_qty} পিস, {products[0].store_name})।
@@ -172,7 +168,7 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
             <div className="mt-4 pt-4 border-t border-slate-100 text-sm text-slate-500 space-y-3">
               <div className="flex flex-wrap gap-2">
                 <a href={`/brand/${slug}`} className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
-                  সব {brandName} ডায়াপার
+                  সব {b.nameBn} ডায়াপার
                 </a>
                 <a href={`/size/${size}`} className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                   সব সাইজ {s.label} ডায়াপার

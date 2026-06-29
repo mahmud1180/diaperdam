@@ -38,8 +38,13 @@ const KNOWN_BRANDS = [
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const meta = STORE_META[slug] ?? { name: slug, nameBn: slug, description: `${slug}-এ ডায়াপারের দাম বাংলাদেশ` };
+  // Lead with the Bengali store name (matches মীনা/মিনা ডায়াপার দাম — our #1
+  // impression query) and keep the Latin form for transliterated searchers.
+  // The root layout's title template already appends "| DiaperDam" — do NOT
+  // hardcode it here or the suffix doubles.
+  const storeLabel = meta.nameBn !== meta.name ? `${meta.nameBn} (${meta.name})` : meta.name;
   return {
-    title: `${meta.name} ডায়াপার দাম — সব ব্র্যান্ড তুলনা | DiaperDam`,
+    title: `${storeLabel} ডায়াপার দাম — সব ব্র্যান্ড তুলনা`,
     description: meta.description,
     alternates: { canonical: `https://diaperdam.com/store/${slug}` },
   };
@@ -74,7 +79,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `${meta.name} ডায়াপার দাম — সব ব্র্যান্ড তুলনা`,
+    "name": `${meta.nameBn} ডায়াপার দাম — সব ব্র্যান্ড তুলনা`,
     "description": meta.description,
     "url": `https://diaperdam.com/store/${slug}`,
     "numberOfItems": products.length,
