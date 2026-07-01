@@ -18,7 +18,7 @@ const ALL_URLS = [
   `https://${HOST}/price-index`,
   `https://${HOST}/deals`,
   // Guides
-  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention","belt-vs-pant-diaper","night-diaper","diaper-size-by-weight","best-diaper-brands-bangladesh","diaper-rash-treatment","diaper-count-per-day","cloth-vs-disposable-bangladesh","diaper-allergy-sensitive-skin"]
+  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention","belt-vs-pant-diaper","night-diaper","diaper-size-by-weight","best-diaper-brands-bangladesh","diaper-rash-treatment","diaper-count-per-day","cloth-vs-disposable-bangladesh","diaper-allergy-sensitive-skin","diaper-travel-tips"]
     .map(g => `https://${HOST}/guide/${g}`),
   // Brands
   ...["huggies","mamypoko","molfix","pampers","neocare","bashundhara","avonee","supermom","savlon"]

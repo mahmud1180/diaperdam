@@ -248,6 +248,9 @@ export default async function NightDiaperGuidePage() {
               <a href="/guide/belt-vs-pant-diaper" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 বেল্ট বনাম প্যান্ট গাইড
               </a>
+              <a href="/guide/diaper-travel-tips" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                ভ্রমণ গাইড
+              </a>
               <a href="/guide/newborn-diaper-size" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 নবজাতকের সাইজ গাইড
               </a>

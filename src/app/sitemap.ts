@@ -27,6 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/guide/diaper-count-per-day`,               lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/cloth-vs-disposable-bangladesh`,     lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/diaper-allergy-sensitive-skin`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/guide/diaper-travel-tips`,                 lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     ...BRANDS.map(b => ({ url: `${BASE}/brand/${b}`,  lastModified: now, changeFrequency: "daily" as const, priority: 0.8 })),
     ...brandSizePages,
     ...SIZES.map(s  => ({ url: `${BASE}/size/${s}`,   lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),
