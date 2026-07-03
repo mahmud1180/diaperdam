@@ -226,6 +226,9 @@ export default async function RashPreventionGuidePage() {
               <a href="/guide/diaper-allergy-sensitive-skin" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সেনসিটিভ স্কিন গাইড
               </a>
+              <a href="/guide/diaper-swimming" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                পুলে ডায়াপার গাইড
+              </a>
               <a href="/guide/night-diaper" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 রাতের ডায়াপার গাইড
               </a>
