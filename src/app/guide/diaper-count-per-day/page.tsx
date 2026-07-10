@@ -279,6 +279,11 @@ export default async function DiaperCountPerDayPage() {
           <p className="font-semibold text-blue-900 mb-2">আরও পড়ুন</p>
           <ul className="space-y-1 text-sm">
             <li>
+              <Link href="/guide/diaper-budget-monthly" className="text-blue-700 hover:underline">
+                মাসিক বাজেট হিসাব — সব সাইজে খরচের রেঞ্জ
+              </Link>
+            </li>
+            <li>
               <Link href="/guide/best-diaper-brands-bangladesh" className="text-blue-700 hover:underline">
                 সেরা ডায়াপার ব্র্যান্ড তুলনা — দাম ও মান একসাথে
               </Link>
