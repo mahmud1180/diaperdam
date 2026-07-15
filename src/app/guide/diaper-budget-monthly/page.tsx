@@ -243,6 +243,9 @@ export default async function DiaperBudgetMonthlyPage() {
               <a href="/guide/diaper-size-by-weight" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সাইজ চার্ট গাইড
               </a>
+              <a href="/guide/diaper-size-transition-timing" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                সাইজ ট্রানজিশন টাইমিং গাইড
+              </a>
               <a href="/guide/cloth-vs-disposable-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 কাপড় বনাম ডায়াপার খরচ
               </a>
