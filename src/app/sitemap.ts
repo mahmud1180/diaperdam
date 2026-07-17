@@ -33,6 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/guide/diaper-budget-monthly`,              lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/huggies-vs-pampers-bangladesh`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/diaper-size-transition-timing`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/guide/mamypoko-vs-molfix-bangladesh`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     ...BRANDS.map(b => ({ url: `${BASE}/brand/${b}`,  lastModified: now, changeFrequency: "daily" as const, priority: 0.8 })),
     ...brandSizePages,
     ...SIZES.map(s  => ({ url: `${BASE}/size/${s}`,   lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),
