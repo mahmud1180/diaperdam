@@ -219,6 +219,9 @@ export default async function HuggiesVsPampersPage() {
               <a href="/guide/mamypoko-vs-molfix-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 ম্যামিপোকো বনাম মলফিক্স
               </a>
+              <a href="/guide/local-vs-imported-diaper-brands-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                দেশি বনাম বিদেশি ব্র্যান্ড
+              </a>
               <a href="/guide/night-diaper" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 রাতের ডায়াপার গাইড
               </a>

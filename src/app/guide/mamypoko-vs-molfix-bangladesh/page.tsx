@@ -218,6 +218,9 @@ export default async function MamyPokoVsMolfixPage() {
               <a href="/guide/huggies-vs-pampers-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 হাগিস বনাম প্যাম্পারস
               </a>
+              <a href="/guide/local-vs-imported-diaper-brands-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                দেশি বনাম বিদেশি ব্র্যান্ড
+              </a>
               <a href="/guide/best-diaper-brands-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সেরা ব্র্যান্ড তালিকা
               </a>

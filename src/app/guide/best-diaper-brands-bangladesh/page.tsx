@@ -288,6 +288,7 @@ export default async function BestDiaperBrandsPage() {
               <a href="/guide/diaper-size-chart" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">সাইজ চার্ট</a>
               <a href="/guide/huggies-vs-pampers-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">হাগিস বনাম প্যাম্পারস</a>
               <a href="/guide/mamypoko-vs-molfix-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">ম্যামিপোকো বনাম মলফিক্স</a>
+              <a href="/guide/local-vs-imported-diaper-brands-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">দেশি বনাম বিদেশি ব্র্যান্ড</a>
             </div>
           </div>
         </article>
