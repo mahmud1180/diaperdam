@@ -56,8 +56,10 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
-    # Match "40Pcs", "40pcs", "40p", etc.
-    m = re.search(r"(\d+)\s*(?:pcs|p)\b", name.lower())
+    # Match "40Pcs", "40pcs", "40p", and Shwapno's "4Pants" count style —
+    # "pants"/"pant" must be tried before the bare "p" alt or that alt
+    # would need a word boundary right after the "p" and never match.
+    m = re.search(r"(\d+)\s*(?:pcs|pants|pant|p)\b", name.lower())
     return int(m.group(1)) if m else None
 
 
@@ -76,7 +78,12 @@ def _extract_weights(name: str) -> tuple[float | None, float | None]:
 
 def _is_diaper(name: str) -> bool:
     n = name.lower()
-    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
+    # Shwapno's own diaper-category catalog (verified live 2026-07-24) lists
+    # pants-style diapers (Supermom, MamyPoko) without the literal word
+    # "diaper" in the name — e.g. "Supermom Super Pants M (6-12kg) 40Pcs".
+    # Both category endpoints (/baby-diapers, /diaper) are already scoped to
+    # diapers, so "pant(s)" is safe to accept here without a false-positive risk.
+    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies", "pant"])
 
 
 def _extract_category_id(client: httpx.Client, slug: str) -> str | None:
