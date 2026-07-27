@@ -263,6 +263,9 @@ export default async function BeltVsPantGuidePage() {
               <a href="/guide/diaper-rash-prevention" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 র‍্যাশ প্রতিরোধ গাইড
               </a>
+              <a href="/guide/belt-vs-pant-price-gap-by-brand" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                ব্র্যান্ড-ভিত্তিক দামের ফারাক
+              </a>
               <a href="/diapers" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 ব্র্যান্ড × সাইজ গ্রিড
               </a>
