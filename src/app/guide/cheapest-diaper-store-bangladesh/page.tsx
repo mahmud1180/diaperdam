@@ -276,6 +276,9 @@ export default async function CheapestStorePage() {
               <a href="/guide/diaper-pack-size-price-trap" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 প্যাক সাইজ ফাঁদ
               </a>
+              <a href="/guide/diaper-discount-frequency-by-store-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                প্রমোশনের ফ্রিকোয়েন্সি
+              </a>
               <a href="/guide/diaper-budget-monthly" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 মাসিক বাজেট গাইড
               </a>
