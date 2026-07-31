@@ -18,7 +18,7 @@ const ALL_URLS = [
   `https://${HOST}/price-index`,
   `https://${HOST}/deals`,
   // Guides
-  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention","belt-vs-pant-diaper","night-diaper","diaper-size-by-weight","best-diaper-brands-bangladesh","diaper-rash-treatment","diaper-count-per-day","cloth-vs-disposable-bangladesh","diaper-allergy-sensitive-skin","diaper-travel-tips","diaper-swimming","diaper-overnight-leak","diaper-budget-monthly","huggies-vs-pampers-bangladesh","diaper-size-transition-timing","mamypoko-vs-molfix-bangladesh","local-vs-imported-diaper-brands-bangladesh","diaper-pack-size-price-trap","cheapest-diaper-store-bangladesh","belt-vs-pant-price-gap-by-brand","diaper-discount-frequency-by-store-bangladesh"]
+  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention","belt-vs-pant-diaper","night-diaper","diaper-size-by-weight","best-diaper-brands-bangladesh","diaper-rash-treatment","diaper-count-per-day","cloth-vs-disposable-bangladesh","diaper-allergy-sensitive-skin","diaper-travel-tips","diaper-swimming","diaper-overnight-leak","diaper-budget-monthly","huggies-vs-pampers-bangladesh","diaper-size-transition-timing","mamypoko-vs-molfix-bangladesh","local-vs-imported-diaper-brands-bangladesh","diaper-pack-size-price-trap","cheapest-diaper-store-bangladesh","belt-vs-pant-price-gap-by-brand","diaper-discount-frequency-by-store-bangladesh","budget-local-diaper-brands-bangladesh"]
     .map(g => `https://${HOST}/guide/${g}`),
   // Brands
   ...["huggies","mamypoko","molfix","pampers","neocare","bashundhara","avonee","supermom","savlon"]
