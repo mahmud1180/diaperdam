@@ -290,6 +290,7 @@ export default async function BestDiaperBrandsPage() {
               <a href="/guide/mamypoko-vs-molfix-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">ম্যামিপোকো বনাম মলফিক্স</a>
               <a href="/guide/local-vs-imported-diaper-brands-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">দেশি বনাম বিদেশি ব্র্যান্ড</a>
               <a href="/guide/budget-local-diaper-brands-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">বাজেট দেশি ব্র্যান্ড তুলনা</a>
+              <a href="/guide/best-store-by-diaper-brand-bangladesh" className="text-slate-600 hover:underline bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl text-xs font-medium">ব্র্যান্ড অনুযায়ী সেরা দোকান</a>
             </div>
           </div>
         </article>
