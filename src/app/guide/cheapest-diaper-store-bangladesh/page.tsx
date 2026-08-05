@@ -276,6 +276,9 @@ export default async function CheapestStorePage() {
               <a href="/guide/best-store-by-diaper-brand-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 ব্র্যান্ড অনুযায়ী সেরা দোকান
               </a>
+              <a href="/guide/store-switching-savings-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                দোকান বদলে সাশ্রয়
+              </a>
               <a href="/guide/diaper-pack-size-price-trap" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 প্যাক সাইজ ফাঁদ
               </a>

@@ -41,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/guide/diaper-discount-frequency-by-store-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/budget-local-diaper-brands-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE}/guide/best-store-by-diaper-brand-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE}/guide/store-switching-savings-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     ...BRANDS.map(b => ({ url: `${BASE}/brand/${b}`,  lastModified: now, changeFrequency: "daily" as const, priority: 0.8 })),
     ...brandSizePages,
     ...SIZES.map(s  => ({ url: `${BASE}/size/${s}`,   lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),

@@ -284,6 +284,9 @@ export default async function BestStoreByBrandPage() {
               <a href="/guide/best-diaper-brands-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সেরা ডায়াপার ব্র্যান্ড
               </a>
+              <a href="/guide/store-switching-savings-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                দোকান বদলে সাশ্রয়
+              </a>
               <a href="/guide/diaper-discount-frequency-by-store-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 প্রমোশনের ফ্রিকোয়েন্সি
               </a>
