@@ -13,7 +13,7 @@ import sys
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper
+from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_baby_diaper
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -43,13 +43,14 @@ def _extract_size(name: str) -> str | None:
 
 def _extract_pack_qty(name: str) -> int | None:
     # "42 Piece", "36 count", "28+6=34", "50pcs"
+    # Bonus/tolerance forms are checked first — "48+2=50" and "30(+)10Pcs" both
+    # satisfy the plain "<N> Pcs" regex below with the wrong number.
+    combined = extract_combined_pack_qty(name)
+    if combined:
+        return combined
     m = re.search(r"(\d+)\s*(?:pcs|pieces?|pc|p|count)\b", name.lower())
     if m:
         return int(m.group(1))
-    # "28+6=34" pattern
-    m = re.search(r"(\d+)\+(\d+)\s*=\s*(\d+)", name)
-    if m:
-        return int(m.group(3))
     m = re.search(r"pack\s*(?:of\s*)?(\d+)", name.lower())
     return int(m.group(1)) if m else None
 
@@ -66,6 +67,8 @@ def _extract_weights(name: str) -> tuple[float | None, float | None]:
 
 def _is_diaper(name: str) -> bool:
     n = name.lower()
+    if not is_baby_diaper(n):
+        return False
     return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
 
 

@@ -12,7 +12,7 @@ import sys
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper
+from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_baby_diaper
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -36,6 +36,13 @@ SLUG_IDS = {
 }
 SLUGS = list(SLUG_IDS.keys())
 
+# Search covers what the shrunken category endpoints no longer list. Brand
+# terms are included because a plain "diaper" search caps out at ~82 hits.
+SEARCH_QUERIES = [
+    "diaper", "pants diaper", "huggies", "mamypoko", "pampers",
+    "molfix", "neocare", "supermom", "savlon", "avonee",
+]
+
 _ID_RE = re.compile(r"[?&]id=([a-f0-9]{24})")
 _HEX_ID = re.compile(r"[a-f0-9]{24}")
 
@@ -56,6 +63,11 @@ def _extract_size(name: str) -> str | None:
 
 
 def _extract_pack_qty(name: str) -> int | None:
+    # Bonus/tolerance notations first ("30(+)10Pcs", "32(±)2Pcs") — the plain
+    # regex below would otherwise return the bonus number as the pack size.
+    combined = extract_combined_pack_qty(name)
+    if combined:
+        return combined
     # Match "40Pcs", "40pcs", "40p", and Shwapno's "4Pants" count style —
     # "pants"/"pant" must be tried before the bare "p" alt or that alt
     # would need a word boundary right after the "p" and never match.
@@ -83,6 +95,10 @@ def _is_diaper(name: str) -> bool:
     # "diaper" in the name — e.g. "Supermom Super Pants M (6-12kg) 40Pcs".
     # Both category endpoints (/baby-diapers, /diaper) are already scoped to
     # diapers, so "pant(s)" is safe to accept here without a false-positive risk.
+    # The search endpoint is NOT scoped, so adult diapers and sanitary products
+    # have to be filtered out explicitly.
+    if not is_baby_diaper(n):
+        return False
     return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies", "pant"])
 
 
@@ -154,6 +170,41 @@ class ShwapnoScraper(BaseScraper):
 
                 if results:
                     break
+
+            # Category endpoints only expose a handful of SKUs (4 as of
+            # 2026-08-07, down from 28 in July) while site search still returns
+            # the full diaper catalogue, so search is the primary source now and
+            # the category call is the fallback.
+            for query in SEARCH_QUERIES:
+                page = 1
+                while page <= 5:
+                    url = f"{BASE}/api/search?q={query}&pageNumber={page}"
+                    try:
+                        r = client.get(url, headers=HEADERS_JSON, timeout=20)
+                        if r.status_code != 200:
+                            break
+                        data = r.json()
+                    except Exception as e:
+                        logger.warning(f"[shwapno] search '{query}' page {page}: {e}")
+                        break
+
+                    batch = data.get("products") or []
+                    if not batch:
+                        break
+
+                    for wrapper in batch:
+                        # Search wraps each hit as {"product": {...}}; the
+                        # category endpoint returns the product dict directly.
+                        raw = wrapper.get("product") or wrapper
+                        p = self._parse_product(raw)
+                        if p and p.external_id not in seen_ids:
+                            results.append(p)
+                            seen_ids.add(p.external_id)
+
+                    if page >= (data.get("totalPages") or 1):
+                        break
+                    page += 1
+                    await asyncio.sleep(0.3)
 
         logger.info(f"[shwapno] Scraped {len(results)} diaper products")
         return results

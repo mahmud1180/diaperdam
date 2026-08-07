@@ -3,6 +3,7 @@ import asyncio
 import logging
 import os
 import random
+import re
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -13,6 +14,43 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 DATABASE_URL = os.environ["DATABASE_URL"]
+
+# Cheapest real BDT/piece seen across stores is ~11; priciest imported ~90.
+# Anything outside this band is a pack-qty parse failure, not a real price.
+MIN_PRICE_PER_PIECE = 5.0
+MAX_PRICE_PER_PIECE = 150.0
+
+# Combined / bonus / tolerance pack notations, tried before a scraper's own
+# "<N> Pcs" regex — otherwise that regex grabs the *bonus* number:
+#   "30(+)10Pcs"      -> 40  (30 plus 10 free)
+#   "48+2=50"         -> 50  (store states the total)
+#   "-48+2(9-14kg)"   -> 50
+#   "32+4s (15-25kg)" -> 36
+#   "32(±)2Pcs"       -> 32  (tolerance, not a bonus — base qty only)
+_PACK_TOLERANCE = re.compile(r"(\d+)\s*\(\s*(?:±|\+/-|\+-)\s*\)\s*\d+")
+_PACK_TOTAL = re.compile(r"(\d+)\s*\+\s*(\d+)\s*=\s*(\d+)")
+_PACK_BONUS = re.compile(r"(\d+)\s*(?:\(\s*\+\s*\)|\+)\s*(\d+)\s*(?:s\b|pcs|pieces?|pc\b|\()")
+
+
+def extract_combined_pack_qty(name: str) -> int | None:
+    """Pack size for names that state a bonus/tolerance count. None if absent."""
+    n = name.lower()
+    m = _PACK_TOLERANCE.search(n)
+    if m:
+        return int(m.group(1))
+    m = _PACK_TOTAL.search(n)
+    if m:
+        return int(m.group(3))
+    m = _PACK_BONUS.search(n)
+    if m:
+        return int(m.group(1)) + int(m.group(2))
+    return None
+
+
+def is_baby_diaper(name: str) -> bool:
+    """False for adult diapers and sanitary products that match diaper keywords."""
+    n = name.lower()
+    return not any(w in n for w in ["adult", "sanitary napkin", "panty liner", "maternity pad"])
 
 
 @dataclass
@@ -55,6 +93,8 @@ class BaseScraper:
         now = datetime.now(timezone.utc)
         scraped = 0
         updated = 0
+        skipped = 0
+        kept_ids: list[str] = []
 
         # Log run start
         cur.execute(
@@ -73,7 +113,16 @@ class BaseScraper:
             store_id = row[0]
 
             for p in products:
+                ppp = p.price_bdt / p.pack_qty if p.pack_qty else 0
+                if not (MIN_PRICE_PER_PIECE <= ppp <= MAX_PRICE_PER_PIECE):
+                    skipped += 1
+                    logger.warning(
+                        f"[{self.store_slug}] implausible ৳{ppp:.2f}/pc "
+                        f"(৳{p.price_bdt} / {p.pack_qty}) — skipping {p.external_id}"
+                    )
+                    continue
                 scraped += 1
+                kept_ids.append(p.external_id)
                 discount_pct = p.discount_pct
                 if discount_pct is None and p.original_price_bdt and p.original_price_bdt > p.price_bdt:
                     discount_pct = round((1 - p.price_bdt / p.original_price_bdt) * 100, 1)
@@ -137,8 +186,10 @@ class BaseScraper:
                         VALUES (%s, %s, %s, %s)
                     """, (prod_id, p.price_bdt, round(p.price_bdt / p.pack_qty, 2), now))
 
-            # Mark products NOT seen this run as missed
-            seen_ids = [p.external_id for p in products]
+            # Mark products NOT seen this run as missed. Rows skipped by the
+            # plausibility guard count as unseen, so a listing that starts
+            # parsing badly ages out of the comparison instead of poisoning it.
+            seen_ids = kept_ids
             if seen_ids:
                 cur.execute("""
                     UPDATE diaper_products SET consecutive_misses = consecutive_misses + 1
@@ -156,7 +207,10 @@ class BaseScraper:
                 WHERE id=%s
             """, (datetime.now(timezone.utc), scraped, updated, log_id))
             conn.commit()
-            logger.info(f"[{self.store_slug}] Done: {scraped} scraped, {updated} new/updated")
+            logger.info(
+                f"[{self.store_slug}] Done: {scraped} scraped, {updated} new/updated"
+                + (f", {skipped} skipped (implausible ৳/pc)" if skipped else "")
+            )
 
         except Exception as e:
             conn.rollback()
