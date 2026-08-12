@@ -172,7 +172,7 @@ export default async function DiaperSizeChartPage() {
             </table>
           </div>
           <p className="text-xs text-slate-400 mb-6">
-            দাম প্রতিদিন বাংলাদেশের ১০টা দোকান থেকে টেনে আনা হয়, প্রতি পিস হিসেবে দেখানো। সাইজে ক্লিক করলে ওই সাইজের পুরো দাম-তুলনা।
+            দাম প্রতিদিন বাংলাদেশের ৬টা দোকান থেকে টেনে আনা হয়, প্রতি পিস হিসেবে দেখানো। সাইজে ক্লিক করলে ওই সাইজের পুরো দাম-তুলনা।
           </p>
 
           <h2 className="text-xl font-bold text-slate-900 mt-8 mb-3">কেন ওজন দেখবেন, বয়স নয়</h2>
@@ -205,7 +205,7 @@ export default async function DiaperSizeChartPage() {
 
           <h2 className="text-xl font-bold text-slate-900 mt-8 mb-3">সাইজ ধরে দাম দেখুন</h2>
           <p className="mb-3">
-            বাচ্চার ওজন জানলে সরাসরি ওই সাইজে যান। প্রতিটা পাতায় সব ব্র্যান্ড আর ১০ দোকানের দাম প্রতি পিস হিসেবে সাজানো।
+            বাচ্চার ওজন জানলে সরাসরি ওই সাইজে যান। প্রতিটা পাতায় সব ব্র্যান্ড আর ৬ দোকানের দাম প্রতি পিস হিসেবে সাজানো।
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-6">
             {SIZES.map(s => {

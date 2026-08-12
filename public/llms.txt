@@ -1,6 +1,6 @@
 # DiaperDam (ডায়াপারড্যাম)
 
-> DiaperDam is Bangladesh's baby-diaper price-comparison site. It tracks diaper prices across 11 brands and 10 Bangladeshi online stores (Chaldal, Daraz, Shwapno, Meena Bazar, GoBaby, Arogga, Othoba, Unimart, AjkerDeal, Paikaree), normalises every pack to a per-piece price in Bangladeshi Taka (BDT), and surfaces the cheapest option per brand and size. The site is Bangla-first and aimed at parents in Bangladesh.
+> DiaperDam is Bangladesh's baby-diaper price-comparison site. It tracks diaper prices across 11 brands and 6 Bangladeshi online stores (Daraz, Othoba, Shwapno, GoBaby, Meena Bazar, Chaldal), normalises every pack to a per-piece price in Bangladeshi Taka (BDT), and surfaces the cheapest option per brand and size. The site is Bangla-first and aimed at parents in Bangladesh.
 
 Prices are re-scraped from the stores daily and pages revalidate hourly, so quoted prices reflect the last 24 hours. Per-piece (প্রতি পিস) pricing is the core feature: a 40-pack and an 80-pack are compared fairly on cost per diaper, not pack price.
 

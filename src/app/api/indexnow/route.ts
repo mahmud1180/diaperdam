@@ -5,6 +5,7 @@
  * POST /api/indexnow         — ping specific URLs (body: { urls: string[] })
  */
 import { NextRequest, NextResponse } from "next/server";
+import { STORE_SLUGS } from "@/lib/catalog";
 
 const HOST = "diaperdam.com";
 const INDEXNOW_KEY = "c01d5d4facfef8f9321a7e832e485eba";
@@ -25,9 +26,9 @@ const ALL_URLS = [
     .map(b => `https://${HOST}/brand/${b}`),
   // Sizes
   ...["newborn","s","m","l","xl","xxl"].map(s => `https://${HOST}/size/${s}`),
-  // Stores
-  ...["chaldal","daraz","othoba","shwapno","arogga","ajkerdeal","gobaby","paikaree","meenabazar","unimart"]
-    .map(s => `https://${HOST}/store/${s}`),
+  // Stores — read from catalog.ts so this list cannot drift out of sync with
+  // the sitemap the way the hardcoded copy did (it kept four dead stores).
+  ...STORE_SLUGS.map(s => `https://${HOST}/store/${s}`),
 ];
 
 async function pingUrls(urls: string[]): Promise<{ ok: boolean; status: number; body: string }> {

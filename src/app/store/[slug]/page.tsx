@@ -13,15 +13,18 @@ export function generateStaticParams() {
   return STORE_SLUGS.map(slug => ({ slug }));
 }
 
+// 404 any slug outside STORE_SLUGS instead of rendering an empty store page.
+// The four dead stores dropped on 2026-08-12 were each serving a ~45KB shell
+// with the "no products yet" placeholder — thin pages we do not want crawled.
+export const dynamicParams = false;
+
 const STORE_META: Record<string, { name: string; nameBn: string; color: string; description: string }> = {
   chaldal:    { name: "Chaldal",     nameBn: "চালডাল",    color: "green",  description: "চালডালে ডায়াপারের দাম। Huggies, MamyPoko ও Molfix-এর দাম অন্য দোকানের সাথে তুলনা করুন।" },
   daraz:      { name: "Daraz",       nameBn: "দারাজ",     color: "orange", description: "দারাজে ডায়াপারের দাম। চালডাল ও অন্যান্য দোকানের তুলনায় দারাজে সবচেয়ে সস্তা বেবি ডায়াপার খুঁজুন।" },
   othoba:     { name: "Othoba",      nameBn: "অথবা",      color: "blue",   description: "অথবায় ডায়াপারের দাম। Huggies, MamyPoko ও Molfix অন্যান্য দোকানের সাথে তুলনা করুন।" },
   shwapno:    { name: "Shwapno",     nameBn: "স্বপ্ন",    color: "red",    description: "স্বপ্নে ডায়াপারের দাম। বাংলাদেশের সব বড় গ্রোসারি দোকান থেকে দাম তুলনা।" },
-  arogga:     { name: "Arogga",      nameBn: "আরোগ্য",    color: "purple", description: "আরোগ্যতে ডায়াপারের দাম। ফার্মেসি ও গ্রোসারি ডায়াপারের প্রতি পিস দাম তুলনা।" },
   meenabazar: { name: "Meena Bazar", nameBn: "মীনা বাজার", color: "teal",   description: "মীনা বাজারে ডায়াপারের দাম। Huggies ও MamyPoko-র দাম মীনা বাজারে তুলনা করুন।" },
   gobaby:     { name: "GoBaby",      nameBn: "GoBaby",    color: "sky",    description: "GoBaby-তে ডায়াপারের দাম। বেবি প্রোডাক্ট স্পেশালিস্ট দোকানে সব ব্র্যান্ডের দাম দেখুন।" },
-  unimart:    { name: "Unimart",     nameBn: "ইউনিমার্ট", color: "indigo", description: "ইউনিমার্টে ডায়াপারের দাম। অন্যান্য দোকানের তুলনায় ইউনিমার্টে সস্তা ডায়াপার খুঁজুন।" },
 };
 
 const KNOWN_BRANDS = [

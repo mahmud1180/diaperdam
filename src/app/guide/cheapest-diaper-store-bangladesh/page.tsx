@@ -6,7 +6,7 @@ import { BRAND_SLUGS } from "@/lib/catalog";
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "কোন দোকানে ডায়াপার সবচেয়ে সস্তা? ১০টা দোকানের লাইভ তুলনা",
+  title: "কোন দোকানে ডায়াপার সবচেয়ে সস্তা? ৬টা দোকানের লাইভ তুলনা",
   description:
     "চালডাল, দারাজ, স্বপ্ন, অথবা মীনা বাজার — কোন দোকান আজ সবচেয়ে বেশিবার সবচেয়ে সস্তা দাম দিচ্ছে তা আমাদের ডেটা দিয়ে দেখুন। কোনো একটা দোকানে লয়্যাল থাকলে কত টাকা মিস হতে পারে।",
   alternates: { canonical: "https://diaperdam.com/guide/cheapest-diaper-store-bangladesh" },
@@ -144,7 +144,7 @@ export default async function CheapestStorePage() {
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: "কোন দোকানে ডায়াপার সবচেয়ে সস্তা? ১০টা দোকানের লাইভ তুলনা",
+    headline: "কোন দোকানে ডায়াপার সবচেয়ে সস্তা? ৬টা দোকানের লাইভ তুলনা",
     inLanguage: "bn",
     datePublished: today,
     dateModified: today,
