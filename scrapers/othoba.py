@@ -21,7 +21,13 @@ import re
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_baby_diaper
+from base import (
+    BaseScraper,
+    ScrapedDiaper,
+    extract_combined_pack_qty,
+    is_diaper_name,
+    strip_gift_clause,
+)
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -61,12 +67,11 @@ _NOT_A_DISPOSABLE = ("cloth", "reusable", "washable", "insert", "wipe", "changin
 
 
 def _is_diaper(name: str) -> bool:
-    n = name.lower()
-    if not is_baby_diaper(n):
+    # Checked on the gift-stripped name so a "(Free Wipes)" bundle isn't read
+    # as a wipes product.
+    if any(w in strip_gift_clause(name) for w in _NOT_A_DISPOSABLE):
         return False
-    if any(w in n for w in _NOT_A_DISPOSABLE):
-        return False
-    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
+    return is_diaper_name(name)
 
 
 def _extract_pack_qty(name: str) -> int | None:

@@ -12,7 +12,7 @@ import sys
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_baby_diaper
+from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_diaper_name
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -97,9 +97,7 @@ def _is_diaper(name: str) -> bool:
     # diapers, so "pant(s)" is safe to accept here without a false-positive risk.
     # The search endpoint is NOT scoped, so adult diapers and sanitary products
     # have to be filtered out explicitly.
-    if not is_baby_diaper(n):
-        return False
-    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies", "pant"])
+    return is_diaper_name(name, extra_words=("pant",))
 
 
 def _extract_category_id(client: httpx.Client, slug: str) -> str | None:

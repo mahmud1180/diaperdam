@@ -13,7 +13,7 @@ import sys
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_baby_diaper
+from base import BaseScraper, ScrapedDiaper, extract_combined_pack_qty, is_diaper_name
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -66,10 +66,7 @@ def _extract_weights(name: str) -> tuple[float | None, float | None]:
 
 
 def _is_diaper(name: str) -> bool:
-    n = name.lower()
-    if not is_baby_diaper(n):
-        return False
-    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
+    return is_diaper_name(name)
 
 
 class DarazScraper(BaseScraper):

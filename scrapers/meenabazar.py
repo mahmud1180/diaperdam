@@ -10,7 +10,7 @@ import sys
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper
+from base import BaseScraper, ScrapedDiaper, is_diaper_name
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -67,8 +67,7 @@ def _extract_weights(name: str) -> tuple[float | None, float | None]:
 
 
 def _is_diaper(name: str) -> bool:
-    n = name.lower()
-    return any(w in n for w in ["diaper", "diapers", "diapant", "nappy", "nappies"])
+    return is_diaper_name(name)
 
 
 def _post_page(client: httpx.Client, subcat_id: int, start: int) -> list[dict]:

@@ -10,7 +10,7 @@ from urllib.parse import quote
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper
+from base import BaseScraper, ScrapedDiaper, is_diaper_name
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -80,10 +80,12 @@ def _extract_weights(name: str) -> tuple[float | None, float | None]:
 
 
 def _is_diaper(name: str) -> bool:
-    """Filter to only actual diaper products."""
-    n = name.lower()
-    diaper_words = ["diaper", "diapers", "diapant", "pant", "nappy", "nappies"]
-    return any(w in n for w in diaper_words)
+    """Filter to only actual diaper products.
+
+    The search is unscoped (a 'bashundhara diaper' query returns toilet tissue
+    and A4 paper), so nothing here may rely on the endpoint being clean.
+    """
+    return is_diaper_name(name, extra_words=("pant",))
 
 
 def _fetch_page(client: httpx.Client, query: str, page: int, page_size: int = 50) -> dict:

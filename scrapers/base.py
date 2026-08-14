@@ -53,6 +53,60 @@ def is_baby_diaper(name: str) -> bool:
     return not any(w in n for w in ["adult", "sanitary napkin", "panty liner", "maternity pad"])
 
 
+# Every store's catalog carries diapers whose name never says "diaper" —
+# "Pampers Baby Dry 8 Jumbo Plus Belt 17+ kg 52 pcs" is the same miss that hid
+# Shwapno's pants-type stock until 2026-07-24. Word lists alone can't see those,
+# so a known diaper brand plus a diaper-shaped name is accepted as a second
+# route. The brand gate is what keeps the looser rules from letting groceries in.
+_ACCESSORY_WORDS = (
+    "wipe", "tissue", "towel", "napkin", "paper", "rim", "cream", "lotion",
+    "soap", "shampoo", "powder", "paste", "freshener", "detergent", "flour",
+    "atta", "changing mat", "potty", "bin bag", "feeder", "bottle",
+)
+_DIAPER_WORDS = ("diaper", "diapers", "diapant", "nappy", "nappies")
+_FORM_WORDS = ("belt", "pant", "pants")
+_WEIGHT_SPAN = re.compile(
+    r"\d+(?:\.\d+)?\s*[-–]\s*\d+(?:\.\d+)?\s*kg"
+    r"|\d+(?:\.\d+)?\s*\+\s*kg"
+    r"|(?:over|above|up\s+to)\s+\d+(?:\.\d+)?\s*kg"
+)
+_PIECE_COUNT = re.compile(r"\d+\s*(?:pcs|pieces?|pc\b)")
+
+# Diapers are routinely sold with a freebie named in the title —
+# "NeoCare Baby Diaper Belt XL (Free Parachute Lotion) 50 pcs". The gift is an
+# accessory; the product is not. Drop the clause before any accessory check, or
+# the veto throws away real in-stock diapers.
+_GIFT_CLAUSE = re.compile(r"\(\s*(?:with\s+)?free\b[^)]*\)|\bfree\s+\d*\s*(?:pcs\s+)?[a-z ]+$")
+
+
+def strip_gift_clause(name: str) -> str:
+    """Name with any 'free <gift>' bundle clause removed."""
+    return _GIFT_CLAUSE.sub(" ", name.lower()).strip()
+
+
+def is_diaper_name(name: str, extra_words: tuple[str, ...] = ()) -> bool:
+    """True when a product name describes a baby disposable diaper.
+
+    extra_words lets a store widen the accepted vocabulary when its endpoint is
+    already scoped to diapers (Shwapno's category feeds say "Pants", not
+    "Diaper"). Passing them here keeps that store's existing behaviour intact.
+    """
+    from brands import extract_brand
+
+    if not is_baby_diaper(name):
+        return False
+    n = strip_gift_clause(name)
+    if any(w in n for w in _ACCESSORY_WORDS):
+        return False
+    if any(w in n for w in _DIAPER_WORDS + extra_words):
+        return True
+    if not extract_brand(n):
+        return False
+    if any(w in n for w in _FORM_WORDS):
+        return True
+    return bool(_WEIGHT_SPAN.search(n) and _PIECE_COUNT.search(n))
+
+
 @dataclass
 class ScrapedDiaper:
     external_id: str

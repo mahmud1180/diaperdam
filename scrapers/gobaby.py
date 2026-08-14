@@ -5,7 +5,7 @@ import logging
 import re
 import sys
 import httpx
-from base import BaseScraper, ScrapedDiaper
+from base import BaseScraper, ScrapedDiaper, is_diaper_name
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def _size(name):
         return {"LARGE":"L","MEDIUM":"M","SMALL":"S"}.get(s, s)
     return None
 
-def _is_diaper(n): return any(w in n.lower() for w in ["diaper","diapers","nappy"])
+def _is_diaper(n): return is_diaper_name(n)
 
 class GoBabyScraper(BaseScraper):
     store_slug = "gobaby"
