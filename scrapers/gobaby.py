@@ -5,7 +5,13 @@ import logging
 import re
 import sys
 import httpx
-from base import BaseScraper, ScrapedDiaper, is_diaper_name
+from base import (
+    BaseScraper,
+    ScrapedDiaper,
+    extract_weights,
+    is_diaper_name,
+    size_label_for,
+)
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -19,15 +25,6 @@ HEADERS = {
 def _qty(name):
     m = re.search(r"(\d+)\s*(?:pcs|pieces|pc|p)\b", name.lower())
     return int(m.group(1)) if m else None
-
-def _size(name):
-    n = name.lower()
-    if "newborn" in n or "new born" in n: return "Newborn"
-    m = re.search(r"\b(xxl|xl|large|medium|small|[sml])\b", n)
-    if m:
-        s = m.group(1).upper()
-        return {"LARGE":"L","MEDIUM":"M","SMALL":"S"}.get(s, s)
-    return None
 
 def _is_diaper(n): return is_diaper_name(n)
 
@@ -87,6 +84,7 @@ class GoBabyScraper(BaseScraper):
             if price <= 0: return None
             qty = _qty(name)
             if not qty: return None
+            w_min, w_max = extract_weights(name)
             brand_result = extract_brand(name)
             if not brand_result: return None
             b, bs = brand_result
@@ -97,7 +95,8 @@ class GoBabyScraper(BaseScraper):
             return ScrapedDiaper(
                 external_id=f"gb-{eid}", brand=b, brand_slug=bs,
                 type="pants" if "pant" in name.lower() else "belt",
-                size_label=_size(name), pack_qty=qty,
+                size_label=size_label_for(name, w_min, w_max),
+                weight_min_kg=w_min, weight_max_kg=w_max, pack_qty=qty,
                 image_url=(item.get("images") or [{}])[0].get("src"),
                 product_url=item.get("permalink"),
                 price_bdt=price, original_price_bdt=original,
@@ -114,13 +113,15 @@ class GoBabyScraper(BaseScraper):
             if price <= 0: return None
             qty = _qty(name)
             if not qty: return None
+            w_min, w_max = extract_weights(name)
             brand_result = extract_brand(name)
             if not brand_result: return None
             b, bs = brand_result
             return ScrapedDiaper(
                 external_id=f"gb-{name[:20]}", brand=b, brand_slug=bs,
                 type="pants" if "pant" in name.lower() else "belt",
-                size_label=_size(name), pack_qty=qty,
+                size_label=size_label_for(name, w_min, w_max),
+                weight_min_kg=w_min, weight_max_kg=w_max, pack_qty=qty,
                 image_url=item.get("image"), product_url=item.get("url"),
                 price_bdt=price)
         except: return None

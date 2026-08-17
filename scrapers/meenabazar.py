@@ -10,7 +10,13 @@ import sys
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper, is_diaper_name
+from base import (
+    BaseScraper,
+    ScrapedDiaper,
+    extract_weights,
+    is_diaper_name,
+    size_label_for,
+)
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -36,15 +42,6 @@ def _extract_type(name: str) -> str:
     return "pants" if "pant" in name.lower() else "belt"
 
 
-def _extract_size(name: str) -> str | None:
-    n = name.lower()
-    if "new born" in n or "newborn" in n:
-        return "Newborn"
-    m = re.search(r"\b(xxl|xl|large|medium|small|[sml])\b", n)
-    if m:
-        s = m.group(1).upper()
-        return {"LARGE": "L", "MEDIUM": "M", "SMALL": "S"}.get(s, s)
-    return None
 
 
 def _extract_pack_qty(name: str) -> int | None:
@@ -53,17 +50,6 @@ def _extract_pack_qty(name: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def _extract_weights(name: str) -> tuple[float | None, float | None]:
-    m = re.search(r"(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*kg", name.lower())
-    if m:
-        return float(m.group(1)), float(m.group(2))
-    m = re.search(r"up\s+to\s+(\d+(?:\.\d+)?)\s*kg", name.lower())
-    if m:
-        return None, float(m.group(1))
-    m = re.search(r"(\d+)\+?\s*kg", name.lower())
-    if m:
-        return float(m.group(1)), None
-    return None, None
 
 
 def _is_diaper(name: str) -> bool:
@@ -160,7 +146,7 @@ class MeenaBazarScraper(BaseScraper):
             if not brand_result:
                 return None
             brand, brand_slug = brand_result
-            w_min, w_max = _extract_weights(name)
+            w_min, w_max = extract_weights(name)
 
             image = raw.get("ImageUrl") or ""
             if image and not image.startswith("http"):
@@ -173,7 +159,7 @@ class MeenaBazarScraper(BaseScraper):
                 external_id=f"mb-{item_id}",
                 brand=brand, brand_slug=brand_slug,
                 type=_extract_type(name),
-                size_label=_extract_size(name),
+                size_label=size_label_for(name, w_min, w_max),
                 weight_min_kg=w_min, weight_max_kg=w_max,
                 pack_qty=pack_qty,
                 image_url=image or None,

@@ -107,6 +107,166 @@ def is_diaper_name(name: str, extra_words: tuple[str, ...] = ()) -> bool:
     return bool(_WEIGHT_SPAN.search(n) and _PIECE_COUNT.search(n))
 
 
+# ---------------------------------------------------------------------------
+# Size labelling
+#
+# Every store shipped its own near-identical `_extract_size`, all of which only
+# understood BD letter sizes. That left 90 of 682 available SKUs (13%) with no
+# size — invisible to /size/[size] and to every brand×size page, which is the
+# core of the site. The misses are not random: they are the two catalogues that
+# don't use letters at all.
+#
+#   1. European numbering (Pampers "Baby Dry 8", Molfix "4 Maxi", "3 Midi").
+#      A manufacturer-fixed convention, so it maps more reliably than weight.
+#   2. XXXL, which BD brands sell but the site taxonomy stops at XXL.
+#
+# The site's own chart has deliberately overlapping bands (S 3-7, M 5-13,
+# L 10-16) because cut differs by brand, so weight is the last resort, keyed on
+# the lower bound — that is what the stores' own declared labels agree on most.
+_SIZE_ALIASES = {
+    "3XL": "XXL", "XXXL": "XXL", "2XL": "XXL", "XXL": "XXL", "XL": "XL",
+    "L": "L", "M": "M", "S": "S",
+    "LARGE": "L", "MEDIUM": "M", "SMALL": "S",
+}
+# Pampers sells its newborn line as "New Baby", which no store's own filter saw.
+_NEWBORN = re.compile(r"\bnew\s*born\b|\bnew\s+baby\b|\bnb\d?\b")
+_NEWBORN_AS_BOUND = re.compile(r"\b(?:new\s*born|nb)\s*[-–]\s*\d+(?:\.\d+)?\s*kg")
+_SPELLED_XXL = re.compile(r"\b(?:double|triple)\s+extra\s+large\b")
+_SPELLED_XL = re.compile(r"\bextra\s+large\b")
+# "2XL"/"3XL" have no word boundary before the "xl", so they need their own
+# alternative or they fall through to the weight route and only look correct.
+# Split from the bare letters because precedence differs — see size_label_for.
+_EXPLICIT_SIZE = re.compile(r"\b(3xl|2xl|xxxl|xxl|xl)\b")
+_BARE_SIZE = re.compile(r"\b(large|medium|small|[sml])\b")
+
+# European size number → BD letter. Pampers and Molfix number identically for
+# the ranges they share, and the table agrees with the majority of the labels
+# the stores themselves declare (Molfix "4 Maxi" 9-14kg is L in 66 live rows;
+# "5" at 12-17kg is XL in 37 rows against 5 that say L).
+_EU_SIZE = {1: "Newborn", 2: "S", 3: "M", 4: "L", 5: "XL", 6: "XXL", 7: "XXL", 8: "XXL"}
+_EU_LINE_WORDS = {"mini": 2, "midi": 3, "maxi": 4, "junior": 5}
+# A bare digit is a pack count far more often than a size, so the number is only
+# read when something anchors it: the word "size", the brand name, or the line
+# word it belongs to. "Aiwibi ... 22 pcs" must not become size 2.
+_EU_ANCHORED = re.compile(
+    r"\bsize\s*[-:# ]?\s*(\d)\b"
+    r"|\b(?:pampers|molfix|huggies)\s+(?:[a-z]+\s+){0,2}?(\d)\b"
+    r"|\b(\d)\s*(?:mini|midi|maxi|junior)\b"
+    r"|\b(?:mini|midi|maxi|junior)\s*(\d)\b"
+)
+_EU_LINE = re.compile(r"\b(mini|midi|maxi|junior)\b")
+
+
+# "6 to 11kg" is as common as "6-11kg" on Daraz and Othoba. Without the word
+# form the range misses, the open-ended route below then reads the *upper*
+# number as the minimum, and a 6-11kg pack is stored as starting at 11.
+_WEIGHT_RANGE = re.compile(
+    r"(\d+(?:\.\d+)?)\s*(?:[-–]|to)\s*(\d+(?:\.\d+)?)\s*kg"
+)
+_WEIGHT_UP_TO = re.compile(r"up\s*to\s*(\d+(?:\.\d+)?)\s*kg")
+_WEIGHT_FROM = re.compile(r"(\d+(?:\.\d+)?)\s*\+?\s*kg")
+
+
+def extract_weights(name: str) -> tuple[float | None, float | None]:
+    """(min, max) kg stated in a listing name. Either side may be None.
+
+    Five stores carried a copy of this; Daraz's was missing the open-ended
+    "17+ kg" route and so returned nothing for the whole Pampers Baby Dry line.
+    """
+    n = name.lower()
+    m = _WEIGHT_RANGE.search(n)
+    if m:
+        return float(m.group(1)), float(m.group(2))
+    m = _WEIGHT_UP_TO.search(n)
+    if m:
+        return None, float(m.group(1))
+    m = _WEIGHT_FROM.search(n)
+    if m:
+        return float(m.group(1)), None
+    return None, None
+
+
+def _size_from_abbrev(n: str) -> str | None:
+    """XL and up, in whichever form the store printed it.
+
+    An abbreviation beats the spelled-out phrase, because a listing carrying
+    both means the abbreviation — Avonee's "Pants Extra Large XXL 14-25kg" is
+    a XXL pack whose line is called Extra Large. Both beat the bare letters
+    below, or the "large" inside "Extra Large" reads as L; that alone had 12
+    XL and XXL packs filed under L, MamyPoko's whole 12-17kg range among them.
+    """
+    m = _EXPLICIT_SIZE.search(n)
+    if m:
+        return _SIZE_ALIASES[m.group(1).upper()]
+    if _SPELLED_XXL.search(n):
+        return "XXL"
+    return "XL" if _SPELLED_XL.search(n) else None
+
+
+def _size_from_bare_letter(n: str) -> str | None:
+    m = _BARE_SIZE.search(n)
+    return _SIZE_ALIASES.get(m.group(1).upper()) if m else None
+
+
+def _size_from_eu_number(n: str) -> str | None:
+    m = _EU_ANCHORED.search(n)
+    if m:
+        num = int(next(g for g in m.groups() if g))
+        if num in _EU_SIZE:
+            return _EU_SIZE[num]
+    m = _EU_LINE.search(n)
+    return _EU_SIZE[_EU_LINE_WORDS[m.group(1)]] if m else None
+
+
+def _size_from_weight(w_min: float | None, w_max: float | None) -> str | None:
+    """BD letter for a weight range, keyed on the lower bound.
+
+    Upper-bound-only names ("up to 5 kg") are newborn packs; a lower bound of
+    zero means the same. Everything else steps through the bands the stores'
+    declared labels cluster on.
+    """
+    if w_min is None:
+        return "Newborn" if w_max is not None and w_max <= 6 else None
+    if w_min < 3:
+        return "Newborn"
+    if w_min < 4:
+        return "S"
+    if w_min < 6:
+        return "S" if (w_max or 0) <= 8 else "M"
+    if w_min < 9:
+        return "M"
+    if w_min < 12:
+        return "L"
+    if w_min < 14:
+        return "XL"
+    return "XXL"
+
+
+def size_label_for(
+    name: str, weight_min: float | None = None, weight_max: float | None = None
+) -> str | None:
+    """BD size letter for a listing, or None when nothing in the name says.
+
+    Tried in order of how much the source actually commits to: an explicit
+    letter, then the European size number, then the weight range.
+    """
+    n = name.lower()
+    abbrev = _size_from_abbrev(n)
+    if abbrev:
+        return abbrev
+    # "NB-8 kg" says where the pack's weight range starts, so the letter beside
+    # it is the actual size — Supermom's "S Size NB-8 kg" is its S pack. A
+    # newborn word standing on its own is the size, even when the store glosses
+    # it: Huggies sells its newborn tape as "Airsoft SJP Newborn (Small)".
+    if _NEWBORN.search(n) and not _NEWBORN_AS_BOUND.search(n):
+        return "Newborn"
+    return (
+        _size_from_bare_letter(n)
+        or _size_from_eu_number(n)
+        or _size_from_weight(weight_min, weight_max)
+    )
+
+
 @dataclass
 class ScrapedDiaper:
     external_id: str

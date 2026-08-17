@@ -10,7 +10,13 @@ from urllib.parse import quote
 
 import httpx
 
-from base import BaseScraper, ScrapedDiaper, is_diaper_name
+from base import (
+    BaseScraper,
+    ScrapedDiaper,
+    extract_weights,
+    is_diaper_name,
+    size_label_for,
+)
 from brands import extract_brand
 
 logger = logging.getLogger(__name__)
@@ -50,15 +56,6 @@ def _extract_type(name: str) -> str:
     return "belt"
 
 
-def _extract_size(name: str) -> str | None:
-    n = name.lower()
-    if "new born" in n or "newborn" in n or "nb" in n:
-        return "Newborn"
-    m = re.search(r"\b(xxl|xl|large|medium|small|[sml])\b", n)
-    if m:
-        s = m.group(1).upper()
-        return {"LARGE": "L", "MEDIUM": "M", "SMALL": "S"}.get(s, s)
-    return None
 
 
 def _extract_pack_qty(name: str) -> int | None:
@@ -66,17 +63,6 @@ def _extract_pack_qty(name: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def _extract_weights(name: str) -> tuple[float | None, float | None]:
-    m = re.search(r"(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*kg", name.lower())
-    if m:
-        return float(m.group(1)), float(m.group(2))
-    m = re.search(r"up\s+to\s+(\d+(?:\.\d+)?)\s*kg", name.lower())
-    if m:
-        return None, float(m.group(1))
-    m = re.search(r"(\d+)\+?\s*kg", name.lower())
-    if m:
-        return float(m.group(1)), None
-    return None, None
 
 
 def _is_diaper(name: str) -> bool:
@@ -202,8 +188,8 @@ class ChaldalScraper(BaseScraper):
                 return None
             brand, brand_slug = brand_result
             diaper_type = _extract_type(name)
-            size_label = _extract_size(name)
-            w_min, w_max = _extract_weights(name)
+            w_min, w_max = extract_weights(name)
+            size_label = size_label_for(name, w_min, w_max)
 
             # Image
             pics = hit.get("picturesUrls") or []

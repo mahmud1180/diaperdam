@@ -25,7 +25,9 @@ from base import (
     BaseScraper,
     ScrapedDiaper,
     extract_combined_pack_qty,
+    extract_weights,
     is_diaper_name,
+    size_label_for,
     strip_gift_clause,
 )
 from brands import extract_brand
@@ -85,35 +87,8 @@ def _extract_pack_qty(name: str) -> int | None:
     return int(m.group(1)) if m else None
 
 
-def _extract_size(name: str) -> str | None:
-    n = name.lower()
-    if "newborn" in n or "new born" in n:
-        return "Newborn"
-    # Othoba spells the bigger sizes out ("Extra Large", "Double Extra Large"),
-    # and a bare `large` alternative would match those as L.
-    if re.search(r"\bdouble\s+extra\s+large\b", n):
-        return "XXL"
-    if re.search(r"\bextra\s+large\b", n):
-        return "XL"
-    m = re.search(r"\b(xxxl|xxl|xl|large|medium|small|[sml])\b", n)
-    if m:
-        s = m.group(1).upper()
-        return {"LARGE": "L", "MEDIUM": "M", "SMALL": "S", "XXXL": "XXL"}.get(s, s)
-    return None
 
 
-def _extract_weights(name: str) -> tuple[float | None, float | None]:
-    n = name.lower()
-    m = re.search(r"(\d+(?:\.\d+)?)\s*[-–]\s*(\d+(?:\.\d+)?)\s*kg", n)
-    if m:
-        return float(m.group(1)), float(m.group(2))
-    m = re.search(r"up\s*to\s*(\d+(?:\.\d+)?)\s*kg", n)
-    if m:
-        return None, float(m.group(1))
-    m = re.search(r"(\d+(?:\.\d+)?)\s*\+\s*kg", n)
-    if m:
-        return float(m.group(1)), None
-    return None, None
 
 
 def _parse_cards(html_text: str) -> list[tuple[str, str, str | None]]:
@@ -167,12 +142,12 @@ class OthobaScraper(BaseScraper):
                 continue
             price_bdt, old_price, image_url = price
             original = old_price if old_price and old_price > price_bdt else None
-            w_min, w_max = _extract_weights(name)
+            w_min, w_max = extract_weights(name)
             results.append(ScrapedDiaper(
                 external_id=f"ot-{pid}",
                 brand=brand, brand_slug=brand_slug,
                 type="pants" if "pant" in name.lower() else "belt",
-                size_label=_extract_size(name),
+                size_label=size_label_for(name, w_min, w_max),
                 weight_min_kg=w_min, weight_max_kg=w_max,
                 pack_qty=pack_qty,
                 image_url=image_url,
