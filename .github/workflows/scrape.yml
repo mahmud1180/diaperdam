@@ -133,3 +133,14 @@ jobs:
             -H "x-revalidate-token: ${{ secrets.REVALIDATE_TOKEN }}" \
             --fail --silent
         continue-on-error: true
+
+      # Last, and deliberately after revalidation: good rows should still reach
+      # the site on a day one store breaks. This step is the alert — the Action
+      # goes red, and the daily agent's `gh run list` health check sees it.
+      - name: Per-store data health gate
+        if: always()
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd scrapers
+          python health_check.py

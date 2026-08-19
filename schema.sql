@@ -68,6 +68,19 @@ CREATE TABLE IF NOT EXISTS scrape_log (
   status TEXT DEFAULT 'running'  -- 'running' | 'success' | 'error'
 );
 
+-- Per-store data-health snapshots, one row per store per scrape run.
+-- Feeds the DROP check in scrapers/health_check.py: four stores have silently
+-- under-collected while the daily Action still reported SUCCESS, and a
+-- point-in-time query cannot tell a bad scrape from a quiet day.
+CREATE TABLE IF NOT EXISTS store_health_snapshots (
+  id SERIAL PRIMARY KEY,
+  store_slug TEXT NOT NULL,
+  available_count INTEGER NOT NULL,
+  total_count INTEGER NOT NULL,
+  last_scraped_at TIMESTAMPTZ,
+  recorded_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_products_brand_slug ON diaper_products(brand_slug);
 CREATE INDEX IF NOT EXISTS idx_products_size_label ON diaper_products(size_label);
@@ -75,6 +88,7 @@ CREATE INDEX IF NOT EXISTS idx_products_type ON diaper_products(type);
 CREATE INDEX IF NOT EXISTS idx_products_price_per_piece ON diaper_products(price_per_piece) WHERE is_available = TRUE;
 CREATE INDEX IF NOT EXISTS idx_products_store ON diaper_products(store_id);
 CREATE INDEX IF NOT EXISTS idx_price_history_product ON price_history(product_id, scraped_at DESC);
+CREATE INDEX IF NOT EXISTS idx_health_store_time ON store_health_snapshots(store_slug, recorded_at DESC);
 
 -- Seed stores
 INSERT INTO stores (slug, name, base_url) VALUES
