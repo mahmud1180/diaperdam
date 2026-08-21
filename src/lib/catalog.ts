@@ -38,3 +38,39 @@ export const STORE_SLUGS = [
   "meenabazar",
   "gobaby",
 ] as const;
+
+// Every /guide/ page, in publish order. Kept here rather than in sitemap.ts
+// because sitemap.ts and api/indexnow/route.ts each used to hold their own
+// copy of this list, and each copy drifted: the IndexNow brand list was still
+// at 9 brands after aiwibi and happy-nappy were added, and its store list kept
+// four dead stores for months. Both files now derive from this file, so a new
+// guide reaches the sitemap and Bing by being added once, here.
+export const GUIDE_SLUGS = [
+  "newborn-diaper-size",
+  "diaper-size-chart",
+  "diaper-rash-prevention",
+  "belt-vs-pant-diaper",
+  "night-diaper",
+  "diaper-size-by-weight",
+  "best-diaper-brands-bangladesh",
+  "diaper-rash-treatment",
+  "diaper-count-per-day",
+  "cloth-vs-disposable-bangladesh",
+  "diaper-allergy-sensitive-skin",
+  "diaper-travel-tips",
+  "diaper-swimming",
+  "diaper-overnight-leak",
+  "diaper-budget-monthly",
+  "huggies-vs-pampers-bangladesh",
+  "diaper-size-transition-timing",
+  "mamypoko-vs-molfix-bangladesh",
+  "local-vs-imported-diaper-brands-bangladesh",
+  "diaper-pack-size-price-trap",
+  "cheapest-diaper-store-bangladesh",
+  "belt-vs-pant-price-gap-by-brand",
+  "diaper-discount-frequency-by-store-bangladesh",
+  "budget-local-diaper-brands-bangladesh",
+  "best-store-by-diaper-brand-bangladesh",
+  "store-switching-savings-bangladesh",
+  "brand-size-availability-bangladesh",
+] as const;

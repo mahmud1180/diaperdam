@@ -5,27 +5,28 @@
  * POST /api/indexnow         — ping specific URLs (body: { urls: string[] })
  */
 import { NextRequest, NextResponse } from "next/server";
-import { STORE_SLUGS } from "@/lib/catalog";
+import { STORE_SLUGS, BRAND_SLUGS, SIZE_SLUGS, GUIDE_SLUGS } from "@/lib/catalog";
 
 const HOST = "diaperdam.com";
 const INDEXNOW_KEY = "c01d5d4facfef8f9321a7e832e485eba";
 const KEY_LOCATION = `https://${HOST}/${INDEXNOW_KEY}.txt`;
 const BING_ENDPOINT = "https://www.bing.com/indexnow";
 
-// All URLs we want indexed — mirrors sitemap.ts
+// All URLs we want indexed. Every list is derived from catalog.ts, the same
+// source sitemap.ts reads, so the two cannot drift apart. They did twice: the
+// store list kept four dead stores after 2026-08-12, and the brand list sat at
+// 9 after aiwibi and happy-nappy were added, so both were silently unpinged.
 const ALL_URLS = [
   `https://${HOST}/`,
   `https://${HOST}/diapers`,
   `https://${HOST}/price-index`,
   `https://${HOST}/deals`,
   // Guides
-  ...["newborn-diaper-size","diaper-size-chart","diaper-rash-prevention","belt-vs-pant-diaper","night-diaper","diaper-size-by-weight","best-diaper-brands-bangladesh","diaper-rash-treatment","diaper-count-per-day","cloth-vs-disposable-bangladesh","diaper-allergy-sensitive-skin","diaper-travel-tips","diaper-swimming","diaper-overnight-leak","diaper-budget-monthly","huggies-vs-pampers-bangladesh","diaper-size-transition-timing","mamypoko-vs-molfix-bangladesh","local-vs-imported-diaper-brands-bangladesh","diaper-pack-size-price-trap","cheapest-diaper-store-bangladesh","belt-vs-pant-price-gap-by-brand","diaper-discount-frequency-by-store-bangladesh","budget-local-diaper-brands-bangladesh","best-store-by-diaper-brand-bangladesh","store-switching-savings-bangladesh"]
-    .map(g => `https://${HOST}/guide/${g}`),
+  ...GUIDE_SLUGS.map(g => `https://${HOST}/guide/${g}`),
   // Brands
-  ...["huggies","mamypoko","molfix","pampers","neocare","bashundhara","avonee","supermom","savlon"]
-    .map(b => `https://${HOST}/brand/${b}`),
+  ...BRAND_SLUGS.map(b => `https://${HOST}/brand/${b}`),
   // Sizes
-  ...["newborn","s","m","l","xl","xxl"].map(s => `https://${HOST}/size/${s}`),
+  ...SIZE_SLUGS.map(s => `https://${HOST}/size/${s}`),
   // Stores — read from catalog.ts so this list cannot drift out of sync with
   // the sitemap the way the hardcoded copy did (it kept four dead stores).
   ...STORE_SLUGS.map(s => `https://${HOST}/store/${s}`),

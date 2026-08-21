@@ -228,6 +228,9 @@ export default async function DiaperSizeTransitionPage() {
 
           <div className="pt-4 border-t border-slate-100 text-sm">
             <div className="flex flex-wrap gap-2">
+              <a href="/guide/brand-size-availability-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                ব্র্যান্ড অনুযায়ী সাইজ কভারেজ
+              </a>
               <a href="/guide/diaper-size-by-weight" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সাইজ চার্ট গাইড
               </a>

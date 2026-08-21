@@ -250,6 +250,9 @@ export default async function DiapersizeByWeightPage() {
           {/* Cross-links */}
           <div className="pt-4 border-t border-slate-100 text-sm">
             <div className="flex flex-wrap gap-2">
+              <a href="/guide/brand-size-availability-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                ব্র্যান্ড অনুযায়ী সাইজ কভারেজ
+              </a>
               <a href="/guide/diaper-size-transition-timing" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 সাইজ ট্রানজিশন টাইমিং গাইড
               </a>

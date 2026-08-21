@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { BRAND_SLUGS as BRANDS, SIZE_SLUGS as SIZES, STORE_SLUGS as STORES } from "@/lib/catalog";
+import { BRAND_SLUGS as BRANDS, SIZE_SLUGS as SIZES, STORE_SLUGS as STORES, GUIDE_SLUGS as GUIDES } from "@/lib/catalog";
 
 const BASE = "https://diaperdam.com";
 
@@ -16,32 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/diapers`,  lastModified: now, changeFrequency: "daily",   priority: 0.9 },
     { url: `${BASE}/price-index`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/deals`,       lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/guide/newborn-diaper-size`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-size-chart`,   lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-rash-prevention`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/belt-vs-pant-diaper`,    lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/night-diaper`,           lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-size-by-weight`,  lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/best-diaper-brands-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-rash-treatment`,              lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-count-per-day`,               lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/cloth-vs-disposable-bangladesh`,     lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-allergy-sensitive-skin`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-travel-tips`,                 lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-swimming`,                    lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-overnight-leak`,              lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-budget-monthly`,              lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/huggies-vs-pampers-bangladesh`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-size-transition-timing`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/mamypoko-vs-molfix-bangladesh`,      lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/local-vs-imported-diaper-brands-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-pack-size-price-trap`,        lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/cheapest-diaper-store-bangladesh`,   lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/belt-vs-pant-price-gap-by-brand`,    lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/diaper-discount-frequency-by-store-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/budget-local-diaper-brands-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/best-store-by-diaper-brand-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE}/guide/store-switching-savings-bangladesh`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    ...GUIDES.map(g => ({ url: `${BASE}/guide/${g}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 })),
     ...BRANDS.map(b => ({ url: `${BASE}/brand/${b}`,  lastModified: now, changeFrequency: "daily" as const, priority: 0.8 })),
     ...brandSizePages,
     ...SIZES.map(s  => ({ url: `${BASE}/size/${s}`,   lastModified: now, changeFrequency: "daily" as const, priority: 0.7 })),

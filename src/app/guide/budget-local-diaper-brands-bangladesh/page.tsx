@@ -233,6 +233,9 @@ export default async function BudgetLocalBrandsPage() {
 
           <div className="pt-4 border-t border-slate-100 text-sm">
             <div className="flex flex-wrap gap-2">
+              <a href="/guide/brand-size-availability-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                ব্র্যান্ড অনুযায়ী সাইজ কভারেজ
+              </a>
               <a href="/guide/local-vs-imported-diaper-brands-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 দেশি বনাম বিদেশি ব্র্যান্ড
               </a>
