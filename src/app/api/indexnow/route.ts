@@ -25,6 +25,13 @@ const ALL_URLS = [
   ...GUIDE_SLUGS.map(g => `https://${HOST}/guide/${g}`),
   // Brands
   ...BRAND_SLUGS.map(b => `https://${HOST}/brand/${b}`),
+  // Brand x size — the longest-tail pages on the site and the ones that match
+  // queries like "হাগিস L সাইজ দাম". sitemap.ts has emitted all 72 of these
+  // since launch; this file never listed them, so not one had ever been
+  // submitted to Bing until 2026-08-24. The comment above about the lists
+  // deriving from catalog.ts was true and still missed an entire route, so
+  // check this file against sitemap.ts route-by-route, not list-by-list.
+  ...BRAND_SLUGS.flatMap(b => SIZE_SLUGS.map(s => `https://${HOST}/brand/${b}/size/${s}`)),
   // Sizes
   ...SIZE_SLUGS.map(s => `https://${HOST}/size/${s}`),
   // Stores — read from catalog.ts so this list cannot drift out of sync with
