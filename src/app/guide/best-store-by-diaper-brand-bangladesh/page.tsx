@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getBrandProducts } from "@/lib/db";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS } from "@/lib/catalog";
+import { brandNameBn } from "@/lib/brands";
 
 export const revalidate = 3600;
 
@@ -10,20 +11,6 @@ export const metadata: Metadata = {
   description:
     "Pampers, Huggies, MamyPoko, Molfix সহ প্রতিটা ব্র্যান্ডের জন্য কোন দোকানে সবচেয়ে বেশিবার সস্তা দাম মেলে, আমাদের লাইভ ডেটা থেকে ব্র্যান্ড-বাই-ব্র্যান্ড তালিকা।",
   alternates: { canonical: "https://diaperdam.com/guide/best-store-by-diaper-brand-bangladesh" },
-};
-
-const BRAND_NAME_BN: Record<string, string> = {
-  pampers: "প্যাম্পারস",
-  huggies: "হাগিস",
-  mamypoko: "ম্যামিপোকো",
-  molfix: "মলফিক্স",
-  bashundhara: "বসুন্ধরা",
-  neocare: "নিওকেয়ার",
-  supermom: "সুপারমম",
-  savlon: "স্যাভলন",
-  avonee: "অ্যাভোনি",
-  aiwibi: "আইউইবি",
-  "happy-nappy": "হ্যাপি ন্যাপি",
 };
 
 const STORE_NAME_BN: Record<string, string> = {
@@ -115,7 +102,7 @@ export default async function BestStoreByBrandPage() {
 
     rows.push({
       slug,
-      name: BRAND_NAME_BN[slug] ?? slug,
+      name: brandNameBn(slug),
       topStore: STORE_NAME_BN[topSlug] ?? topSlug,
       topStoreSlug: topSlug,
       topWins,

@@ -40,6 +40,17 @@ export function brandInfo(slug: string): BrandInfo {
   );
 }
 
+// Bengali-only name, for prose and table cells that are already fully Bengali
+// and would read badly with a parenthesised Latin form. Two guides each kept a
+// private BRAND_NAME_BN copy of this until 2026-08-24; both had stalled at 11
+// brands, so adding kidstar to BRAND_SLUGS made those pages print the raw slug
+// "kidstar" in the middle of Bengali tables. Same drift class as the sitemap /
+// IndexNow brand lists (fixed 2026-08-21) — fourth occurrence. Import this,
+// never re-declare a brand-name map in a page file.
+export function brandNameBn(slug: string): string {
+  return brandInfo(slug).nameBn;
+}
+
 // Bengali-led dual-script label, e.g. "হাগিস (Huggies)". Collapses to a single
 // token when no distinct Bengali form exists, so unknown brands read cleanly.
 export function brandLabel(slug: string): string {

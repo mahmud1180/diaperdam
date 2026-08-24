@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getBrandProducts } from "@/lib/db";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS } from "@/lib/catalog";
+import { brandNameBn } from "@/lib/brands";
 
 export const revalidate = 3600;
 
@@ -10,20 +11,6 @@ export const metadata: Metadata = {
   description:
     "নবজাতক থেকে XXL পর্যন্ত প্রতিটা ব্র্যান্ড কোন কোন সাইজে আসলে স্টকে আছে, আর কোন সাইজে গিয়ে অপশন কমে যায়, ৬টা অনলাইন দোকানের আজকের ডেটা থেকে।",
   alternates: { canonical: "https://diaperdam.com/guide/brand-size-availability-bangladesh" },
-};
-
-const BRAND_NAME_BN: Record<string, string> = {
-  pampers: "প্যাম্পারস",
-  huggies: "হাগিস",
-  mamypoko: "ম্যামিপোকো",
-  molfix: "মলফিক্স",
-  bashundhara: "বসুন্ধরা",
-  neocare: "নিওকেয়ার",
-  supermom: "সুপারমম",
-  savlon: "স্যাভলন",
-  avonee: "অ্যাভোনি",
-  aiwibi: "আইউইবি",
-  "happy-nappy": "হ্যাপি ন্যাপি",
 };
 
 const SIZES = ["Newborn", "S", "M", "L", "XL", "XXL"] as const;
@@ -154,7 +141,7 @@ export default async function BrandSizeAvailabilityPage() {
 
     brandRows.push({
       slug,
-      name: BRAND_NAME_BN[slug] ?? slug,
+      name: brandNameBn(slug),
       bySize,
       missing: SIZES.filter(s => !bySize.has(s)),
       totalSkus: items.length,
