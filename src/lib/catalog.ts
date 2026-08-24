@@ -14,6 +14,23 @@ export const BRAND_SLUGS = [
   "savlon",
   "aiwibi",
   "happy-nappy",
+  // PRAN's local budget line. Added 2026-08-24: it had 34 available SKUs across
+  // 4 stores in all 6 sizes — more coverage than bashundhara (14) or aiwibi (9),
+  // both already listed — yet was absent here, so /brand/kidstar rendered live
+  // and was linked from the homepage and /diapers while being invisible to the
+  // sitemap, IndexNow and every guide that iterates this list.
+  //
+  // Bar for adding a brand: real cross-store presence (>=2 stores) and enough
+  // sizes that the brand x size pages aren't empty. Still off-list and why:
+  //   kidz     — 11 SKUs / 4 stores / 5 sizes, a genuine German import at
+  //              32-62 BDT/pc (prices re-verified 2026-08-24, not a pack_qty
+  //              bug). Qualifies; held back only to keep the daily new-URL
+  //              count sane. Add it next.
+  //   chuchu   — 16 SKUs but Othoba-only, so no comparison to show
+  //   mumlove  — 10 SKUs, Othoba-only
+  //   momotaro — 8 SKUs, single store
+  //   smc-smile / kinder / nannys — 3 / 2 / 1 SKUs, thin on a <12mo domain
+  "kidstar",
 ] as const;
 
 export const SIZE_SLUGS = ["newborn", "s", "m", "l", "xl", "xxl"] as const;
