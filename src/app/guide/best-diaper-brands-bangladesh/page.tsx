@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCheapestByBrand } from "@/lib/db";
 import { BRAND_SLUGS } from "@/lib/catalog";
+import { brandInfo } from "@/lib/brands";
 
 export const revalidate = 3600;
 
@@ -23,6 +24,7 @@ const BRAND_INFO: Record<string, {
   huggies:     { name: "Huggies",     nameBn: "হাগিস",       origin: "আমেরিকা (Kimberly)", type: "প্যান্ট",          verdict: "Dry Pants বাংলাদেশে সবচেয়ে পরিচিত বিদেশি ব্র্যান্ড। লিক প্রোটেকশন ভালো, দাম Pampers-এর কাছাকাছি।", bestFor: "দৈনন্দিন ব্যবহার (বিদেশি ব্র্যান্ড)" },
   mamypoko:    { name: "MamyPoko",    nameBn: "ম্যামিপোকো", origin: "জাপান (Unicharm)",   type: "প্যান্ট",          verdict: "আঁটসাঁট ফিট, সরু ওয়েস্টব্যান্ড। যারা প্যান্ট ডায়াপারে লিক নিয়ে ঝামেলায় পড়েন তাদের পছন্দের ব্র্যান্ড।", bestFor: "চটপটে বাচ্চা (৬ মাস+)" },
   molfix:      { name: "Molfix",      nameBn: "মলফিক্স",    origin: "তুরস্ক",             type: "বেল্ট + প্যান্ট", verdict: "বিদেশি ব্র্যান্ডগুলোর মধ্যে প্রতি পিসে সবচেয়ে সস্তা। আকার নম্বরে লেখা (1-5), অক্ষর নয়।", bestFor: "বাজেটে বিদেশি ব্র্যান্ড চাইলে" },
+  kidstar:     { name: "Kidstar",     nameBn: "কিডস্টার",    origin: "বাংলাদেশ (PRAN)",   type: "বেল্ট + প্যান্ট", verdict: "PRAN-এর ডায়াপার লাইন। দেশি ব্র্যান্ডগুলোর বেশিরভাগ শুধু বেল্ট বানায়, Kidstar প্রায় প্রতি সাইজেই বেল্ট আর প্যান্ট দুটোই রাখে। L ধরে ৯-১৮ কেজি, XL ১২-২৫ — রেঞ্জ চৌড়া বলে এক প্যাকে অনেকদিন যায়।", bestFor: "দেশি ব্র্যান্ডে প্যান্ট চাইলে" },
   bashundhara: { name: "Bashundhara", nameBn: "বসুন্ধরা",   origin: "বাংলাদেশ",           type: "বেল্ট",           verdict: "দেশি ব্র্যান্ডে সবচেয়ে সস্তা প্রতি পিস। XL রেঞ্জ ১১-২৫ কেজি, মানে একটা প্যাকেই অনেকদিন চলে। দিনের ব্যবহারে ঠিক আছে।", bestFor: "বাজেট সেভিং + বড় সাইজ" },
   neocare:     { name: "Neocare",     nameBn: "নিওকেয়ার",   origin: "বাংলাদেশ",           type: "বেল্ট",           verdict: "দেশি ব্র্যান্ডে মান একটু ভালো। L সাইজের রেঞ্জ ৭-১৮ কেজি, তাই সাইজ বদলানোর ঝামেলা কম।", bestFor: "মিড-রেঞ্জ দেশি বিকল্প" },
   supermom:    { name: "Supermom",    nameBn: "সুপারমম",    origin: "বাংলাদেশ (Square)",   type: "বেল্ট + প্যান্ট", verdict: "Square Toiletries-এর ব্র্যান্ড। মান স্থিতিশীল, দামও মাঝামাঝি। বাংলাদেশের মায়েদের মধ্যে ভালো সুনাম আছে।", bestFor: "দেশি ব্র্যান্ডে ভরসা চাইলে" },
@@ -279,7 +281,7 @@ export default async function BestDiaperBrandsPage() {
                     href={`/brand/${slug}`}
                     className="text-emerald-700 hover:underline bg-emerald-50 border border-emerald-100 hover:border-emerald-300 px-3 py-1.5 rounded-xl text-xs font-medium transition-colors"
                   >
-                    {info?.name ?? slug}
+                    {info?.name ?? brandInfo(slug).name}
                   </a>
                 );
               })}
