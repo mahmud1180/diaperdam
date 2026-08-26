@@ -22,6 +22,7 @@ export const BRANDS: Record<string, BrandInfo> = {
   "happy-nappy": { name: "Happy Nappy", nameBn: "হ্যাপি ন্যাপি", description: "বাংলাদেশে Fresh Happy Nappy ডায়াপারের দাম। বাজেট বেল্ট ডায়াপার চালডাল ও অন্যান্য দোকানে তুলনা।" },
   kinder:      { name: "Kinder",      nameBn: "কিন্ডার",    description: "বাংলাদেশে Kinder ডায়াপারের দাম। প্যান্ট ও বেল্ট ডায়াপার সব দোকান থেকে প্রতি পিস দামে তুলনা করুন।" },
   kidstar:     { name: "Kidstar",     nameBn: "কিডস্টার",   description: "বাংলাদেশে PRAN Kidstar ডায়াপারের দাম — বেল্ট ও প্যান্ট দুই ধরনই, নবজাতক থেকে XXL পর্যন্ত। ওথোবা, চালডাল, দারাজ ও মীনা বাজারের দাম প্রতি পিস হিসেবে তুলনা করুন।" },
+  kidz:        { name: "Kidz",        nameBn: "কিডজ",       description: "বাংলাদেশে Kidz ডায়াপারের দাম — জার্মানিতে তৈরি, বেল্ট ও প্যান্ট দুই ধরনই। চালডাল, দারাজ, গোবেবি ও ওথোবার দাম প্রতি পিস হিসেবে তুলনা করুন।" },
   goon:        { name: "Goon",        nameBn: "গুন",        description: "বাংলাদেশে Goon জাপানি ডায়াপারের দাম সব দোকানে তুলনা করুন।" },
   merries:     { name: "Merries",     nameBn: "মেরিজ",      description: "বাংলাদেশে Merries জাপানি প্রিমিয়াম ডায়াপারের দাম তুলনা করুন।" },
   chuchu:      { name: "Chu Chu",     nameBn: "চুচু",       description: "বাংলাদেশে Chu Chu ডায়াপারের দাম সব দোকানে তুলনা করুন।" },

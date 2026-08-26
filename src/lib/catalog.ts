@@ -22,15 +22,15 @@ export const BRAND_SLUGS = [
   //
   // Bar for adding a brand: real cross-store presence (>=2 stores) and enough
   // sizes that the brand x size pages aren't empty. Still off-list and why:
-  //   kidz     — 11 SKUs / 4 stores / 5 sizes, a genuine German import at
-  //              32-62 BDT/pc (prices re-verified 2026-08-24, not a pack_qty
-  //              bug). Qualifies; held back only to keep the daily new-URL
-  //              count sane. Add it next.
   //   chuchu   — 16 SKUs but Othoba-only, so no comparison to show
   //   mumlove  — 10 SKUs, Othoba-only
   //   momotaro — 8 SKUs, single store
   //   smc-smile / kinder / nannys — 3 / 2 / 1 SKUs, thin on a <12mo domain
   "kidstar",
+  // German import (Othoba listings say "made-in-germany"). Added 2026-08-26:
+  // 12 SKUs / 4 stores (chaldal, daraz, gobaby, othoba) / 5 sizes (Newborn,
+  // M, L, XL, XXL — no S), 32-62 BDT/pc, re-verified live against the DB.
+  "kidz",
 ] as const;
 
 export const SIZE_SLUGS = ["newborn", "s", "m", "l", "xl", "xxl"] as const;
