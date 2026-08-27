@@ -4,6 +4,7 @@ import DiapersClient from "@/components/DiapersClient";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS, SIZE_SLUGS } from "@/lib/catalog";
 import { brandInfo, brandLabel } from "@/lib/brands";
+import { productImage, productDescription, schemaProducts } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -60,13 +61,15 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
     "name": `${b.nameBn} সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ`,
     "url": `https://diaperdam.com/brand/${slug}/size/${size}`,
     "numberOfItems": products.length,
-    "itemListElement": products.slice(0, 20).map((p, i) => ({
+    "itemListElement": schemaProducts(products, 20).map((p, i) => ({
       "@type": "ListItem",
       "position": i + 1,
       "item": {
         "@type": "Product",
         "name": `${p.brand} ${p.line ?? ""} ${s.label} ${p.pack_qty}pcs`.trim(),
         "brand": { "@type": "Brand", "name": p.brand },
+        "description": productDescription(p),
+        ...(productImage(p) ? { "image": productImage(p) } : {}),
         "offers": {
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),

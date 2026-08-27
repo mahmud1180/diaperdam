@@ -3,6 +3,7 @@ import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_ORDER, STORE_COLORS } from "@/lib/utils";
 import { STORE_SLUGS } from "@/lib/catalog";
+import { productImage, productDescription, schemaProducts } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -86,13 +87,15 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     "description": meta.description,
     "url": `https://diaperdam.com/store/${slug}`,
     "numberOfItems": products.length,
-    "itemListElement": products.slice(0, 50).map((p, i) => ({
+    "itemListElement": schemaProducts(products, 50).map((p, i) => ({
       "@type": "ListItem",
       "position": i + 1,
       "item": {
         "@type": "Product",
         "name": [p.brand, p.line, p.size_label, `${p.pack_qty}pcs`].filter(Boolean).join(" "),
         "brand": { "@type": "Brand", "name": p.brand },
+        "description": productDescription(p),
+        ...(productImage(p) ? { "image": productImage(p) } : {}),
         "offers": {
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),

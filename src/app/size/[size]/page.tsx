@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_SLUGS } from "@/lib/catalog";
+import { productImage, productDescription, schemaProducts } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -45,13 +46,15 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
     "description": `বাংলাদেশের সব দোকানে সাইজ ${s.label} (${s.weightBn}) ডায়াপারের দাম তুলনা।`,
     "url": `https://diaperdam.com/size/${size}`,
     "numberOfItems": products.length,
-    "itemListElement": products.slice(0, 10).map((p, i) => ({
+    "itemListElement": schemaProducts(products, 10).map((p, i) => ({
       "@type": "ListItem",
       "position": i + 1,
       "item": {
         "@type": "Product",
         "name": `${p.brand} ${p.line ?? ""} Size ${s.label} ${p.pack_qty}pcs`.trim(),
         "brand": { "@type": "Brand", "name": p.brand },
+        "description": productDescription(p),
+        ...(productImage(p) ? { "image": productImage(p) } : {}),
         "offers": {
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
