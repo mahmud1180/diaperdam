@@ -90,4 +90,5 @@ export const GUIDE_SLUGS = [
   "best-store-by-diaper-brand-bangladesh",
   "store-switching-savings-bangladesh",
   "brand-size-availability-bangladesh",
+  "pack-size-trap-by-brand-bangladesh",
 ] as const;

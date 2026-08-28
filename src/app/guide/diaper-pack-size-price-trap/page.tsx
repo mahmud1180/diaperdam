@@ -279,6 +279,9 @@ export default async function PackSizeTrapPage() {
 
           <div className="pt-4 border-t border-slate-100 text-sm">
             <div className="flex flex-wrap gap-2">
+              <a href="/guide/pack-size-trap-by-brand-bangladesh" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
+                ব্র্যান্ড অনুযায়ী ঝুঁকির তালিকা
+              </a>
               <a href="/guide/diaper-budget-monthly" className="text-emerald-700 hover:underline bg-emerald-50 px-3 py-1 rounded-full text-xs font-medium">
                 মাসিক বাজেট গাইড
               </a>
