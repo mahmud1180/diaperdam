@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCheapestByBrand, getLastScrapedAt, getActiveDeals } from "@/lib/db";
+import { GUIDES } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,6 +15,26 @@ const BRANDS = [
   { slug: "supermom",    name: "Supermom",    flag: "🇧🇩", origin: "বাংলাদেশ" },
   { slug: "avonee",      name: "Avonee",      flag: "🇧🇩", origin: "বাংলাদেশ" },
 ];
+
+// Six guides linked straight from the homepage rather than only via /guide, so
+// the highest-demand ones are one hop from the page Google fetches daily. Every
+// one of these six read "URL is unknown to Google" on 2026-09-01; the two guides
+// that already rank (diaper-size-chart, newborn-diaper-size) are deliberately
+// not here — they do not need the link.
+const HOME_GUIDE_SLUGS = [
+  "huggies-vs-pampers-bangladesh",
+  "diaper-size-by-weight",
+  "cheapest-diaper-store-bangladesh",
+  "diaper-budget-monthly",
+  "diaper-rash-treatment",
+  "mamypoko-vs-molfix-bangladesh",
+];
+
+const HOME_GUIDES = HOME_GUIDE_SLUGS.map(s => {
+  const g = GUIDES.find(x => x.slug === s);
+  if (!g) throw new Error(`HOME_GUIDE_SLUGS: no guide "${s}" in GUIDES`);
+  return g;
+});
 
 const websiteSchema = {
   "@context": "https://schema.org",
@@ -301,6 +322,36 @@ export default async function HomePage() {
               className={`border font-semibold text-sm px-4 py-2 rounded-full transition-opacity hover:opacity-80 ${s.color}`}
             >
               {s.name}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── GUIDES ───
+           These pages carried no inbound link from anywhere on the site until
+           2026-09-01, and GSC reported 23 of the 28 as "URL is unknown to
+           Google", never crawled, despite years in the sitemap. The homepage is
+           the page Google fetches daily, so the crawl path starts here. */}
+      <section className="max-w-6xl mx-auto px-4 pb-12">
+        <div className="flex items-baseline justify-between mb-4">
+          <h2 className="text-2xl font-bold text-slate-900">ডায়াপার গাইড</h2>
+          <Link href="/guide" className="text-sm font-semibold text-emerald-600 hover:text-emerald-700">
+            সবগুলো গাইড
+          </Link>
+        </div>
+        <p className="text-slate-600 leading-relaxed mb-5">
+          সাইজ ঠিক না হলে রাতে লিক হয়, লিক ঠেকাতে বড় প্যাক কিনলে প্রতি-পিস দাম বাড়ে। নিচের গাইডগুলোয়
+          সেই হিসাবগুলো আজকের দাম ধরে করা।
+        </p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {HOME_GUIDES.map(g => (
+            <Link
+              key={g.slug}
+              href={`/guide/${g.slug}`}
+              className="block bg-white border border-slate-100 rounded-2xl p-4 hover:border-emerald-200"
+            >
+              <span className="font-semibold text-emerald-700">{g.label}</span>
+              <span className="block text-sm text-slate-500 mt-1">{g.blurb}</span>
             </Link>
           ))}
         </div>

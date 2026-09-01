@@ -22,6 +22,7 @@ const ALL_URLS = [
   `https://${HOST}/price-index`,
   `https://${HOST}/deals`,
   // Guides
+  `https://${HOST}/guide`,
   ...GUIDE_SLUGS.map(g => `https://${HOST}/guide/${g}`),
   // Brands
   ...BRAND_SLUGS.map(b => `https://${HOST}/brand/${b}`),

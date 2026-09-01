@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/diapers`,  lastModified: now, changeFrequency: "daily",   priority: 0.9 },
     { url: `${BASE}/price-index`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE}/deals`,       lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/guide`,       lastModified: now, changeFrequency: "weekly",  priority: 0.8 },
     ...GUIDES.map(g => ({ url: `${BASE}/guide/${g}`, lastModified: now, changeFrequency: "weekly" as const, priority: 0.8 })),
     ...BRANDS.map(b => ({ url: `${BASE}/brand/${b}`,  lastModified: now, changeFrequency: "daily" as const, priority: 0.8 })),
     ...brandSizePages,
