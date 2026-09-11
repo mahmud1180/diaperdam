@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_SLUGS } from "@/lib/catalog";
-import { productImage, productDescription, schemaProducts } from "@/lib/schema";
+import { productImage, productDescription, schemaProducts, priceValidUntil } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -37,7 +37,6 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
   const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), labelBn: size.toUpperCase(), weight: "", weightBn: "" };
   const products = await getAllProducts({ size_label: s.label, sort: "price_per_piece" }).catch(() => []);
 
-  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -59,7 +58,7 @@ export default async function SizePage({ params }: { params: Promise<{ size: str
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
-          "priceValidUntil": priceValidUntil,
+          "priceValidUntil": priceValidUntil(),
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/size/${size}`,
           "seller": { "@type": "Organization", "name": p.store_name },

@@ -3,7 +3,7 @@ import { getAllProducts } from "@/lib/db";
 import DiapersClient from "@/components/DiapersClient";
 import { SIZE_ORDER, STORE_COLORS } from "@/lib/utils";
 import { STORE_SLUGS } from "@/lib/catalog";
-import { productImage, productDescription, schemaProducts } from "@/lib/schema";
+import { productImage, productDescription, schemaProducts, priceValidUntil } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -78,7 +78,6 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
     })
     .filter(Boolean) as { size: string; cheapest: (typeof products)[0] }[];
 
-  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -100,7 +99,7 @@ export default async function StorePage({ params }: { params: Promise<{ slug: st
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
-          "priceValidUntil": priceValidUntil,
+          "priceValidUntil": priceValidUntil(),
           "availability": "https://schema.org/InStock",
           "seller": { "@type": "Organization", "name": meta.name },
           ...(p.product_url ? { "url": p.product_url } : {}),

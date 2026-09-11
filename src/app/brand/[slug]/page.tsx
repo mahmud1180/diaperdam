@@ -5,7 +5,7 @@ import { SIZE_ORDER } from "@/lib/utils";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS } from "@/lib/catalog";
 import { brandInfo, brandLabel } from "@/lib/brands";
-import { productImage, productDescription, schemaProducts } from "@/lib/schema";
+import { productImage, productDescription, schemaProducts, priceValidUntil } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -49,9 +49,6 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
     })
     .filter(Boolean) as { size: string; cheapest: DiaperProduct }[];
 
-  // Offers without an expiry get flagged by Google + ignored by AI shopping
-  // surfaces; prices refresh daily so a 48h validity window is honest.
-  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   // JSON-LD structured data
   const itemListSchema = {
@@ -73,7 +70,7 @@ export default async function BrandPage({ params }: { params: Promise<{ slug: st
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
-          "priceValidUntil": priceValidUntil,
+          "priceValidUntil": priceValidUntil(),
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/brand/${slug}`,
           "seller": { "@type": "Organization", "name": p.store_name },

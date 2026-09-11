@@ -55,3 +55,28 @@ export function productDescription(p: DiaperProduct): string {
   parts.push(`${p.store_name}-এ ৳${Number(p.price_bdt).toFixed(0)}`);
   return parts.join(", ");
 }
+
+/**
+ * Offer price-validity horizon.
+ *
+ * This was `Date.now() + 48h` in all four ItemList routes, on the theory that
+ * the pages ISR often enough to keep the end of the window in the future. That
+ * reasoning uses the wrong clock: what matters is Google's *crawl* interval,
+ * not our revalidate interval. Once the crawled copy is older than the window,
+ * every offer in it reads as expired and the merchant listing lapses.
+ *
+ * Measured 2026-09-11 via the URL Inspection API — `lastCrawlTime` on the four
+ * biggest listing pages: /brand/bashundhara 2026-07-04, /brand/neocare
+ * 2026-07-02, /size/m 2026-08-07, /brand/pampers 2026-08-25. Median crawl age
+ * ~5 weeks, worst 10 weeks. A 48-hour window survives none of it.
+ *
+ * 365 days is still honest: it is the horizon over which we commit to
+ * *republishing* a price, not a promise the number never moves. The scrape runs
+ * daily and the rendered page always carries the current price; the field only
+ * tells Google when to stop trusting a cached copy.
+ *
+ * Same fix as voordly (2026-09-09), same mechanism, same evidence shape.
+ */
+export function priceValidUntil(): string {
+  return new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+}

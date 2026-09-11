@@ -4,7 +4,7 @@ import DiapersClient from "@/components/DiapersClient";
 import type { DiaperProduct } from "@/lib/db";
 import { BRAND_SLUGS, SIZE_SLUGS } from "@/lib/catalog";
 import { brandInfo, brandLabel } from "@/lib/brands";
-import { productImage, productDescription, schemaProducts } from "@/lib/schema";
+import { productImage, productDescription, schemaProducts, priceValidUntil } from "@/lib/schema";
 
 export const revalidate = 3600;
 
@@ -52,7 +52,6 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
   const products = await getAllProducts({ brand_slug: slug, size_label: s.label, sort: "price_per_piece" })
     .catch(() => [] as DiaperProduct[]);
 
-  const priceValidUntil = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   // JSON-LD
   const itemListSchema = {
@@ -74,7 +73,7 @@ export default async function BrandSizePage({ params }: { params: Promise<PagePa
           "@type": "Offer",
           "price": Number(p.price_bdt).toFixed(2),
           "priceCurrency": "BDT",
-          "priceValidUntil": priceValidUntil,
+          "priceValidUntil": priceValidUntil(),
           "availability": "https://schema.org/InStock",
           "url": p.product_url ?? `https://diaperdam.com/brand/${slug}/size/${size}`,
           "seller": { "@type": "Organization", "name": p.store_name },
