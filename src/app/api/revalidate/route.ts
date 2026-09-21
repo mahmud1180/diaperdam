@@ -18,10 +18,14 @@ export async function POST(req: NextRequest) {
   revalidatePath("/size/[size]", "page");
   revalidatePath("/store/[slug]", "page");
 
+  // The sitemap carries MAX(last_scraped_at) as the lastmod for every price
+  // page, so it is stale the moment a scrape lands and has to be busted too.
+  revalidatePath("/sitemap.xml");
+
   // Guides render live price tables too, so they go stale after a scrape the
   // same way the listing pages do. Each guide is its own static route, so they
   // are read off the sitemap rather than hand-listed here and forgotten.
-  const guidePaths = sitemap()
+  const guidePaths = (await sitemap())
     .map(entry => new URL(entry.url).pathname)
     .filter(path => path.startsWith("/guide/"));
   guidePaths.forEach(path => revalidatePath(path));
