@@ -25,8 +25,10 @@ const SIZE_META: Record<string, { label: string; labelBn: string; weight: string
 export async function generateMetadata({ params }: { params: Promise<{ size: string }> }): Promise<Metadata> {
   const { size } = await params;
   const s = SIZE_META[size.toLowerCase()] ?? { label: size.toUpperCase(), labelBn: size.toUpperCase(), weight: "", weightBn: "" };
+  // Newborn searches are typed in Bangla script ("নিউবর্ন ডায়াপার"), so lead with that spelling.
+  const titleLabel = size.toLowerCase() === "newborn" ? "নিউবর্ন (Newborn)" : `সাইজ ${s.label}`;
   return {
-    title: `সাইজ ${s.label} ডায়াপার দাম বাংলাদেশ ${s.weightBn} — আজকের সবচেয়ে সস্তা`,
+    title: `${titleLabel} ডায়াপার দাম বাংলাদেশ ${s.weightBn} — আজকের সবচেয়ে সস্তা`,
     description: `বাংলাদেশে সাইজ ${s.label} (${s.weightBn}) ডায়াপারের সবচেয়ে কম দাম খুঁজুন। Huggies, MamyPoko, Molfix সহ সব ব্র্যান্ড চালডাল, দারাজ, স্বপ্ন থেকে প্রতি পিস দাম তুলনা।`,
     alternates: { canonical: `https://diaperdam.com/size/${size}` },
   };
